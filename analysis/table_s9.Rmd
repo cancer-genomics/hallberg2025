@@ -1,0 +1,69 @@
+---
+title: "Table S9: Gene fusions from WGS"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(magrittr)
+library(hallberg2025.base)
+library(hallberg2025.seq.data)
+outdir <- here("docs", "table", "table_s9.Rmd")
+fs::dir_create(outdir)
+data(manifest, package="hallberg2025.base")
+```
+
+```{r tidy.data}
+fus <- wgs_fusion_table() %>%
+    set_colnames(tolower(colnames(.))) %>%
+    set_colnames(str_replace_all(colnames(.), " ", ".")) %>%
+    rename(lab_id = sample)
+man <- select(manifest, subject_id, lab_id)
+fus01 <- inner_join(fus, man, by="lab_id") %>%
+    select(-subject_id)
+```
+
+```{r fusions}
+fus2 <- left_join(fus01, man, by="lab_id") %>%
+    select(subject_id, lab_id, gene.5prime, gene.3prime,
+           tx.5prime, tx.3prime,
+           junction.5prime, junction.3prime,
+           exons.5prime, exons.3prime,
+           rearrangement.id,
+           aa.5, aa.3)
+cnms <- c("Subject id", "Lab id",
+          "Gene 5'", "Gene 3'",
+          "Tx 5'", "Tx 3'",
+          "Junction 5'", "Junction 3'",
+          "Exons 5'", "Exons 3'",
+          "Rearrangement id",
+          "Amino acids 5'",
+          "Amino acids 3'")
+if(any(is.na(fus2$lab_id))) stop("Missing some Lab/Subject ids")
+```
+
+```{r write}
+colnames(fus2) <- cnms
+fus2
+write_csv(fus2, file.path(outdir, "table_S9.csv"))
+```
+
+```{r check, eval=FALSE}
+## Expecting no hits
+grep("PPM1E", fus2$`Gene 3'`)
+grep("PPM1E", fus2$`Gene 5'`)
+grep("RAD51C", fus2$`Gene 3'`)
+grep("RAD51C", fus2$`Gene 5'`)
+## expecting hits
+grep("ATAD1", fus2$`Gene 3'`)
+grep("MED1", fus2$`Gene 5'`)
+```

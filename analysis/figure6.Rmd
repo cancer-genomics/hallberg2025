@@ -1,0 +1,171 @@
+---
+title: "Figure 6 composite"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+library(ggplot2)
+library(here)
+library(tidyverse)
+library(grid)
+library(gridExtra)
+library(targets)
+library(hallberg2025.base)
+data(manifest, package = "hallberg2025.base")
+# wflow_build() renders Rmds from analysis/, so tar_read() needs an explicit
+# store path (default "_targets" would resolve to analysis/_targets, not found)
+tgt_store <- here("_targets")
+```
+
+```{r grobs}
+jhu_lda_result  <- tar_read(jhu_lda_fig,  store = tgt_store)
+jhu.lda         <- jhu_lda_result$grob
+jhu.leg         <- jhu_lda_result$legend
+tcga_lda_result <- tar_read(tcga_lda_fig, store = tgt_store)
+tcga.lda        <- tcga_lda_result$grob
+tcga.lda.legends <- tcga_lda_result$legend
+```
+
+```{r probabilities}
+dx.colors <- tumor_colors()
+names(dx.colors) <- str_wrap(names(dx.colors), 10)
+class.probs <- tar_read(probLDA, store = tgt_store) %>%
+    mutate(lab = ifelse(lab == "JHU", "Hallberg et al.", "TCGA"))
+levs <- c("Colorectal mucinous",
+          "Pancreatic mucinous",
+          "Stomach mucinous",
+          "Ovarian endometrioid",
+          "Ovarian mucinous") %>%
+    str_wrap(10)
+class.probs.fig <- class.probs %>%
+    mutate(Mucinous=`Colorectal mucinous` + `Stomach mucinous`,
+           Groups=str_wrap(Groups, 10)) %>%
+    filter(Groups %in% levs) %>%
+    mutate(histology=factor(Groups, levs)) %>%
+    ggplot(aes(histology, Mucinous)) +
+    geom_jitter(aes(color=histology),
+                width=0.1, height=0.02,
+                size=3) +
+    theme_classic(base_size=18) +
+    scale_color_manual(values=dx.colors) +
+    ylab("Probability mucinous\ntumor") +
+    xlab("") +
+    geom_vline(xintercept=1:5, linetype="dashed", color="gray") +
+    theme(legend.text=element_text(lineheight=0.8, size=17),
+          legend.key.spacing.y=unit(0.25, "cm"),
+          axis.text.x=element_text(size=18)) +
+    guides(shape=guide_legend(title=""),
+           color=guide_legend(title=""))
+leg <- ggpubr::get_legend(class.probs.fig)
+class.probs.fig <- class.probs.fig +
+    guides(shape="none",
+           color="none")
+gprobs <- ggplotGrob(class.probs.fig)
+```
+
+```{r addGrobFun}
+addGrob <- function(i, j, grob, w=1, h=1){
+    if(missing(i) && !missing(j)){
+        pushViewport(viewport(layout.pos.col=j,
+                              width=unit(w, "npc"),
+                              height=unit(h, "npc")))
+        grid.draw(grob)
+        popViewport()
+        return()
+    }
+    if(missing(j) && !missing(i)){
+        pushViewport(viewport(layout.pos.row=i,
+                              width=unit(w, "npc"),
+                              height=unit(h, "npc")))
+        grid.draw(grob)
+        popViewport()
+        return()
+    }
+    pushViewport(viewport(layout.pos.row=i,
+                          layout.pos.col=j,
+                          width=unit(w, "npc"),
+                          height=unit(h, "npc")))
+    grid.draw(grob)
+    popViewport()
+}
+```
+
+```{r noheatmap.viewports}
+mat <- rbind(c(1, 2, 3), # 1 = TCGA LDA, 3 = JHU LDA
+             c(4, 4, 4)) # class probabilities
+w <- c(0.5, 0.085, 0.5)
+h <- c(1, 0.02)
+gl <- grid.layout(nrow=length(h),
+                  ncol=length(w),
+                  widths=w,
+                  heights=h)
+grid.vp <- viewport(layout=gl)
+margin.whitespace <- viewport(y=unit(0.05, "npc"),
+                              height=unit(0.90, "npc"),
+                              just="bottom")
+vp.fig6 <- viewport(y=unit(0.4, "npc"),
+                    height=unit(0.6, "npc"),
+                    just="bottom")
+vp.class.probs <- viewport(y=unit(0, "npc"),
+                           x=unit(0, "npc"),
+                           width=unit(0.6, "npc"),
+                           height=unit(0.4, "npc"),
+                           just=c("left", "bottom"))
+vp.legend <- viewport(y=unit(0.45, "npc"),
+                      x=unit(0.6, "npc"),
+                      width=unit(0.25, "npc"),
+                      height=unit(0.35, "npc"),
+                      just=c("left", "top"))
+vp.tcga.legend <- viewport(y=unit(0.7, "npc"),
+                           x=unit(0.85, "npc"),
+                           width=unit(0.35, "npc"),
+                           height=unit(0.35, "npc"),
+                           just=c("left", "top"))
+```
+
+```{r newpage}
+grid.newpage()
+```
+
+```{r noheatmap, results="hide"}
+pushViewport(margin.whitespace)
+pushViewport(grid.vp)
+addGrob(1, 1, tcga.lda, w=0.5, h=0.5)
+addGrob(1, 3, jhu.lda)
+addGrob(2, grob=nullGrob())
+grid.text(letters[1:2],
+          x=unit(c(0.01, 0.54),
+                 "npc"),
+          y=unit(c(0.99, 0.99),
+                 "npc"),
+          gp=gpar(cex=3))
+```
+
+
+```{r fig6, fig.width=18, fig.height=12, dev=c("png", "pdf")}
+<<newpage>>
+## Push fig6 code into a viewport that leaves space at the bottom for a class probability figure.
+pushViewport(vp.fig6)
+<<noheatmap>>
+popViewport(3)
+pushViewport(vp.class.probs)
+grid.draw(gprobs)
+grid.text(letters[3],
+          x=unit(0.01,
+                 "npc"),
+          y=unit(0.99,
+                 "npc"),
+          gp=gpar(cex=3))
+popViewport()
+pushViewport(vp.legend)
+grid.draw(leg)
+pushViewport(vp.tcga.legend)
+grid.draw(tcga.lda.legends)
+```

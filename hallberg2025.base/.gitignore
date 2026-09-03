@@ -1,0 +1,10 @@
+/.Rhistory
+/data-raw/.Rhistory
+/debug.R
+*.Rcheck/
+
+# DOC-13: AI assistant context files are internal (lab SOP, sop.reproducibility ->
+# release.qmd, "AI assistant context files stay internal"). Kept privately in the
+# outer project repo (2025.ovarian.subtypes), which tracks it via a .gitignore
+# negation on an otherwise wholesale-ignored directory.
+CLAUDE.md

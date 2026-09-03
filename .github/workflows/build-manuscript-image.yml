@@ -1,0 +1,111 @@
+name: Build and publish manuscript image
+
+# ENV-14/REL-15: publishes docker/Dockerfile.manuscript (ENV-15) to GHCR so
+# check.yml can eventually pull it instead of recompiling the ~290-package
+# uvr.lock stack on every run (REL-16). Deliberately decoupled from check.yml's
+# own push/pull_request events -- ENV-14's explicit decision -- and triggered
+# only by changes to the files that actually affect the image's contents, plus
+# workflow_dispatch for a manual rebuild (e.g. after a base-image digest bump
+# with no local file change).
+#
+# amd64-only, narrowing ENV-14's original multi-arch (linux/amd64,linux/arm64)
+# decision -- Rob's call, made live during this card, per ENV-14's own
+# instruction to flag (not silently improvise around) a materially-changed
+# premise. A real multi-arch attempt (run 30926912031) died ~3h in with "No
+# space left on device" while the QEMU-emulated linux/arm64 leg unpacked
+# BSgenome.Hsapiens.UCSC.hg19: GitHub-hosted runners have ~14GB free by
+# default, not enough for two platforms' layers of a ~290-package Bioconductor
+# image simultaneously. Neither actual consumer of this published image
+# (check.yml/REL-16, JHPCE) is arm64; the arm64 leg only ever served a
+# `docker pull` convenience on Rob's own Mac, which ENV-15's local (non-CI)
+# multi-arch build already covers separately via a plain native `docker build`
+# -- so dropping arm64 from the *published* image costs no real capability,
+# only the convenience of `pull` over `build` on that one machine. See this
+# card's own Notes/log and ENV-14's for the full account.
+
+# REL-21: dispatch-only, deliberately. This file ships into the public
+# hallberg2025 tree (build_public.sh does not exclude it), and that repo
+# receives a single force-pushed historyless commit from `make clean-ci` --
+# so a `paths:`-based push trigger fires there on EVERY snapshot, each one
+# rebuilding a ~290-package Bioconductor image for no reason. (Run
+# 30926912031 already died ~3h in on runner disk space.) One file with one
+# trigger, dispatched deliberately from whichever repo owns the package, is
+# simpler than maintaining two variants. Do not reintroduce `push:`.
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: cancer-genomics/hallberg2025-manuscript
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-24.04
+    # Scoped to this workflow only, not added to check.yml's job -- ordinary
+    # CI has no need to write packages, per ENV-14's decision to keep the two
+    # concerns separate.
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # REL-21: this image is ~15GB (two BSgenome genomes, the 450k/EPIC
+      # annotations, and the ~290-package uvr.lock stack), and a stock
+      # ubuntu-24.04 runner starts with only ~14GB free on / -- so the build
+      # has no room even amd64-only. Run 33457880596 died at 23m with
+      # "No space left on device", so far gone the runner could not flush its
+      # own diagnostic log (which is why that run has no retrievable log).
+      # This is NOT the multi-arch exhaustion of run 30926912031; that one was
+      # the QEMU arm64 leg and was fixed by dropping to amd64. Reclaiming the
+      # preinstalled toolchains this build never touches frees ~25GB.
+      # Inline rm rather than a third-party free-disk-space action, to keep
+      # this workflow free of unpinned external dependencies.
+      - name: Reclaim runner disk
+        run: |
+          echo "before:"; df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost /usr/local/share/powershell \
+                      /usr/share/swift /opt/hostedtoolcache || true
+          sudo docker image prune -af || true
+          echo "after:"; df -h / | tail -1
+
+      # No QEMU setup here -- amd64-only (see the header comment), so buildx
+      # never needs emulation on this (already amd64) runner.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      # GITHUB_TOKEN, not a Docker Hub PAT or any new long-lived secret --
+      # ENV-14's explicit recommendation.
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Tagged both :latest (what a casual `docker pull` gets) and the commit
+      # SHA (what REL-16 pins to, so a future uvr.lock/Dockerfile change can't
+      # silently move the image out from under an already-passing CI run).
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.manuscript
+          platforms: linux/amd64
+          push: true
+          # REL-21: GHCR links a package to a repository either by the token
+          # that first pushed it or by this label. Nothing set it before, so
+          # the package linked to whichever repo happened to push first --
+          # the permanently-private 2025.ovarian.subtypes -- and its settings
+          # page redirected there, which is the provenance defect this card
+          # exists to fix. Pin the link explicitly to the public repo so it
+          # does not depend on push order again. Set here rather than in
+          # docker/Dockerfile.manuscript, which is outside this card's scope.
+          labels: |
+            org.opencontainers.image.source=https://github.com/cancer-genomics/hallberg2025
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}

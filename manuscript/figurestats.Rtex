@@ -1,0 +1,48 @@
+<<fig5stats>>=
+endo <- here("docs", "table",
+             "figure5_v2.rmd",
+             "endo_difference.csv") %>%
+    read_csv(show_col_types=FALSE)
+odds_ratio <- function(gene, x){
+    gene1 <- filter(x, gene_symbol==gene)
+    or <- round(gene1$median_odds, 1)
+    ci <- c(gene1$lower_odds, gene1$upper_odds) %>%
+        round(1) %>%
+        paste(collapse="-")
+    list(or=or, ci=ci)
+}
+arid1a <- odds_ratio("ARID1A", endo)
+pten <- odds_ratio("PTEN", endo)
+pik3ca <- odds_ratio("PIK3CA", endo)
+muc <- here("docs", "table",
+            "figure5_v2.rmd",
+            "muc_difference.csv") %>%
+    read_csv(show_col_types=FALSE)
+apc <- odds_ratio("APC", muc)
+cdkn2a <- odds_ratio("CDKN2A", muc)
+@
+
+<<fig6stats>>=
+library(SummarizedExperiment)
+data(methylation_se, package="hallberg2025.base")
+ncpg <- length(rownames(methylation_se))
+metadata <- colData(methylation_se)
+
+metadata_tcga <- metadata[metadata$study == "TCGA", ]
+nsample_tcga <- nrow(metadata_tcga)
+ntissue_tcga <- table(metadata_tcga$diagnosis)
+nCMtcga <- ntissue_tcga[["Colorectal mucinous"]]
+nSMtcga <- ntissue_tcga[["Stomach mucinous"]]
+nUEtcga <- ntissue_tcga[["Uterine endometrial"]]
+
+metadata_jhu <- metadata[metadata$study == "JHU", ]
+ntissue_jhu <- table(metadata_jhu$diagnosis)
+nOvEjhu <- ntissue_jhu[["Ovarian endometrioid"]]
+nUEjhu <- ntissue_jhu[["Uterine endometrial"]]
+nOMjhu <- ntissue_jhu[["Ovarian mucinous"]]
+nCMjhu <- ntissue_jhu[["Colorectal mucinous"]]
+nPMjhu <- ntissue_jhu[["Pancreas mucinous"]]
+nSMjhu <- ntissue_jhu[["Stomach mucinous"]]
+@
+
+

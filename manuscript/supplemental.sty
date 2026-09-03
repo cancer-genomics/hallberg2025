@@ -1,0 +1,13 @@
+\usepackage{authblk}
+\usepackage{ragged2e}
+\usepackage{setspace}
+\usepackage[symbol]{footmisc}
+\usepackage[labelfont=bf]{caption}
+
+\newcommand{\beginsupplement}{%
+        \setcounter{table}{0}
+        \renewcommand{\thetable}{\arabic{table}}%
+        \setcounter{figure}{0}
+        \renewcommand{\thefigure}{\arabic{figure}}%
+        \renewcommand{\figurename}{Supplementary Fig.}
+}

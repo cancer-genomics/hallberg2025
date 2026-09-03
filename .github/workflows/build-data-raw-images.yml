@@ -1,0 +1,114 @@
+name: Build and publish data-raw images
+
+# REL-26: publishes docker/Dockerfile.meth-data-raw (ENV-17) and
+# docker/Dockerfile.seq-data-raw (ENV-19) to GHCR, so the two JHPCE data-raw
+# pipelines can be pinned to an immutable registry digest instead of a
+# gitignored .sif file identified only by its filename (ENV-26).
+#
+# Before this workflow existed, neither image had ever been pushed anywhere:
+# ENV-18 and ENV-20 deployed them by building locally and moving the .sif to
+# the cluster over Unison/scp, which validated them but left the lab unable
+# to obtain the bytes that were validated. REL-18's own GHCR audit recorded
+# both packages as "no such package".
+#
+# amd64-only. JHPCE is x86_64 and nothing else consumes these images, so the
+# multi-arch question ENV-14 originally decided and REL-15 narrowed does not
+# arise here at all.
+
+# DISPATCH-ONLY, and deliberately so -- this is a deviation from REL-26's own
+# Do step 3, which asked for a `paths:` trigger on the two Dockerfiles. That
+# would reintroduce exactly the defect REL-21 diagnosed and fixed for
+# build-manuscript-image.yml, whose structure REL-26 also (and more
+# authoritatively) told this file to copy:
+#
+#   this file ships into the public hallberg2025 tree -- build_public.sh does
+#   not exclude .github/workflows/ -- and that repo receives a single
+#   force-pushed historyless commit from `make clean-ci`. Against a fresh
+#   unrelated commit every path matches, so a `paths:` push trigger fires on
+#   EVERY snapshot, rebuilding both Bioconductor images for no reason. The
+#   manuscript image's own history has two runs that died on runner disk
+#   after hours (30926912031, 33457880596); there is no reason to invite a
+#   third.
+#
+# Dispatch it from whichever repo owns the packages, after a real Dockerfile
+# change. Do not add `push:`.
+on:
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+
+    # One job per image, run independently: the two arms have zero coupling
+    # (see the root CLAUDE.md's module boundaries), so a failure in one says
+    # nothing about the other and should not block it. Separate runners also
+    # mean each build gets its own disk, which is the constraint below.
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arm: meth
+            dockerfile: docker/Dockerfile.meth-data-raw
+            image: cancer-genomics/hallberg2025-meth-data-raw
+          - arm: seq
+            dockerfile: docker/Dockerfile.seq-data-raw
+            image: cancer-genomics/hallberg2025-seq-data-raw
+
+    name: ${{ matrix.arm }}-data-raw
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Same rationale as build-manuscript-image.yml: a stock ubuntu-24.04
+      # runner starts with ~14GB free on /, and these images are ~3.4GB each
+      # before intermediate build layers. Smaller than the manuscript image,
+      # but the seq build also compiles samtools from source and installs the
+      # Bioconductor genome stack, so the margin is not comfortable. Inline
+      # rm rather than a third-party action, to keep this workflow free of
+      # unpinned external dependencies.
+      - name: Reclaim runner disk
+        run: |
+          echo "before:"; df -h / | tail -1
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /usr/local/share/boost /usr/local/share/powershell \
+                      /usr/share/swift /opt/hostedtoolcache || true
+          sudo docker image prune -af || true
+          echo "after:"; df -h / | tail -1
+
+      # No QEMU setup: amd64-only on an already-amd64 runner.
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64
+          push: true
+          # Pin the package-to-repository link explicitly rather than letting
+          # it fall out of push order -- REL-21's account of how the
+          # manuscript package ended up linked to the permanently-private
+          # repo is the reason this label is here and not left implicit.
+          labels: |
+            org.opencontainers.image.source=https://github.com/cancer-genomics/hallberg2025
+          # :latest for a casual pull, the commit SHA for anything that needs
+          # to pin. ENV-26 pins the cluster runs by *digest*, not by either
+          # tag -- a tag can be moved, a digest cannot.
+          tags: |
+            ${{ env.REGISTRY }}/${{ matrix.image }}:latest
+            ${{ env.REGISTRY }}/${{ matrix.image }}:${{ github.sha }}

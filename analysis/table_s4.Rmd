@@ -1,0 +1,47 @@
+---
+title: "Table S4: Somatic sequence alterations from WES"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+  toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r packages, message=FALSE}
+library(tidyverse)
+library(magrittr)
+library(here)
+library(targets)
+library(hallberg2025.base)
+outdir <- here("docs", "table", "table_s4.Rmd")
+fs::dir_create(outdir)
+# wflow_build() renders from analysis/; pass explicit store path
+tgt_store <- here("_targets")
+```
+
+```{r}
+mutations <- tar_read(mutations_tbl, store = tgt_store) %>%
+    filter(platform == "WES") %>%
+    select(lab_id, mutation, type, consequence, context,
+           gene, ccds, aa_change, maf, caller) %>%
+    rename(`Lab id`            = lab_id,
+           Mutation            = mutation,
+           Type                = type,
+           Consequence         = consequence,
+           Context             = context,
+           Gene                = gene,
+           CCDS                = ccds,
+           `Amino acid change` = aa_change,
+           MAF                 = maf,
+           Software            = caller) %>%
+    mutate(Consequence = tolower(Consequence),
+           Consequence = str_replace_all(Consequence, "_", " "),
+           Consequence = str_replace_all(Consequence, "&", ", "),
+           Type        = tolower(Type),
+           Context     = ifelse(Context == "COLUMN NOT FOUND", NA, Context))
+mutations
+write_tsv(mutations, file = file.path(outdir, "table_S4.tsv"))
+```
+

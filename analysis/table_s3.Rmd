@@ -1,0 +1,55 @@
+---
+title: "Supplementary Table 3. TCGA samples included in methylation analysis" 
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+  toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+outdir <- here("docs", "table", "table_s3.Rmd")
+fs::dir_create(outdir)
+```
+
+```{r tcga_methylation_table}
+methtbl_path <- system.file("extdata", "match_table.csv", package = "hallberg2025.base")
+meth_tbl <- read_csv(methtbl_path)
+```
+
+```{r exclude_signet_ring}
+muc_cases <- read_csv(here("extdata", "stomach_muc_signet.csv"))
+signet_ring_only <- filter(muc_cases, mucinous == 0) %>%
+  mutate(sample.id = paste0(sample.id, "A")) %>%
+  pull(sample.id)
+```
+
+# Table S3: TCGA samples included in methylation analysis 
+Table S3 contains Barcode ID, Sample ID, Case ID, Project ID, Sample Type, Data Category, Data Type, and Platform
+Note that the recent GDC portal is missing the sample TCGA-D5-6930-01A-11D-1926-05,
+which was from project TCGA-COAD and the methylation data was on 450k array
+
+```{r TabS3}
+s3_pre <- meth_tbl %>%
+  select(`Barcode ID`, `Sample ID`, `Case ID`,
+         `Project ID`, `Sample Type`,
+         `Data Category`, `Data Type`,
+         `Platform`) %>%
+  replace_na(list(`Barcode ID` = "TCGA-D5-6930-01A-11D-1926-05",
+                  `Sample ID` = "TCGA-D5-6930-01A",
+                  `Case ID` = "TCGA-D5-6930",
+                  `Project ID` = "TCGA-COAD",
+                  `Sample Type` = "Primary Tumor",
+                  `Data Category` = "DNA Methylation",
+                  `Data Type` = "Methylation Beta Value",
+                  `Platform` = "450k"))
+
+s3 <- s3_pre %>%
+  filter(!(`Sample ID` %in% signet_ring_only))
+fname <- file.path(outdir, "table_S3.csv")
+write_csv(s3, fname)
+```

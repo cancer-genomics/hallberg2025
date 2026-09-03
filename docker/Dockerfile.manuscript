@@ -1,0 +1,117 @@
+# manuscript image (ENV-14/ENV-15): R 4.5.3 + Bioc 3.22 + the full uvr.lock package
+# set, for the root manuscript pipeline (tar_make()/wflow_build()/verify_snapshot.R)
+# and hallberg2025.base (incl. BASE-02's BSgenome.Hsapiens.UCSC.hg18/hg19 need).
+# Used identically by the laptop and CI (REL-15/REL-16) -- that shared identity is
+# the point: it is what makes the toolchain-drift bug class this image exists to
+# fix structurally impossible, not just patched for one occurrence (see ENV-13).
+#
+# Do NOT bake hallberg2025.base / hallberg2025.seq.data / hallberg2025.meth.data into
+# this image -- all three change on every PR under test; install from local source
+# at container-run time instead (see the repo root README section this Dockerfile's
+# card, ENV-15, points to).
+
+FROM rocker/r-ver:4.5.3@sha256:c3f39b365d1077fe24f8e9ab2742e352b6d3950897f51af1624a5bb5550c21c0
+
+# Same apt list as .github/workflows/check.yml's "Install system libraries" step,
+# ported verbatim rather than re-derived -- plus curl/ca-certificates (needed to
+# install the uvr CLI itself; not present in the base rocker/r-ver image), pandoc
+# (installed via a separate GitHub Action in CI; must come from apt here instead),
+# libuv1-dev, and git. libuv1-dev is NOT on check.yml's list at all -- discovered
+# live in this image: `fs` (a workflowr dependency) needs libuv.so.1 at runtime,
+# present by default on GitHub's much larger ubuntu-24.04 Actions runner image but
+# absent from this minimal rocker/r-ver base. git is the same class of gap, found
+# by REL-16's actual container-based CI run: tests/verify_rmd_case.R's
+# system2("git", "ls-files") needs the real git CLI, which this base image never
+# had (libgit2-dev below only backs git2r's library bindings for R-level git
+# operations -- e.g. remotes::install_git() a few RUN steps down -- not a `git`
+# executable on PATH). Both are real gaps this card's validation exists to catch,
+# not something to silently assume matches CI's list.
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+      curl ca-certificates pandoc git \
+      libcurl4-openssl-dev libssl-dev libxml2-dev \
+      libharfbuzz-dev libfribidi-dev \
+      libgit2-dev libfontconfig1-dev libfreetype6-dev \
+      libpng-dev libtiff5-dev libjpeg-dev \
+      libglpk-dev \
+      libpoppler-cpp-dev \
+      libmagick++-dev \
+      libuv1-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Pinned exactly, same reasoning as check.yml: install.sh's own version-resolution
+# call hits api.github.com unauthenticated and can 403-rate-limit; pinning skips
+# that call and matches the version already validated locally (ENV-01/ENV-10
+# snapshot-forward discipline).
+ENV UVR_VERSION=v0.4.3
+RUN curl -fsSL https://raw.githubusercontent.com/nbafrank/uvr/main/install.sh | sh
+ENV PATH="/root/.local/bin:${PATH}"
+
+WORKDIR /proj
+COPY uvr.toml uvr.lock .r-version ./
+
+# Same Posit Package Manager mirror setup-r@v2's use-public-rspm option exports as
+# RSPM in CI -- the ad hoc Rscript recovery call below doesn't inherit whatever a
+# GitHub Action would normally set, so it's set explicitly here instead.
+ENV RSPM=https://packagemanager.posit.co/cran/__linux__/noble/latest
+
+# uvr detects and uses this image's system R (confirmed live: `uvr r list` reports
+# it as `[system: /usr/local/bin/R]`, matching the exact 4.5.3 pinned by .r-version)
+# rather than downloading a second, redundant uvr-managed R build -- so this is the
+# only R this image ever runs.
+#
+# Not `uvr sync --frozen`, same reasoning as check.yml: --frozen re-resolves every
+# "*"-pinned package against the live CRAN/Bioc index and fails spuriously whenever
+# any of those ships a new upstream release after uvr.lock was committed.
+#
+# Same restfulr-recovery wrapper as check.yml's "Sync packages from uvr.lock" step,
+# ported verbatim rather than re-derived: rtracklayer's install fails deterministically
+# with a generic "lazy loading failed" (no underlying message -- uvr's own output
+# capture swallows the real cause) because restfulr, a plain Imports dependency, is
+# delivered as a corrupted/incomplete P3M binary. Confirmed live in this image too
+# (first build attempt hit the identical failure signature).
+RUN uvr sync || { \
+      echo "uvr sync failed -- checking for the known-corrupted restfulr P3M binary"; \
+      if [ ! -f .uvr/library/restfulr/Meta/package.rds ]; then \
+        echo "restfulr confirmed broken; forcing a from-source reinstall and retrying uvr sync once"; \
+        Rscript -e 'install.packages("restfulr", lib = ".uvr/library", type = "source", repos = Sys.getenv("RSPM"))'; \
+        uvr sync; \
+      else \
+        echo "restfulr looks intact -- this is a different failure, not the known corrupted-binary case"; \
+        exit 1; \
+      fi \
+    } \
+    && rm -rf /root/.uvr
+
+# ENV-25: /root/.uvr is uvr's BUILD cache -- its package store plus the source
+# tarballs it downloaded -- and `uvr sync` leaves 4.2 GB of it behind. Nothing at
+# runtime reads it: the installed library at /proj/.uvr/library holds independent
+# copies, not links into the store (verified: link count 1, and the full stack
+# still loads with the store deleted). Removing it took the image from 5.95 GB to
+# 2.34 GB compressed -- measured, not estimated -- which is what makes it pullable
+# without hitting GHCR rate limits or exhausting a runner's disk.
+#
+# This MUST stay chained to the `uvr sync` RUN above rather than becoming its own
+# `RUN rm -rf`: a later layer cannot remove bytes an earlier layer already wrote,
+# so a separate RUN would shrink nothing while looking like it had.
+#
+# Note the two ".uvr" directories are unrelated despite the shared name. /root/.uvr
+# is disposable cache; /proj/.uvr/library is the library the image exists to ship.
+# Do not "simplify" this to a glob that catches both.
+
+# Packages check.yml installs outside uvr.toml (see its "Install packages not in
+# uvr.toml" step and comment for why: svfilters.hg19 was never carried into
+# uvr.toml by ENV-10; crew/crew.cluster are deliberately excluded as
+# cluster-data-raw-only scope but are still required for tar_validate() to source
+# hallberg2025.seq.data/data-raw/_targets.R, which the manuscript pipeline's own
+# tar_validate() step touches).
+RUN Rscript -e ' \
+      options(repos = c(CRAN = "https://packagemanager.posit.co/cran/latest")); \
+      if (!requireNamespace("remotes", quietly = TRUE)) install.packages("remotes"); \
+      remotes::install_git("https://github.com/cancer-genomics/svfilters.hg19.git", upgrade = "never"); \
+      install.packages(c("crew", "crew.cluster")) \
+    '
+
+# hallberg2025.base / hallberg2025.seq.data / hallberg2025.meth.data are installed
+# from local source at container-run time (bind-mount the repo and run
+# `install.packages("<pkg>", repos = NULL, type = "source")` for each, exactly as
+# check.yml's own "Install ... from local source" steps do) -- not here.

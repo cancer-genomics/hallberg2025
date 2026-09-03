@@ -1,0 +1,47 @@
+---
+title: "Table S7: Copy number segments from WES"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+library(tidyverse)
+library(magrittr)
+library(here)
+library(hallberg2025.base)
+library(hallberg2025.seq.data)
+outdir <- here("docs", "table", "table_s7.Rmd")
+fs::dir_create(outdir)
+rename <- dplyr::rename
+```
+
+```{r subject_table}
+data(manifest, package="hallberg2025.base")
+manifest2 <- filter(manifest, tumor.normal=="tumor") %>%
+    select(subject_id, lab_id)
+segs <- wes_segments() %>%
+    rename(lab_id = Sample) %>%
+    inner_join(manifest2, by="lab_id")
+segs2 <- rename(segs, `Lab id` = lab_id, `Subject id` = subject_id)
+segs3 <- select(segs2, `Lab id`, `Subject id`, everything())
+## "CNV Type (TCN > 3*Ploidy -> GAIN, TCN = {0, 1} -> LOSS)"
+colnames(segs3)[13] <- "CNV Type"
+## LOH (TRUE if TCN <= 1 or MCN = 0)
+colnames(segs3)[14] <- "Is LOH"
+## Focal (TRUE if < 3Mb)
+colnames(segs3)[15] <- "Is focal CNV"
+## Last several columns are just for focal CNVs
+genecols <- str_replace_all(colnames(segs3)[16:19], " \\(If focal CNV\\)", "")
+colnames(segs3)[16:19] <- genecols
+segs4 <- segs3 %>%
+    mutate(Start=prettyNum(Start, big.mark=","),
+           End=prettyNum(End, big.mark=","))
+segs4
+write_tsv(segs4, file.path(outdir, "table_S7.tsv"))
+```

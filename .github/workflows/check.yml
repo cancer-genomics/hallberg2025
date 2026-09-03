@@ -1,0 +1,299 @@
+name: Pipeline check
+
+# Validates the manuscript pipeline end-to-end:
+#   1. Install hallberg2025.base from local source (overrides the image's copy)
+#   2. Install hallberg2025.seq.data, statically validate its data-raw/ pipeline
+#      (tar_validate() — a DAG check, not a run), and run its testthat suite
+#   3. Run devtools::test() for the hallberg2025.base package (54 tests)
+#   4. Statically validate the root manuscript pipeline (tar_validate())
+#   5. Run wflow_build() to rebuild all analysis HTML pages
+#   6. Run tar_make() to rebuild all manuscript targets
+#   7. Run verify_snapshot.R to confirm 35 manuscript values, 25 figure PNGs,
+#      and 9 table files match baseline
+#
+# REL-16: this job runs inside the `manuscript` image published by
+# build-manuscript-image.yml (ENV-14/ENV-15) instead of installing R, system
+# libraries, and the ~290-package uvr.lock stack from scratch on every run --
+# that provisioning happens once, at image-build time, in
+# docker/Dockerfile.manuscript. Pinned to a specific commit-SHA tag (not
+# :latest) so a future uvr.lock/Dockerfile change can't silently move the
+# image out from under an already-passing CI run, per build-manuscript-image.yml's
+# own rationale for publishing that tag. After a docker/**, uvr.lock, or
+# uvr.toml change lands on main and build-manuscript-image.yml finishes
+# publishing the new image, update the `container: image:` tag below (in
+# jobs.check) to that commit's SHA.
+#
+# Private repo note: hallberg2025.base/ is in .gitignore for the outer project.
+#   The workflow checks it out separately using PACKAGE_DEPLOY_KEY (an SSH
+#   deploy key for cancer-genomics/hallberg2025.base added as a repo secret).
+#   In the public release repo, hallberg2025.base/ is present directly and the
+#   conditional checkout step is skipped automatically.
+#
+# Public-tree note (REL-09): hallberg2025.seq.data/ and hallberg2025.meth.data/ are the inverse case --
+#   tracked directly here, but excluded wholesale from the public hallberg2025 tree
+#   (REL-02). Checked out separately (conditional, same hashFiles() pattern) only when
+#   running against that tree. Both are public repos now (REL-18) and both are
+#   checked out anonymously over HTTPS -- no deploy key on either. hallberg2025.meth.data
+#   was private until that flip and its checkout carried a read-only SSH deploy
+#   key; REL-25 retired that key, its repo secret, and the openssh-client install
+#   that existed only to serve it.
+#
+# Required secrets (private repo only):
+#   PACKAGE_DEPLOY_KEY — read-only SSH deploy key for cancer-genomics/hallberg2025.base
+#
+# After each `make clean-ci`, update the hallberg2025.base SHA in uvr.toml/uvr.lock:
+#   git ls-remote git@github.com:cancer-genomics/hallberg2025.base.git HEAD
+#   uvr add cancer-genomics/hallberg2025.base@<new-sha>
+#   (confirmed syntax: ENV-09. This updates uvr.toml, re-resolves uvr.lock, and
+#   installs in one step; commit both files.)
+
+on:
+  # REL-03: this used to list explicit branches (main, phase2, code-refactor)
+  # and silently stopped testing whatever branch active work actually moved
+  # to (track-c-refactor-plan, then cards-decomposition) — a long run of
+  # commits went untested. Trigger on every branch so this cannot recur; the
+  # cost is CI minutes, not correctness.
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main, phase2, code-refactor, cards-decomposition]
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+
+    # REL-16: the manuscript image already has R 4.5.3, every system library
+    # check.yml used to apt-get install, and the full uvr.lock package set
+    # baked in (docker/Dockerfile.manuscript) -- built and pushed by
+    # build-manuscript-image.yml. Pinned to the commit-SHA tag from that
+    # image's most recent successful publish (see this file's header
+    # comment for how to update it), not :latest.
+    container:
+      image: ghcr.io/cancer-genomics/hallberg2025-manuscript:918789d45bc6a1095279d404ca8f2270fb5462cd
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+
+    permissions:
+      contents: read
+      packages: read
+
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      # `.Rprofile`'s uvr activation block computes its library path as
+      # file.path(getwd(), ".uvr", "library") -- relative to wherever R
+      # actually starts. Inside this container, R starts in the checked-out
+      # workspace (GITHUB_WORKSPACE), not /proj (docker/Dockerfile.manuscript's
+      # WORKDIR, where `uvr sync` populated the library at image-build time),
+      # so that relative lookup would never find the baked-in packages on its
+      # own. Setting R_LIBS to the image's actual absolute library path fixes
+      # the top-level R session the same way it already fixed callr/crew
+      # subprocesses pre-REL-16 (confirmed live, REL-06): a plain environment
+      # variable, inherited by every subprocess regardless of whether it
+      # sources .Rprofile at all.
+      R_LIBS: /proj/.uvr/library
+
+    steps:
+      - name: Checkout outer project
+        uses: actions/checkout@v4
+
+      # REL-16: needed once the manuscript image gained a real git install (added for
+      # tests/verify_rmd_case.R). git/git2r's ownership check treats the checkout -- owned
+      # by whatever UID actions/checkout ran as on the *host* runner, not this container's
+      # process -- as untrusted ("dubious ownership") unless told otherwise. Confirmed
+      # live: wflow_build() (via git2r::repository(discover = TRUE), git2r honors the same
+      # global gitconfig the git CLI does) failed with "Unable to open repository" the
+      # first run after git was added, with no such failure before. actions/checkout's own
+      # safe.directory fix only runs in its *Post* (cleanup) step, too late for the job's
+      # own steps -- this has to run before anything else touches the repo as git/git2r.
+      - name: Mark checkout directories as safe for git/git2r
+        run: git config --global --add safe.directory '*'
+
+      # hallberg2025.base/ is gitignored in the private outer project.
+      # This step is skipped in the public release repo where the directory
+      # is already checked out.  hashFiles() returns "" when the file is
+      # absent, making the condition true.
+      - name: Checkout hallberg2025.base package
+        if: ${{ !hashFiles('hallberg2025.base/DESCRIPTION') }}
+        uses: actions/checkout@v4
+        with:
+          repository: cancer-genomics/hallberg2025.base
+          path: hallberg2025.base
+          ssh-key: ${{ secrets.PACKAGE_DEPLOY_KEY }}
+
+      # hallberg2025.seq.data/ and hallberg2025.meth.data/ are the INVERSE of hallberg2025.base above:
+      # both are tracked directly in the private outer project, but
+      # scripts/build_public.sh excludes both wholesale from the public release tree
+      # (REL-02 -- cluster paths, gitignored targets stores, working notes). Same
+      # hashFiles()-conditional pattern, mirrored: a no-op here in the private repo's
+      # own CI (both directories already present), fires only in the public
+      # hallberg2025 context. Both are public repos and need no ssh-key: they are
+      # checked out anonymously, exactly as any public dependency would be.
+      # hallberg2025.meth.data was private until REL-18 (MET-09 created it that way
+      # deliberately, since hallberg2025 itself was still private), and until then
+      # its checkout needed a read-only SSH deploy key. REL-25 removed that key
+      # once the repo went public. The hashFiles() conditionals below are unrelated to any
+      # of this and stay -- they are REL-09's fallback for a tree that already
+      # carries the package.
+      - name: Checkout hallberg2025.seq.data package
+        if: ${{ !hashFiles('hallberg2025.seq.data/DESCRIPTION') }}
+        uses: actions/checkout@v4
+        with:
+          repository: cancer-genomics/hallberg2025.seq.data
+          path: hallberg2025.seq.data
+
+      - name: Checkout hallberg2025.meth.data package
+        if: ${{ !hashFiles('hallberg2025.meth.data/DESCRIPTION') }}
+        uses: actions/checkout@v4
+        with:
+          repository: cancer-genomics/hallberg2025.meth.data
+          path: hallberg2025.meth.data
+
+      - name: Cache targets store
+        uses: actions/cache@v4
+        with:
+          path: _targets
+          key: targets-${{ hashFiles('_targets.R') }}-${{ hashFiles('hallberg2025.base/R/*.R') }}
+          restore-keys: targets-
+
+      # svfilters.hg19, crew, and crew.cluster (the packages ENV-10's uvr.toml
+      # migration never carried over -- svfilters.hg18/svplots/ggbio ARE in
+      # uvr.toml and so already came from the image's baked uvr.lock sync) are
+      # installed inside docker/Dockerfile.manuscript itself now (REL-16), not
+      # here -- crew/crew.cluster are still cluster-data-raw-only scope
+      # (ENV-08/ENV-10) but required for targets::tar_validate() to even
+      # source hallberg2025.seq.data/data-raw/_targets.R below, which
+      # `library()`-calls them to build a crew_controller_slurm object, even
+      # though CI never dispatches a real crew worker (REL-03).
+      #
+      # Install from local source so CI always tests the checked-out code,
+      # not the git-pinned rev uvr.toml declares (and the image's own uvr
+      # sync, at build time, already installed the rest of the stack).
+      - name: Install hallberg2025.base from local source
+        run: install.packages("hallberg2025.base", repos = NULL, type = "source")
+        shell: Rscript {0}
+
+      # hallberg2025.meth.data and hallberg2025.seq.data are both guaranteed present now (checked out
+      # above if absent, REL-09), so both install the same way as hallberg2025.base --
+      # from local source, not a network fetch. Discovered live (REL-06) that nothing
+      # here ever installed hallberg2025.meth.data at all before this step existed: the root
+      # _targets.R and manuscript/data_quality.Rmd both depend on it (MAN-03 repointed
+      # the manuscript pipeline at it), invisible until this card's uvr rewrite got far
+      # enough into the pipeline for the first time in this repo's CI history to
+      # actually hit it (`tar_make()`: "could not find packages hallberg2025.meth.data in
+      # library paths").
+      - name: Install hallberg2025.meth.data from local source
+        run: install.packages("hallberg2025.meth.data", repos = NULL, type = "source")
+        shell: Rscript {0}
+
+      # Static DAG check only, same rationale as hallberg2025.seq.data's validation below --
+      # confirms hallberg2025.meth.data/data-raw/_targets.R is well-formed before anyone spends
+      # cluster time actually running it. Never touches the cluster or IDATs
+      # (format="file" root targets are lazy under tar_validate()).
+      - name: Validate hallberg2025.meth.data data-raw pipeline (static)
+        run: |
+          setwd("hallberg2025.meth.data/data-raw")
+          targets::tar_validate()
+        shell: Rscript {0}
+
+      # test-provenance-regressions.R's regression tests all call
+      # skip_unless_store_available()/skip_if_missing() first and skip cleanly (not
+      # fail) when the gitignored data-raw/_targets/ store is absent -- the normal
+      # fresh-CI-clone case -- so no continue-on-error is needed here (unlike
+      # hallberg2025.seq.data's known hash-drift item below).
+      - name: Run hallberg2025.meth.data tests
+        run: testthat::test_local("hallberg2025.meth.data")
+        shell: Rscript {0}
+
+      # REL-09: used to be installed via an unauthenticated remotes::install_git
+      # against its public repo, because nothing checked out a local copy first.
+      # Now that the checkout step above guarantees hallberg2025.seq.data/ is present, this
+      # installs from local source too, same as every other package here.
+      - name: Install hallberg2025.seq.data
+        run: install.packages("hallberg2025.seq.data", repos = NULL, type = "source")
+        shell: Rscript {0}
+
+      # Static DAG check only (cycles, ill-defined branching, invalid
+      # settings) -- does NOT run the pipeline (no tar_make()), so it never
+      # touches the cluster, BAMs, or the 54 WGS per-sample targets. Its
+      # _targets.R needs hallberg2025.seq.data/data-raw/ as the working directory (its
+      # own `here()` anchor), but a GHA step-level `working-directory:` would
+      # start R there directly -- and since only the repo *root* has the
+      # .Rprofile that activates this project's uvr library, R started in a
+      # subdirectory never sees it at all. setwd() *inside* the R session
+      # (started at root, where the uvr library activates normally) avoids that trap.
+      - name: Validate hallberg2025.seq.data data-raw pipeline (static)
+        run: |
+          setwd("hallberg2025.seq.data/data-raw")
+          targets::tar_validate()
+        shell: Rscript {0}
+
+      # test-data-integrity.R has one knowingly-red assertion
+      # (extfig47_amplicon_grobs.rds hash drift from baseline) that is
+      # tracked and reconciled by card SEQ-09, not by editing the baseline
+      # here. continue-on-error lets that failure show up plainly as a
+      # failed step in the Actions UI (nothing is hidden) without failing
+      # the whole run for a known, already-tracked issue.
+      - name: Run hallberg2025.seq.data tests
+        continue-on-error: true
+        run: testthat::test_local("hallberg2025.seq.data")
+        shell: Rscript {0}
+
+      - name: Run package tests
+        run: testthat::test_package("hallberg2025.base")
+        shell: Rscript {0}
+
+      # Static DAG check only, same rationale as the hallberg2025.seq.data validation
+      # above -- confirms _targets.R is well-formed before tar_make() spends
+      # CI minutes actually running it.
+      - name: Validate manuscript pipeline (static)
+        run: targets::tar_validate()
+        shell: Rscript {0}
+
+      - name: Run manuscript pipeline
+        run: targets::tar_make()
+        shell: Rscript {0}
+
+      - name: Build workflowr analysis pages
+        run: |
+          library(workflowr)
+          # These Rmds cannot run in CI:
+          #   table_s2/s4/s5 — require private inputs with PGDX IDs
+          #   ext-figure2 — live UniProt API call; requires r3dmol/drawProteins/protr
+          # Pre-built HTML and outputs for the table Rmds are committed to the repo.
+          # figure3 was previously skipped (ggplot2 3.x grobs); artifacts
+          # regenerated 2026-06-26 with ggplot2 4.x and svplots 0.0.15.
+          # analysis/figure6.Rmd calls tar_read() so tar_make() must run first.
+          skip <- c("analysis/table_s2.Rmd",
+                    "analysis/table_s4.Rmd",
+                    "analysis/table_s5.Rmd",
+                    "analysis/ext-figure2.Rmd")
+          files <- setdiff(
+            list.files("analysis", pattern = "\\.Rmd$", full.names = TRUE),
+            skip
+          )
+          wflow_build(files = files, view = FALSE)
+        shell: Rscript {0}
+
+      - name: Verify snapshot
+        run: Rscript tests/verify_snapshot.R
+
+      # Guards the "table_s4.rmd vs table_s4.Rmd" class of bug (GATE-03): a lowercase
+      # ".rmd" reference to a capital-R analysis/*.Rmd source is invisible on macOS'
+      # case-insensitive filesystem but a hard failure here on Linux -- this makes any
+      # future recurrence fail loudly instead of surfacing as a CI-only mystery.
+      - name: Verify Rmd path casing
+        run: Rscript tests/verify_rmd_case.R
+
+      # tests/verify_docs.R (card GATE-01) validates the cards/ planning system --
+      # cross-referencing cards/*.md, provenance/*.md, and cards/INDEX.md against card
+      # frontmatter. REL-02 deliberately excludes cards/ and provenance/ from the public
+      # release tree (internal planning material), but verify_docs.R itself still ships
+      # there -- so guarding on just the script's presence (the original GATE-01-landing
+      # rationale) makes this step run against a public tree where its entire subject
+      # matter is absent, and it fails immediately (REL-12). Require cards/INDEX.md too:
+      # present on this private repo (full GATE-01 coverage), absent on the assembled
+      # public tree (step is a no-op there, as intended).
+      - name: Verify plan-document integrity
+        if: ${{ hashFiles('tests/verify_docs.R') != '' && hashFiles('cards/INDEX.md') != '' }}
+        run: Rscript tests/verify_docs.R

@@ -1,0 +1,6 @@
+# Classify R Markdown files as R code for GitHub language statistics
+# https://github.com/github/linguist#overrides
+*.[Rr]md linguist-language=R
+
+# Shell scripts must always use LF line endings (CRLF breaks bash on macOS/Linux)
+*.sh text eol=lf

@@ -1,0 +1,54 @@
+---
+title: "Table S2: Sample-level characteristics"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+  toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+
+```{r packages, message=FALSE}
+library(tidyverse)
+library(magrittr)
+library(here)
+library(hallberg2025.base)
+outdir <- here("docs", "table", "table_s2.Rmd")
+fs::dir_create(outdir)
+```
+
+# Code-based Table S2
+
+```{r subject_table}
+## code/consolidate_coverage.R (run on JHPCE after coverage and read-length
+## array jobs) consolidates per-sample report files into this single RDS.
+combined <- readRDS(here("output", "coverage_stats.rds"))
+combined %>%
+    group_by(platform, tumor_normal) %>%
+    summarize(mean = mean(average_coverage), .groups = "drop")
+```
+
+```{r distribution.of.coverage, fig.width=10}
+ggplot(combined, aes(platform, average_coverage)) +
+    geom_jitter(width=0.1, color="gray") +
+    geom_boxplot(outlier.shape=NA, fill="transparent", width=0.1) +
+    scale_y_log10() +
+    theme_classic(base_size=17)
+```
+
+```{r table_s2}
+s2 <- combined %>%
+    select(subject_id, lab_id, tumor_normal,
+           platform, reference_genome, mapq30_reads, read_length,
+           average_coverage, purity, purity_status) %>%
+    mutate(average_coverage = round(average_coverage, 2))
+colnames(s2) <- c("Subject id", "Lab ID", "Sample type",
+                  "Platform", "Reference genome",
+                  "Reads (MAPQ > 30)",
+                  "Read length",
+                  "Expected coverage",
+                  "FACETS tumor purity", "FACETS processing status")
+fname <- file.path(outdir, "table_S2.csv")
+write_csv(s2, fname)
+```

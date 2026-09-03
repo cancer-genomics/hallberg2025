@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Survival analyses - Supplementary Figure 11</title>
+
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Ovarian cancer subtypes</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Survival analyses - Supplementary Figure
+11</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-31
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>repo/analysis/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed12345code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(12345)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed12345code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(12345)</code> was run prior to running the
+code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomcancergenomics2025ovariansubtypestree9e09a1a3a9fd7cfa3b0af2f165668fc243ee25dftargetblank9e09a1aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/tree/9e09a1a3a9fd7cfa3b0af2f165668fc243ee25df" target="_blank">9e09a1a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomcancergenomics2025ovariansubtypestree9e09a1a3a9fd7cfa3b0af2f165668fc243ee25dftargetblank9e09a1aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/tree/9e09a1a3a9fd7cfa3b0af2f165668fc243ee25df" target="_blank">9e09a1a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .claude/
+    Ignored:    .uvr/
+    Ignored:    .vscode/
+    Ignored:    REPRODUCIBILITY_PLAN.html
+    Ignored:    Rplots.pdf
+    Ignored:    _targets/
+    Ignored:    bam_clean/
+    Ignored:    baseline_review/
+    Ignored:    cards/dashboard.html
+    Ignored:    code/archive/
+    Ignored:    data/crosswalk_private.csv
+    Ignored:    data/ega_file_listing.csv
+    Ignored:    extdata/bVals.rds
+    Ignored:    extdata/bVals081820.rds
+    Ignored:    extdata/mutation_reports/
+    Ignored:    hallberg2025.base/
+    Ignored:    hallberg2025.meth.data/data-raw/.Rhistory
+    Ignored:    hallberg2025.meth.data/data-raw/_targets/
+    Ignored:    hallberg2025.meth.data/data-raw/_targets_change002_delta/
+    Ignored:    hallberg2025.meth.data/data-raw/beta_concordance_batch1.png
+    Ignored:    hallberg2025.meth.data/data-raw/logs/
+    Ignored:    hallberg2025.meth.data/data-raw/slurm-34256940.out
+    Ignored:    hallberg2025.meth.data/data-raw/slurm-34683691.out
+    Ignored:    hallberg2025.seq.data/data-raw/.Renviron
+    Ignored:    hallberg2025.seq.data/data-raw/Rplots.pdf
+    Ignored:    hallberg2025.seq.data/data-raw/facets_metrics/
+    Ignored:    hallberg2025.seq.data/data-raw/facets_metrics_wes/
+    Ignored:    hallberg2025.seq.data/data-raw/logs/
+    Ignored:    hallberg2025.seq.data/data-raw/reproduction_output/
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34294594.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34352530.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34491256.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34523320.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34537166.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-w2-verify-34363920.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-w3-verify-34368104.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-w3-verify-34408517.out
+    Ignored:    hallberg2025.seq.data/data-raw/snp_matrix/
+    Ignored:    hallberg2025.seq.data/data-raw/snp_matrix_wes/
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr1
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr10
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr11
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr12
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr13
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr14
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr15
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr16
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr17
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr18
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr19
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr2
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr20
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr21
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr22
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr3
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr4
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr5
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr6
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr7
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr8
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr9
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschrX
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschrY
+    Ignored:    hallberg2025.seq.data/data-raw/tools/zenodo-deposit-draft/
+    Ignored:    hallberg2025.seq.data/data-raw/trellis_output/
+    Ignored:    hallberg2025.seq.data/tests/testthat/_snaps/
+    Ignored:    hallberg2025/
+    Ignored:    inst/
+    Ignored:    logs/
+    Ignored:    manuscript/audit/
+    Ignored:    manuscript/composite-1.eps
+    Ignored:    manuscript/data_quality.html
+    Ignored:    manuscript/hallberg2025.aux
+    Ignored:    manuscript/hallberg2025.bbl
+    Ignored:    manuscript/hallberg2025.blg
+    Ignored:    manuscript/hallberg2025.log
+    Ignored:    manuscript/supplemental.aux
+    Ignored:    manuscript/supplemental.log
+    Ignored:    manuscript/supplemental.pdf
+    Ignored:    manuscript/testing/
+    Ignored:    manuscript/~/
+    Ignored:    output/01-coverage_stats.rmd/
+    Ignored:    output/02-mutations.rmd/
+    Ignored:    output/03-mutations.rmd/
+    Ignored:    output/04-mutations.rmd/
+    Ignored:    output/05-data_integration.rmd/
+    Ignored:    output/07-figure5.rmd/stats.rds
+    Ignored:    output/08-figure5.rmd/
+    Ignored:    output/ext-figure9.Rmd/
+    Ignored:    output/ext-figures/ext-figure9.Rmd/proportion_methylated.rds
+    Ignored:    output/ext-figures/ext-figure9.Rmd/wilcox_stats.csv
+    Ignored:    output/ext-figures/mutation_prevalence.rmd/
+    Ignored:    output/facets-trellis/
+    Ignored:    output/facets/
+    Ignored:    output/figure6_jhu-heatmap.Rmd/
+    Ignored:    output/figure6_tcga-heatmap.Rmd/
+    Ignored:    output/gene_pathway.rmd/
+    Ignored:    output/methylation.Rmd/
+    Ignored:    output/mutations.html
+    Ignored:    output/mutations.rds
+    Ignored:    output/pcs.Rmd/
+    Ignored:    output/pgdx_reports.rmd/
+    Ignored:    output/read_length.rmd/
+    Ignored:    output/temp.tar.gz
+    Ignored:    output/temp/
+    Ignored:    public/
+
+Untracked files:
+    Untracked:  manuscript/submitted/
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/ext-figure11.Rmd</code>) and HTML
+(<code>docs/ext-figure11.html</code>) files. If you’ve configured a
+remote Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/046240ec492a92421efd07ca1f596f85bf41eeb6/analysis/ext-figure11.Rmd" target="_blank">046240e</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-08-03
+</td>
+<td>
+MAN-05: repoint _targets.R and analysis/manuscript Rmds at renamed
+packages
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/21ba89c2f8f523c0f8b3597532eb652ce5c27688/docs/ext-figure11.html" target="_blank">21ba89c</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-07-31
+</td>
+<td>
+GIT-03: untrack reproducible docs/ and output/ generated artifacts
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/0bc1639a11f07d59a61ad9f6cc9ac2c1c5cb6275/docs/ext-figure11.html" target="_blank">0bc1639</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-07-01
+</td>
+<td>
+Update docs, OvarianSubtypeExperimentData accessors, and artifact
+baseline (prettyNum formatting fix for table_S6/S8)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/0476813d0836334f5e78952c92707074b5a62f07/docs/ext-figure11.html" target="_blank">0476813</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-06-30
+</td>
+<td>
+Rebuild manuscript PDF and analysis HTMLs with corrected mutation
+spectra
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/0b0955cf182da35f1005299be44f1323d4e7b761/docs/ext-figure11.html" target="_blank">0b0955c</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-06-29
+</td>
+<td>
+Fix case-sensitive paths: Rmd→Rmd, rmd→Rmd in _targets.R, ext-figure9,
+supplemental.tex; regenerate affected HTML pages
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/00cb58531f2723e9c7b372089eeb19154ace832e/docs/ext-figure11.html" target="_blank">00cb585</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-06-29
+</td>
+<td>
+wflow_build: regenerate analysis/ HTML and fix ext-figure2
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/36fc66e921435db6c9b3a0599011e2a3fe2fc11e/analysis/ext-figure11.Rmd" target="_blank">36fc66e</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-03-24
+</td>
+<td>
+Apply purity filters for extended figure 11
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/36fc66e921435db6c9b3a0599011e2a3fe2fc11e/docs/ext-figure11.html" target="_blank">36fc66e</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-03-24
+</td>
+<td>
+Apply purity filters for extended figure 11
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/f5e6a19437e7dbed00e4dc4a3994a1e377c3a7ac/docs/ext-figure11.html" target="_blank">f5e6a19</a>
+</td>
+<td>
+Shashikant Koul
+</td>
+<td>
+2025-02-03
+</td>
+<td>
+Rebuild after fig s11 update
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/055183b07a9cd4bc6121aac78d4c19cd6933b649/analysis/ext-figure11.Rmd" target="_blank">055183b</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2025-01-30
+</td>
+<td>
+restored fig s11 to original
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/46e978078b481da722f254a53d0fb09fc2bbc6de/docs/ext-figure11.html" target="_blank">46e9780</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-01-27
+</td>
+<td>
+Seq. characteristics should be Table S2. Meth is Table S3
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/9e5779b7960a8b00a1666bcdc8d0dd078639d63c/docs/ext-figure11.html" target="_blank">9e5779b</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-01-14
+</td>
+<td>
+Rebuilt all workflowr figures
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/551b5f8fea6fa77171f58848637dcbe6c319d40f/analysis/ext-figure11.Rmd" target="_blank">551b5f8</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2024-11-10
+</td>
+<td>
+some Baylin edits
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/d11d16d01e9d6f7c454f4a3f87c7b829fc1dda6d/analysis/ext-figure11.Rmd" target="_blank">d11d16d</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2024-11-08
+</td>
+<td>
+Created Alice Ovarian Mucinous WNT Pathway or TP53 Mutation Survival
+Curve
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/7644fe1206dbebf64574fbf76a6f381f40611d6a/analysis/ext-figure11.Rmd" target="_blank">7644fe1</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2024-11-08
+</td>
+<td>
+Created Alice Ovarian Endometrioid WNT Pathway or TP53 Mutation Survival
+Curve
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/7b50f6c0b5c02a5946218c3de3c4480fd18988bf/analysis/ext-figure11.Rmd" target="_blank">7b50f6c</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2024-11-08
+</td>
+<td>
+added variable wnt.p53 for mutation(s) in WNT pathway genes or TP53
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/0179092c45e4f0f0894feab2bbc19892cd68ac9f/analysis/ext-figure11.Rmd" target="_blank">0179092</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2024-11-08
+</td>
+<td>
+added p53 ton.alt
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/6bf7da7bc2371a97c97ba546da0b4956d6a78678/analysis/ext-figure11.Rmd" target="_blank">6bf7da7</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2024-11-08
+</td>
+<td>
+added p53 mutation variable to cdat
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/8c0e326881fd0340966bbcc4c23d0cbc293d1427/analysis/ext-figure11.Rmd" target="_blank">8c0e326</a>
+</td>
+<td>
+Alice Eastman
+</td>
+<td>
+2024-11-08
+</td>
+<td>
+added p53 mutation variable
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/05caea15b8467cb4e69082b6839655205df9e408/docs/ext-figure11.html" target="_blank">05caea1</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2024-08-30
+</td>
+<td>
+Update html and figures
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/fea052d9bda5a48d2ad295f1049852fd49067afe/docs/ext-figure11.html" target="_blank">fea052d</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2024-08-18
+</td>
+<td>
+Updates for latest ovarian.subtypes R package
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/b641e52560cb307e8d1e10cbf2bd0bacff45fe46/docs/ext-figure11.html" target="_blank">b641e52</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2024-08-18
+</td>
+<td>
+Update renv environment.
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/4a850fc8ef8f54c6532ce0e8c9082d749bd00fc4/docs/ext-figure11.html" target="_blank">4a850fc</a>
+</td>
+<td>
+Shashikant Koul
+</td>
+<td>
+2024-07-17
+</td>
+<td>
+Rebuild and publish
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/79ddb5786af9ce27328e079b207832b14652ff46/docs/ext-figure11.html" target="_blank">79ddb57</a>
+</td>
+<td>
+Shashikant Koul
+</td>
+<td>
+2024-07-02
+</td>
+<td>
+Rebuild docs
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/4d2ff392246370282f91a9a9c764113087335b93/docs/ext-figure11.html" target="_blank">4d2ff39</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2024-06-08
+</td>
+<td>
+Add html docs for ext fig 10 and 11
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/fc5cf5a14593f756a86b5a15ea4fa771eecfa90e/analysis/ext-figure11.Rmd" target="_blank">fc5cf5a</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2024-06-07
+</td>
+<td>
+Added extended data figure for heatmap and survival
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>#knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+library(survival)
+library(survminer)
+library(magrittr)
+library(grid)
+library(gridExtra)
+library(here)
+library(hallberg2025.base)
+data(manifest, package=&quot;hallberg2025.base&quot;)
+manifest &lt;- purity_filter(manifest)</code></pre>
+<pre class="r"><code>rename &lt;- dplyr::rename
+data(clinical, package=&quot;hallberg2025.base&quot;)
+data(idat.endometrioid, package=&quot;hallberg2025.base&quot;)
+data(idat.mucinous, package=&quot;hallberg2025.base&quot;)
+data(idat.gi, package=&quot;hallberg2025.base&quot;)
+idat &lt;- bind_rows(idat.endometrioid, idat.mucinous, idat.gi) %&gt;%
+    unite(&quot;gene.type&quot;, c(gene, type), sep=&quot;-&quot;, remove=FALSE) %&gt;%
+    filter(lab_id %in% manifest$lab_id)
+idat2 &lt;- idat %&gt;%
+    group_by(lab_id) %&gt;%
+    summarize(wnt=ifelse(any(pathway==&quot;WNT&quot;), 1, 0),
+              wnt.alterations=paste(unique(gene.type), collapse=&quot;,&quot;),
+              pi3k=ifelse(any(gene!=&quot;PPP2R1A&quot; &amp; pathway == &quot;PI3K&quot;), 1, 0),
+              pi3k.alt=paste(unique(gene.type), collapse=&quot;,&quot;),
+              p53=ifelse(any(gene==&quot;TP53&quot;), 1, 0),
+              wnt.p53=ifelse(any(gene==&quot;TP53&quot;|pathway==&quot;WNT&quot;), 1, 0))
+cdat &lt;- clinical %&gt;%
+    filter(lab_id %in% manifest$lab_id) %&gt;%
+    left_join(idat2,
+              join_by(lab_id)) %&gt;%
+    filter(!is.na(os)) %&gt;%
+    select(lab_id, tumor_type, os, sex, stage, is_alive, wnt, pi3k, p53, wnt.p53, pi3k.alt) %&gt;%
+    mutate(event=ifelse(is_alive, 0, 1), ## 0 alive, 1 dead
+           wnt=ifelse(is.na(wnt), 0, wnt),
+           pi3k=ifelse(is.na(pi3k), 0, pi3k),
+           p53=ifelse(is.na(p53), 0, p53),
+           wnt.p53=ifelse(is.na(wnt.p53), 0, wnt.p53),
+           os=os/365)
+## CGOV104T_Rep missing OS</code></pre>
+<p>Plot genes on x-axis and number samples with alteration on y-axis.
+Facet by tumor type</p>
+<pre class="r"><code>pi3k &lt;- filter(idat, pathway==&quot;PI3K&quot;) %&gt;%
+    filter(tumor_type %in% c(&quot;Ovarian endometrioid&quot;, &quot;Ovarian mucinous&quot;)) %&gt;%
+    group_by(gene, tumor_type) %&gt;%
+    summarize(n=length(unique(lab_id)),
+              .groups=&quot;drop&quot;)
+##pi3k %&gt;%
+##    ggplot(aes(gene, n)) +
+##    geom_point() +
+##    theme_classic(base_size=16) +
+##    facet_wrap(~tumor_type) +
+##    xlab(&quot;&quot;) +
+##    theme(axis.text.x=element_text(angle=90))
+npi3k.fig &lt;- pi3k %&gt;%
+    ggplot(aes(gene, n, group=tumor_type)) +
+    geom_vline(xintercept=1:8, linetype=&quot;dashed&quot;, color=&quot;gray&quot;) +
+    geom_point(aes(color=tumor_type), position=position_dodge(width=0.2)) +
+    theme_classic(base_size=16) +
+    ##facet_wrap(~tumor_type) +
+    xlab(&quot;&quot;) +
+    theme(axis.text.x=element_text(angle=90, hjust=1),
+          legend.position=&quot;top&quot;) +
+    guides(color=guide_legend(title=&quot;&quot;)) +
+    ylab(&quot;Number of mutations&quot;) +
+    scale_y_continuous(breaks=seq(1, 15, 1))</code></pre>
+<pre class="r"><code>n.alt &lt;- cdat %&gt;%
+    group_by(tumor_type) %&gt;%
+    summarize(n.wnt=sum(wnt),
+              n.pi3k=sum(pi3k))
+dat.oe &lt;- filter(cdat, tumor_type==&quot;ovarian endometrioid&quot;)
+dat.om &lt;- filter(cdat, tumor_type==&quot;ovarian mucinous&quot;)
+fit1 &lt;- survfit(Surv(os, event) ~ wnt, data=dat.oe)
+d1 &lt;- survdiff(Surv(os, event) ~ wnt, data=dat.oe)
+pval1 &lt;- round(d1$pvalue, 3)</code></pre>
+<pre class="r"><code>n.alt &lt;- cdat %&gt;%
+    group_by(tumor_type) %&gt;%
+    summarize(n.wnt=sum(wnt),
+              n.pi3k=sum(pi3k),
+              n.p53=sum(p53),
+              n.p53.wnt=sum(p53|wnt))
+dat.oe &lt;- filter(cdat, tumor_type==&quot;ovarian endometrioid&quot;)
+dat.om &lt;- filter(cdat, tumor_type==&quot;ovarian mucinous&quot;)
+fit1 &lt;- survfit(Surv(os, event) ~ wnt, data=dat.oe)
+fit2 &lt;- survfit(Surv(os, event) ~ wnt.p53, data=dat.oe)
+fit3 &lt;- survfit(Surv(os, event) ~ wnt.p53, data=dat.om)
+d1 &lt;- survdiff(Surv(os, event) ~ wnt, data=dat.oe)
+d2 &lt;- survdiff(Surv(os, event) ~ wnt.p53, data=dat.oe)
+d3 &lt;- survdiff(Surv(os, event) ~ wnt.p53, data=dat.om)
+pval1 &lt;- round(d1$pvalue, 2)
+pval2 &lt;- round(d2$pvalue, 2)
+pval3 &lt;- round(d3$pvalue, 2)</code></pre>
+<pre class="r"><code>fig.ctnnb1 &lt;- fit1 %&gt;%
+    ggsurvplot(data = dat.oe,
+               fun = &quot;pct&quot;,
+               conf.int=FALSE,
+               risk.table = TRUE,
+               risk.table.col=&quot;black&quot;,
+               risk.table.y.text.col=FALSE,
+               ggtheme = theme_classic(base_size=16))
+fig.ctnnb1$plot &lt;- fig.ctnnb1$plot +
+    scale_color_manual(values=c(&quot;steelblue&quot;, &quot;red&quot;),
+                       labels=c(&quot;Wild-type&quot;, &quot;Mutant&quot;),
+                       name=&quot;WNT Pathway&quot;) +
+    theme(panel.grid=element_blank(),
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle(&quot;Ovarian endometrioid&quot;) +
+    xlab(&quot;Years&quot;) +
+    ylab(&quot;Overall survival&quot;) +
+    annotate(&quot;text&quot;, x=18, y=100,
+             label=paste0(&quot;p = &quot;, pval1),
+             hjust=1, vjust=1)
+fig.ctnnb1$table &lt;- fig.ctnnb1$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color=&quot;gray&quot;, size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c(&quot;Mutant&quot;, &quot;Wild-type&quot;),
+                     name=&quot;&quot;)</code></pre>
+<pre><code>Scale for y is already present.
+Adding another scale for y, which will replace the existing scale.</code></pre>
+<pre class="r"><code>gfig &lt;- ggplotGrob(fig.ctnnb1$plot)
+gtab &lt;- ggplotGrob(fig.ctnnb1$table)</code></pre>
+<pre><code>Ignoring unknown labels:
+• colour : &quot;Strata&quot;</code></pre>
+<pre class="r"><code>#Ovarian Endometrioid WNT Pathway or TP53 Mutation Survival Curve
+fig.wnt.p53 &lt;- fit2 %&gt;%
+    ggsurvplot(data = dat.oe,
+               fun = &quot;pct&quot;,
+               conf.int=FALSE,
+               risk.table = TRUE,
+               risk.table.col=&quot;black&quot;,
+               risk.table.y.text.col=FALSE,
+               ggtheme = theme_classic(base_size=16))
+fig.wnt.p53$plot &lt;- fig.wnt.p53$plot +
+    scale_color_manual(values=c(&quot;steelblue&quot;, &quot;red&quot;),
+                       labels=c(&quot;Wild-type&quot;, &quot;Mutant&quot;),
+                       name=&quot;WNT Pathway or TP53&quot;) +
+    theme(panel.grid=element_blank(),
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle(&quot;Ovarian endometrioid&quot;) +
+    xlab(&quot;Years&quot;) +
+    ylab(&quot;Overall survival&quot;) +
+    annotate(&quot;text&quot;, x=18, y=100,
+             label=paste0(&quot;p = &quot;, pval2),
+             hjust=1, vjust=1)
+fig.wnt.p53$table &lt;- fig.wnt.p53$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color=&quot;gray&quot;, size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c(&quot;Mutant&quot;, &quot;Wild-type&quot;),
+                     name=&quot;&quot;)
+gfig &lt;- ggplotGrob(fig.wnt.p53$plot)
+gtab &lt;- ggplotGrob(fig.wnt.p53$table)</code></pre>
+<pre class="r"><code>#Ovarian Mucinous WNT Pathway or TP53 Mutation Survival Curve
+fig.wnt.p53.om &lt;- fit3 %&gt;%
+    ggsurvplot(data = dat.om,
+               fun = &quot;pct&quot;,
+               conf.int=FALSE,
+               risk.table = TRUE,
+               risk.table.col=&quot;black&quot;,
+               risk.table.y.text.col=FALSE,
+               ggtheme = theme_classic(base_size=16))
+fig.wnt.p53.om$plot &lt;- fig.wnt.p53.om$plot +
+    scale_color_manual(values=c(&quot;steelblue&quot;, &quot;red&quot;),
+                       labels=c(&quot;Wild-type&quot;, &quot;Mutant&quot;),
+                       name=&quot;WNT Pathway or TP53&quot;) +
+    theme(panel.grid=element_blank(),
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle(&quot;Ovarian mucinous&quot;) +
+    xlab(&quot;Years&quot;) +
+    ylab(&quot;Overall survival&quot;) +
+    annotate(&quot;text&quot;, x=18, y=100,
+             label=paste0(&quot;p = &quot;, pval3),
+             hjust=1, vjust=1)
+fig.wnt.p53.om$table &lt;- fig.wnt.p53.om$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color=&quot;gray&quot;, size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c(&quot;Mutant&quot;, &quot;Wild-type&quot;),
+                     name=&quot;&quot;)
+gfig &lt;- ggplotGrob(fig.wnt.p53.om$plot)
+gtab &lt;- ggplotGrob(fig.wnt.p53.om$table)</code></pre>
+<pre class="r"><code>## Put a legend in each panel
+fit1 &lt;- survfit(Surv(os, event) ~ pi3k, data=dat.oe)
+d1 &lt;- survdiff(Surv(os, event) ~ pi3k, data=dat.oe)
+pval1 &lt;- round(d1$pvalue, 3)
+fit2 &lt;- survfit(Surv(os, event) ~ pi3k, data=dat.om)
+d2 &lt;- survdiff(Surv(os, event) ~ pi3k, data=dat.om)
+pval2 &lt;- round(d2$pvalue, 3)
+fig1 &lt;- ggsurvplot(fit1, data = dat.oe,
+                   fun = &quot;pct&quot;,
+                   conf.int=FALSE,
+                   risk.table = TRUE,
+                   risk.table.col=&quot;black&quot;,
+                   risk.table.y.text.col=FALSE,
+                   ggtheme = theme_classic(base_size=16))
+fig2 &lt;- ggsurvplot(fit2, data = dat.om,
+                   fun = &quot;pct&quot;,
+                   conf.int=FALSE,
+                   risk.table = TRUE,
+                   risk.table.col=&quot;black&quot;,
+                   risk.table.y.text.col=FALSE,
+                   ggtheme = theme_classic(base_size=16))
+fig1$plot &lt;- fig1$plot +
+    scale_color_manual(values=c(&quot;steelblue&quot;, &quot;red&quot;),
+                       labels=c(&quot;Wild-type&quot;, &quot;Mutant&quot;),
+                       name=&quot;PI3K Pathway&quot;) +
+    theme(panel.grid=element_blank(),
+          legend.position=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle(&quot;Ovarian endometrioid&quot;) +
+    xlab(&quot;Years&quot;) +
+    ylab(&quot;Overall survival&quot;) +
+    annotate(&quot;text&quot;, x=20, y=100,
+             label=paste0(&quot;p = &quot;, pval1),
+             hjust=1, vjust=1)
+fig2$plot &lt;- fig2$plot +
+    scale_color_manual(values=c(&quot;steelblue&quot;, &quot;red&quot;),
+                       labels=c(&quot;Wild-type&quot;, &quot;Mutant&quot;),
+                       name=&quot;PI3K Pathway&quot;) +
+    theme(panel.grid=element_blank(),
+          legend.position=&quot;inside&quot;,
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank(),
+          axis.title.y=element_blank()) +
+    ggtitle(&quot;Ovarian mucinous&quot;) +
+    xlab(&quot;Years&quot;) +
+    ylab(&quot;Overall survival&quot;) +
+    annotate(&quot;text&quot;, x=30, y=100,
+             label=paste0(&quot;p = &quot;, pval2),
+             hjust=1, vjust=1)
+fig1$table &lt;- fig1$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color=&quot;gray&quot;, size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c(&quot;PI3K altered&quot;, &quot;Wild-type&quot;),
+                     name=&quot;&quot;)</code></pre>
+<pre><code>Scale for y is already present.
+Adding another scale for y, which will replace the existing scale.</code></pre>
+<pre class="r"><code>fig2$table &lt;- fig2$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color=&quot;gray&quot;, size=12),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank(),
+          axis.title.y=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c(&quot;PI3K altered&quot;, &quot;Wild-type&quot;),
+                     name=&quot;&quot;)</code></pre>
+<pre><code>Scale for y is already present.
+Adding another scale for y, which will replace the existing scale.</code></pre>
+<pre class="r"><code>fig1$plot &lt;- fig1$plot + ylab(&quot;&quot;)
+g1 &lt;- ggplotGrob(fig1$plot)
+g1t &lt;- ggplotGrob(fig1$table)</code></pre>
+<pre><code>Ignoring unknown labels:
+• colour : &quot;Strata&quot;</code></pre>
+<pre class="r"><code>g2 &lt;- ggplotGrob(fig2$plot)
+g2t &lt;- ggplotGrob(fig2$table)</code></pre>
+<pre><code>Ignoring unknown labels:
+• colour : &quot;Strata&quot;</code></pre>
+<pre class="r"><code>g1$widths &lt;- g1t$widths
+g2$widths &lt;- g2t$widths
+gfig$widths &lt;- g1$widths
+gtab$widths &lt;- gfig$widths
+nullg &lt;- nullGrob()
+gl &lt;- list(g1, g1t, g2, g2t, gfig, gtab, nullg)
+m &lt;- cbind(c(1, 2, 7, 5, 6), c(3, 4, 7, 7, 7))
+grid.arrange(grobs=gl, layout_matrix=m,
+             widths=c(1.2, 1),
+             heights=c(8, 2, 1, 8, 2))
+grid.text(c(&quot;a&quot;, &quot;c&quot;, &quot;b&quot;),
+          x=unit(c(0.02, 0.02, 0.525), &quot;npc&quot;),
+          y=unit(c(0.98, 0.49, 0.98), &quot;npc&quot;),
+          gp=gpar(cex=2.5))</code></pre>
+<p><img src="figure/ext-figure11.Rmd/figS11-1.png" alt="" width="1152" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>pi3k.genes &lt;- ggplotGrob(npi3k.fig)
+grobs &lt;- list(npi3k.fig, g1, g1t, g2, g2t)
+m &lt;- rbind(c(1, 1),
+           c(2, 4),
+           c(3, 5))
+grid.arrange(grobs=grobs, layout_matrix=m,
+             widths=c(1.3, 1),
+             heights=c(1.1, 1.1, 0.3))
+grid.text(letters[1:2], x=unit(c(0.01, 0.03), &quot;npc&quot;),
+          y=unit(c(0.98, 0.55), &quot;npc&quot;),
+          gp=gpar(cex=2))</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.5.3 (2026-03-11)
+Platform: aarch64-unknown-linux-gnu
+Running under: Ubuntu 24.04.4 LTS
+
+Matrix products: default
+BLAS:   /usr/lib/aarch64-linux-gnu/openblas-pthread/libblas.so.3 
+LAPACK: /usr/lib/aarch64-linux-gnu/openblas-pthread/libopenblasp-r0.3.26.so;  LAPACK version 3.12.0
+
+locale:
+ [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
+ [3] LC_TIME=en_US.UTF-8        LC_COLLATE=en_US.UTF-8    
+ [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=en_US.UTF-8   
+ [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
+ [9] LC_ADDRESS=C               LC_TELEPHONE=C            
+[11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+
+time zone: Etc/UTC
+tzcode source: system (glibc)
+
+attached base packages:
+[1] grid      stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] hallberg2025.base_0.0.34 here_1.0.2               gridExtra_2.3.1         
+ [4] magrittr_2.0.5           survminer_0.5.2          ggpubr_1.0.0            
+ [7] survival_3.8-9           lubridate_1.9.5          forcats_1.0.1           
+[10] stringr_1.6.0            dplyr_1.2.1              purrr_1.2.2             
+[13] readr_2.2.0              tidyr_1.3.2              tibble_3.3.1            
+[16] tidyverse_2.0.0          ggplot2_4.0.3           
+
+loaded via a namespace (and not attached):
+ [1] gtable_0.3.6        xfun_0.60           bslib_0.11.0       
+ [4] rstatix_1.1.0       lattice_0.22-9      tzdb_0.5.0         
+ [7] vctrs_0.7.3         tools_4.5.3         generics_0.1.4     
+[10] pkgconfig_2.0.3     Matrix_1.7-6        RColorBrewer_1.1-3 
+[13] S7_0.2.2            lifecycle_1.0.5     compiler_4.5.3     
+[16] farver_2.1.2        git2r_0.36.2        carData_3.0-6      
+[19] httpuv_1.6.17       htmltools_0.5.9     sass_0.4.10        
+[22] yaml_2.3.12         Formula_1.2-6       later_1.4.8        
+[25] pillar_1.11.1       car_3.1-5           jquerylib_0.1.4    
+[28] whisker_0.4.1       cachem_1.1.0        abind_1.4-8        
+[31] tidyselect_1.2.1    digest_0.6.39       stringi_1.8.7      
+[34] labeling_0.4.3      splines_4.5.3       rprojroot_2.1.1    
+[37] fastmap_1.2.0       cli_3.6.6           dichromat_2.0-1    
+[40] broom_1.0.13        withr_3.0.3         scales_1.4.0       
+[43] promises_1.5.0      backports_1.5.1     timechange_0.4.0   
+[46] rmarkdown_2.31      otel_0.2.0          ggsignif_0.6.4     
+[49] workflowr_1.7.2     hms_1.1.4           evaluate_1.0.5     
+[52] knitr_1.51          rlang_1.3.0         Rcpp_1.1.2         
+[55] glue_1.8.1          BiocGenerics_0.56.0 jsonlite_2.0.0     
+[58] R6_2.6.1            fs_2.1.0           </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

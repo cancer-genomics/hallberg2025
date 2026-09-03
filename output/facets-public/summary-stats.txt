@@ -1,0 +1,92 @@
+Sample	Purity	Ploidy	Number.of.Segments	Flags
+CGST7T	0.55	2.32	134	-
+CGST8T	0.76	2.49	84	-
+CGST9T	0.54	2.77	85	-
+CGPA361T	0.27	2.85	83	Low purity. Calls can be unreliable.
+CGPA364T	0.34	1.75	50	-
+CGPA367T	0.65	1.96	72	-
+CGOV375T_Ex	0.55	2.76	75	-
+CGOV450T	0.8	2.05	80	-
+CGCRC251T	0.3	1.84	77	-
+CGCRC253T	0.2	1.94	61	Low purity. Calls can be unreliable.
+CGCRC245T	0.3	3.67	172	-
+CGCRC254T	0.34	3.34	46	-
+CGCRC323T_1	0.41	3.57	202	-
+CGCRC330T_1	0.58	4.41	132	-
+CGCRC330T1_1	0.58	4.56	171	-
+CGST2T_2	0.47	2.43	52	-
+CGST3T	0.16	2.1	80	Low purity. Calls can be unreliable.
+CGST4T	0.3	2.62	78	-
+CGST5T	NA	2	27	Insufficient information. Likely diplod or purity too low.
+CGCRC328T_2	0.18	2.99	47	Low purity. Calls can be unreliable.
+CGCRC331N_1	0.38	3.46	60	-
+CGST1T_2	0.35	2.86	98	-
+CGOV66T_1	0.3	2.08	105	Low purity. Calls can be unreliable.
+CGOV67T	0.63	2.89	30	Noisy sample, Calls can be unreliable.
+CGOV68T	0.81	2.1	39	-
+CGOV69T	0.7	2.72	89	Noisy sample, Calls can be unreliable.
+CGOV70T	0.3	2.44	107	-
+CGOV71T_1	0.3	2.48	25	-
+CGOV72T_1	0.36	6.84	105	Noisy sample, Calls can be unreliable.
+CGOV98T	0.21	4.94	113	Noisy sample, Calls can be unreliable. Low purity. Calls can be unreliable.
+CGOV99T	0.85	2.73	636	Noisy sample, Calls can be unreliable.
+CGOV101T	0.27	1.6	62	Low purity. Calls can be unreliable.
+CGOV102T	0.27	3.53	26	Low purity. Calls can be unreliable.
+CGOV103T	0.73	2.25	77	-
+CGOV104T_Rep	0.19	2.02	31	Low purity. Calls can be unreliable.
+CGOV105T	0.67	2.3	586	-
+CGOV136T	0.23	2.14	32	Low purity. Calls can be unreliable.
+CGOV141T	0.31	1.51	229	-
+CGOV177T_2	0.81	1.95	88	-
+CGOV178T	0.3	2.95	137	-
+CGOV179T_Rpt	0.84	2	148	-
+CGOV181T_1	0.76	3.07	133	-
+CGOV183T	0.49	1.95	92	-
+CGOV184T	0.47	3.97	117	-
+CGOV186T_2	0.47	2.04	42	-
+CGOV190T	0.3	1.53	174	Low purity. Calls can be unreliable.
+CGOV192T	0.69	1.88	58	-
+CGOV196T	0.44	4.14	195	-
+CGOV197T_1	0.72	3.45	224	Noisy sample, Calls can be unreliable.
+CGOV197T	0.48	3.95	166	-
+CGOV194T	0.3	2.42	141	-
+CGOV187T	0.48	1.88	160	-
+CGOV189T	0.59	1.92	91	-
+CGOV185T	0.33	2.24	139	-
+CGOV191T	0.25	2.59	145	Low purity. Calls can be unreliable.
+CGOV193T	0.2	1.66	131	Low purity. Calls can be unreliable.
+CGOV166T	0.44	1.67	44	-
+CGOV167T	0.66	1.98	48	-
+CGOV168T	0.42	3.22	63	-
+CGOV169T	0.29	3.56	73	Low purity. Calls can be unreliable.
+CGOV195T	0.41	2.15	129	-
+CGOV198T	0.34	2	36	-
+CGOV121T	0.3	2.49	139	-
+CGOV124T	0.2	3.28	132	Low purity. Calls can be unreliable.
+CGOV126T_2	NA	2	73	Insufficient information. Likely diplod or purity too low.
+CGOV132T	0.4	2.41	278	-
+CGOV134T	0.52	2.08	76	-
+CGOV135T_1	0.94	1.94	51	-
+CGOV137T_2	0.63	2.26	120	-
+CGOV163T	NA	2	59	Insufficient information. Likely diplod or purity too low.
+CGOV175T	0.77	2.22	29	-
+CGOV150T	0.3	1.83	69	-
+CGOV151Tb	0.56	1.82	94	-
+CGOV152T	0.81	1.73	109	-
+CGOV153T_1	0.09	1.57	27	Low purity. Calls can be unreliable.
+CGOV155T	0.19	2.44	155	Low purity. Calls can be unreliable.
+CGOV156T	NA	2	105	Insufficient information. Likely diplod or purity too low.
+CGOV158T	0.2	1.97	79	Low purity. Calls can be unreliable.
+CGOV159T_1	0.3	2.08	174	-
+CGOV159T_2	0.31	2.13	48	-
+CGCRC252T	NA	2	47	Insufficient information. Likely diplod or purity too low.
+CGOV180T_1	0.33	1.96	44	-
+CGOV188T_2	0.15	2.28	55	Low purity. Calls can be unreliable.
+CGCRC324T	0.3	2.34	104	-
+CGCRC325T	0.3	2.45	89	-
+CGPA365T	0.3	2.04	61	-
+CGPA366T	0.3	2.15	31	-
+CGST10T	NA	2	35	Insufficient information. Likely diplod or purity too low.
+CGPA369T	NA	2	70	Insufficient information. Likely diplod or purity too low.
+CGPA370T	NA	2	23	Insufficient information. Likely diplod or purity too low.
+CGOV73T_1	NA	NA	NA	Failed FACETS pipeline. No proper pairs in BAM file.

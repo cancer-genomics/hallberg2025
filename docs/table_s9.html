@@ -1,0 +1,1719 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+
+
+<title>Table S9: Gene fusions from WGS</title>
+
+<script src="site_libs/header-attrs-2.31/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/main/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark the anchor link active (and if it's in a dropdown, also mark that active)
+  var dropdown = menuAnchor.closest('li.dropdown');
+  if (window.bootstrap) { // Bootstrap 4+
+    menuAnchor.addClass('active');
+    dropdown.find('> .dropdown-toggle').addClass('active');
+  } else { // Bootstrap 3
+    menuAnchor.parent().addClass('active');
+    dropdown.addClass('active');
+  }
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before, .tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "\e259";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "\e258";
+  font-family: 'Glyphicons Halflings';
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">Ovarian cancer subtypes</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">Table S9: Gene fusions from WGS</h1>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2026-08-31
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>repo/analysis/</code> <span
+class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="https://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/workflowr/workflowr">workflowr</a> (version
+1.7.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date
+</a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git
+repository, you know the exact version of the code that produced these
+results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed12345code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(12345)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed12345code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(12345)</code> was run prior to running the
+code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongunavailable">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>Session information:</strong>
+unavailable </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongunavailable"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Recording the operating system, R version, and package versions is
+critical for reproducibility. To record the session information, add
+<code>sessioninfo: “sessionInfo()”</code> to _workflowr.yml.
+Alternatively, you could use <code>devtools::session_info()</code> or
+<code>sessioninfo::session_info()</code>. Lastly, you can manually add a
+code chunk to this file to run any one of these commands and then
+disable to automatic insertion by changing the workflowr setting to
+<code>sessioninfo: ““</code>.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomcancergenomics2025ovariansubtypestree9e09a1a3a9fd7cfa3b0af2f165668fc243ee25dftargetblank9e09a1aa">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/tree/9e09a1a3a9fd7cfa3b0af2f165668fc243ee25df" target="_blank">9e09a1a</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomcancergenomics2025ovariansubtypestree9e09a1a3a9fd7cfa3b0af2f165668fc243ee25dftargetblank9e09a1aa"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/tree/9e09a1a3a9fd7cfa3b0af2f165668fc243ee25df" target="_blank">9e09a1a</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .claude/
+    Ignored:    .uvr/
+    Ignored:    .vscode/
+    Ignored:    REPRODUCIBILITY_PLAN.html
+    Ignored:    Rplots.pdf
+    Ignored:    _targets/
+    Ignored:    bam_clean/
+    Ignored:    baseline_review/
+    Ignored:    cards/dashboard.html
+    Ignored:    code/archive/
+    Ignored:    data/crosswalk_private.csv
+    Ignored:    data/ega_file_listing.csv
+    Ignored:    extdata/bVals.rds
+    Ignored:    extdata/bVals081820.rds
+    Ignored:    extdata/mutation_reports/
+    Ignored:    hallberg2025.base/
+    Ignored:    hallberg2025.meth.data/data-raw/.Rhistory
+    Ignored:    hallberg2025.meth.data/data-raw/_targets/
+    Ignored:    hallberg2025.meth.data/data-raw/_targets_change002_delta/
+    Ignored:    hallberg2025.meth.data/data-raw/beta_concordance_batch1.png
+    Ignored:    hallberg2025.meth.data/data-raw/logs/
+    Ignored:    hallberg2025.meth.data/data-raw/slurm-34256940.out
+    Ignored:    hallberg2025.meth.data/data-raw/slurm-34683691.out
+    Ignored:    hallberg2025.seq.data/data-raw/.Renviron
+    Ignored:    hallberg2025.seq.data/data-raw/Rplots.pdf
+    Ignored:    hallberg2025.seq.data/data-raw/facets_metrics/
+    Ignored:    hallberg2025.seq.data/data-raw/facets_metrics_wes/
+    Ignored:    hallberg2025.seq.data/data-raw/logs/
+    Ignored:    hallberg2025.seq.data/data-raw/reproduction_output/
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34294594.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34352530.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34491256.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34523320.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-34537166.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-w2-verify-34363920.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-w3-verify-34368104.out
+    Ignored:    hallberg2025.seq.data/data-raw/slurm-w3-verify-34408517.out
+    Ignored:    hallberg2025.seq.data/data-raw/snp_matrix/
+    Ignored:    hallberg2025.seq.data/data-raw/snp_matrix_wes/
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr1
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr10
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr11
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr12
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr13
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr14
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr15
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr16
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr17
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr18
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr19
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr2
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr20
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr21
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr22
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr3
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr4
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr5
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr6
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr7
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr8
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschr9
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschrX
+    Ignored:    hallberg2025.seq.data/data-raw/tools/snplocschrY
+    Ignored:    hallberg2025.seq.data/data-raw/tools/zenodo-deposit-draft/
+    Ignored:    hallberg2025.seq.data/data-raw/trellis_output/
+    Ignored:    hallberg2025.seq.data/tests/testthat/_snaps/
+    Ignored:    hallberg2025/
+    Ignored:    inst/
+    Ignored:    logs/
+    Ignored:    manuscript/audit/
+    Ignored:    manuscript/composite-1.eps
+    Ignored:    manuscript/data_quality.html
+    Ignored:    manuscript/hallberg2025.aux
+    Ignored:    manuscript/hallberg2025.bbl
+    Ignored:    manuscript/hallberg2025.blg
+    Ignored:    manuscript/hallberg2025.log
+    Ignored:    manuscript/supplemental.aux
+    Ignored:    manuscript/supplemental.log
+    Ignored:    manuscript/supplemental.pdf
+    Ignored:    manuscript/testing/
+    Ignored:    manuscript/~/
+    Ignored:    output/01-coverage_stats.rmd/
+    Ignored:    output/02-mutations.rmd/
+    Ignored:    output/03-mutations.rmd/
+    Ignored:    output/04-mutations.rmd/
+    Ignored:    output/05-data_integration.rmd/
+    Ignored:    output/07-figure5.rmd/stats.rds
+    Ignored:    output/08-figure5.rmd/
+    Ignored:    output/ext-figure9.Rmd/
+    Ignored:    output/ext-figures/ext-figure9.Rmd/proportion_methylated.rds
+    Ignored:    output/ext-figures/ext-figure9.Rmd/wilcox_stats.csv
+    Ignored:    output/ext-figures/mutation_prevalence.rmd/
+    Ignored:    output/facets-trellis/
+    Ignored:    output/facets/
+    Ignored:    output/figure6_jhu-heatmap.Rmd/
+    Ignored:    output/figure6_tcga-heatmap.Rmd/
+    Ignored:    output/gene_pathway.rmd/
+    Ignored:    output/methylation.Rmd/
+    Ignored:    output/mutations.html
+    Ignored:    output/mutations.rds
+    Ignored:    output/pcs.Rmd/
+    Ignored:    output/pgdx_reports.rmd/
+    Ignored:    output/read_length.rmd/
+    Ignored:    output/temp.tar.gz
+    Ignored:    output/temp/
+    Ignored:    public/
+
+Untracked files:
+    Untracked:  manuscript/submitted/
+
+Unstaged changes:
+    Modified:   manuscript/supplemental_tables.xlsx
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were
+made to the R Markdown (<code>analysis/table_s9.Rmd</code>) and HTML
+(<code>docs/table_s9.html</code>) files. If you’ve configured a remote
+Git repository (see <code>?wflow_git_remote</code>), click on the
+hyperlinks in the table below to view the files as they were in that
+past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/046240ec492a92421efd07ca1f596f85bf41eeb6/analysis/table_s9.Rmd" target="_blank">046240e</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-08-03
+</td>
+<td>
+MAN-05: repoint _targets.R and analysis/manuscript Rmds at renamed
+packages
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/255e8f87a66e84578f5ae8550b3099303fda7485/analysis/table_s9.Rmd" target="_blank">255e8f8</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-08-01
+</td>
+<td>
+GATE-03: adopt Linux CI figure baseline; fix systemic .rmd/.Rmd
+case-mismatch bug
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/21ba89c2f8f523c0f8b3597532eb652ce5c27688/docs/table_s9.html" target="_blank">21ba89c</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-07-31
+</td>
+<td>
+GIT-03: untrack reproducible docs/ and output/ generated artifacts
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/29f8d560dae3df68038842f50bb379c88b48495b/analysis/table_s9.Rmd" target="_blank">29f8d56</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-07-03
+</td>
+<td>
+Rename OvarianSubtypeExperimentData → OsSeqExpData
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/0bc1639a11f07d59a61ad9f6cc9ac2c1c5cb6275/docs/table_s9.html" target="_blank">0bc1639</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-07-01
+</td>
+<td>
+Update docs, OvarianSubtypeExperimentData accessors, and artifact
+baseline (prettyNum formatting fix for table_S6/S8)
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/33b8d70352a83d336d5d046787a01a5882a0c48b/analysis/table_s9.Rmd" target="_blank">33b8d70</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-07-01
+</td>
+<td>
+Load FACETS data from OvarianSubtypeExperimentData; remove output/ path
+dependencies in ext-figure1, table_s6-s9
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/00cb58531f2723e9c7b372089eeb19154ace832e/docs/table_s9.html" target="_blank">00cb585</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-06-29
+</td>
+<td>
+wflow_build: regenerate analysis/ HTML and fix ext-figure2
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/3c1f9fe1e8f96c8f33557a18bafd81c727883a32/docs/table_s9.html" target="_blank">3c1f9fe</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-06-24
+</td>
+<td>
+Add wflow_build and verify_artifacts to CI; fix public release for
+ext-figure1
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/471825ee68513279a0a2b73d131bf3ebbc004edf/analysis/table_s9.Rmd" target="_blank">471825e</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-06-24
+</td>
+<td>
+Sanitize FACETS output for public release; simplify 6 restricted Rmds
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/a60c5520602b758ae5349d74d60494264c2943f1/analysis/table_s9.Rmd" target="_blank">a60c552</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2026-06-23
+</td>
+<td>
+Strip private identifiers from published data objects; update analysis
+Rmds
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/6ff4d82f639aa8592d85f4eaf4b968cc3da664b4/docs/table_s9.html" target="_blank">6ff4d82</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-04-03
+</td>
+<td>
+Updated html-rendered tables from analysis/
+</td>
+</tr>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/cancer-genomics/2025.ovarian.subtypes/blob/4cac7a7f8b04520d39a0255fa9dac7c9a7783e7b/analysis/table_s9.Rmd" target="_blank">4cac7a7</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-04-02
+</td>
+<td>
+Capitalize Rmd extension
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/b7b546432cf14bd0dd2b2ff085d75fdd9043b658/docs/table_s9.html" target="_blank">b7b5464</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-01-27
+</td>
+<td>
+Updated Suppl. tables with correct numbering
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/f1ee477cdbc90d40a867f405f5a35b0beebe5826/docs/table_s9.html" target="_blank">f1ee477</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2025-01-27
+</td>
+<td>
+Updated output directories for tables S4-S9
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/cancer-genomics/2025.ovarian.subtypes/80eee8be4847e8d4367d83d1081c4bb6fec442df/docs/table_s9.html" target="_blank">80eee8b</a>
+</td>
+<td>
+rscharpf
+</td>
+<td>
+2023-01-24
+</td>
+<td>
+Added supplemental tables for WGS deletions and amplifications
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code>knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(magrittr)
+library(hallberg2025.base)
+library(hallberg2025.seq.data)
+outdir &lt;- here(&quot;docs&quot;, &quot;table&quot;, &quot;table_s9.Rmd&quot;)
+fs::dir_create(outdir)
+data(manifest, package=&quot;hallberg2025.base&quot;)</code></pre>
+<pre class="r"><code>fus &lt;- wgs_fusion_table() %&gt;%
+    set_colnames(tolower(colnames(.))) %&gt;%
+    set_colnames(str_replace_all(colnames(.), &quot; &quot;, &quot;.&quot;)) %&gt;%
+    rename(lab_id = sample)
+man &lt;- select(manifest, subject_id, lab_id)
+fus01 &lt;- inner_join(fus, man, by=&quot;lab_id&quot;) %&gt;%
+    select(-subject_id)</code></pre>
+<pre class="r"><code>fus2 &lt;- left_join(fus01, man, by=&quot;lab_id&quot;) %&gt;%
+    select(subject_id, lab_id, gene.5prime, gene.3prime,
+           tx.5prime, tx.3prime,
+           junction.5prime, junction.3prime,
+           exons.5prime, exons.3prime,
+           rearrangement.id,
+           aa.5, aa.3)
+cnms &lt;- c(&quot;Subject id&quot;, &quot;Lab id&quot;,
+          &quot;Gene 5&#39;&quot;, &quot;Gene 3&#39;&quot;,
+          &quot;Tx 5&#39;&quot;, &quot;Tx 3&#39;&quot;,
+          &quot;Junction 5&#39;&quot;, &quot;Junction 3&#39;&quot;,
+          &quot;Exons 5&#39;&quot;, &quot;Exons 3&#39;&quot;,
+          &quot;Rearrangement id&quot;,
+          &quot;Amino acids 5&#39;&quot;,
+          &quot;Amino acids 3&#39;&quot;)
+if(any(is.na(fus2$lab_id))) stop(&quot;Missing some Lab/Subject ids&quot;)</code></pre>
+<pre class="r"><code>colnames(fus2) &lt;- cnms
+fus2</code></pre>
+<pre><code>    Subject id     Lab id   Gene 5&#39;   Gene 3&#39;                 Tx 5&#39;
+1      CGOV354   CGOV354T     MS4A7    MS4A14    promoter_NM_021201
+2      CGOV354   CGOV354T     MS4A7    MS4A14    promoter_NM_021201
+3      CGOV354   CGOV354T     MS4A7    MS4A14    promoter_NM_021201
+4      CGOV354   CGOV354T     MS4A7    MS4A14    promoter_NM_021201
+5      CGOV375   CGOV375T    DNASE1    BORCS5    promoter_NM_005223
+6      CGOV375   CGOV375T    DNASE1     GPR19    promoter_NM_005223
+7      CGOV295  CGOV295Tb     IP6K3     LEMD2          NM_001142883
+8      CGOV295  CGOV295Tb     IP6K3     LEMD2             NM_054111
+9      CGOV295  CGOV295Tb     LEMD2     IP6K3             NM_181336
+10     CGOV295  CGOV295Tb     LEMD2     IP6K3             NM_181336
+11     CGOV295  CGOV295Tb  EPB41L4B     PTPN3             NM_019114
+12     CGOV295  CGOV295Tb  EPB41L4B     PTPN3             NM_019114
+13     CGOV295  CGOV295Tb  EPB41L4B     PTPN3             NM_019114
+14     CGOV295  CGOV295Tb  EPB41L4B     PTPN3             NM_019114
+15     CGOV295  CGOV295Tb  EPB41L4B     PTPN3             NM_019114
+16     CGOV295  CGOV295Tb  EPB41L4B     PTPN3             NM_019114
+17     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145371
+18     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145371
+19     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145372
+20     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145372
+21     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145369
+22     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145369
+23     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145370
+24     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145370
+25     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145368
+26     CGOV295  CGOV295Tb     PTPN3  EPB41L4B          NM_001145368
+27     CGOV295  CGOV295Tb     PTPN3  EPB41L4B             NM_002829
+28     CGOV295  CGOV295Tb     PTPN3  EPB41L4B             NM_002829
+29     CGOV295  CGOV295Tb     KCNQ1      LRP5             NM_000218
+30     CGOV295  CGOV295Tb     KCNQ1      LRP5             NM_181798
+31     CGOV295  CGOV295Tb      LRP5     KCNQ1          NM_001291902
+32     CGOV295  CGOV295Tb      URB1     EVA1C             NM_014825
+33     CGOV295  CGOV295Tb      URB1     EVA1C             NM_014825
+34     CGOV295  CGOV295Tb     EVA1C      URB1          NM_001286556
+35     CGOV295  CGOV295Tb      SBF1      TYMP             NM_002972
+36     CGOV295  CGOV295Tb      SBF1      TYMP             NM_002972
+37     CGOV295  CGOV295Tb      SBF1      TYMP             NM_002972
+38     CGOV139 CGOV139T_1     ATP5L    SLC9C1    promoter_NM_006476
+39     CGOV172   CGOV172T     ADCY8    ZBTB17             NM_001115
+40     CGOV172   CGOV172T     ADCY8    ZBTB17             NM_001115
+41     CGOV172   CGOV172T     ADCY8    ZBTB17             NM_001115
+42     CGOV172   CGOV172T     ADCY8    ZBTB17             NM_001115
+43     CGOV172   CGOV172T     CRIM1       VIT             NM_016441
+44     CGOV172   CGOV172T     CRIM1       VIT             NM_016441
+45     CGOV172   CGOV172T     CRIM1       VIT             NM_016441
+46     CGOV172   CGOV172T     CRIM1       VIT             NM_016441
+47     CGOV172   CGOV172T     CRIM1       VIT             NM_016441
+48     CGOV172   CGOV172T       VIT     CRIM1          NM_001177972
+49     CGOV172   CGOV172T       GP9      CNBP    promoter_NM_000174
+50     CGOV172   CGOV172T       GP9      CNBP    promoter_NM_000174
+51     CGOV172   CGOV172T       GP9      CNBP    promoter_NM_000174
+52     CGOV172   CGOV172T       GP9      CNBP    promoter_NM_000174
+53     CGOV172   CGOV172T       GP9      CNBP    promoter_NM_000174
+54     CGOV172   CGOV172T       GP9      CNBP    promoter_NM_000174
+55     CGOV172   CGOV172T      CPN2     DCLK2          NM_001080513
+56     CGOV172   CGOV172T      CPN2     DCLK2          NM_001080513
+57     CGOV172   CGOV172T     DCLK2      CPN2          NM_001040260
+58     CGOV172   CGOV172T     DCLK2      CPN2          NM_001040261
+59     CGOV172   CGOV172T   JAKMIP1    LINGO1          NM_001099433
+60     CGOV172   CGOV172T   JAKMIP1    LINGO1          NM_001099433
+61     CGOV172   CGOV172T   JAKMIP1    LINGO1          NM_001099433
+62     CGOV172   CGOV172T   JAKMIP1    LINGO1          NM_001306134
+63     CGOV172   CGOV172T   JAKMIP1    LINGO1          NM_001306134
+64     CGOV172   CGOV172T   JAKMIP1    LINGO1          NM_001306134
+65     CGOV172   CGOV172T    LINGO1   JAKMIP1          NM_001301195
+66     CGOV172   CGOV172T    LINGO1   JAKMIP1          NM_001301195
+67     CGOV172   CGOV172T    LINGO1   JAKMIP1          NM_001301195
+68     CGOV172   CGOV172T    EGFLAM    RICTOR          NM_001205301
+69     CGOV172   CGOV172T    RICTOR    EGFLAM          NM_001285440
+70     CGOV172   CGOV172T    RICTOR    EGFLAM          NM_001285440
+71     CGOV172   CGOV172T     ATAD1      PTEN             NM_032810
+72     CGOV172   CGOV172T     ATAD1      PTEN             NM_032810
+73     CGOV172   CGOV172T     ATAD1      PTEN             NM_032810
+74     CGOV172   CGOV172T      PTEN     ATAD1             NM_000314
+75     CGOV172   CGOV172T      PTEN     ATAD1          NM_001304717
+76     CGOV172   CGOV172T      PTEN     ATAD1          NM_001304718
+77     CGOV172   CGOV172T     CRYL1    N6AMT2             NM_015974
+78     CGOV172   CGOV172T    N6AMT2     CRYL1             NM_174928
+79     CGOV172   CGOV172T      LEO1     MYO5C          NM_001286430
+80     CGOV172   CGOV172T      LEO1     MYO5C             NM_138792
+81     CGOV172   CGOV172T     MYO5C      LEO1             NM_018728
+82     CGOV172   CGOV172T     MYO5C      LEO1             NM_018728
+83     CGOV172   CGOV172T      PLK5      TCF3          NM_001243079
+84     CGOV172   CGOV172T      PLK5      TCF3          NM_001243079
+85     CGOV172   CGOV172T      TCF3      PLK5          NM_001136139
+86     CGOV172   CGOV172T      TCF3      PLK5             NM_003200
+87     CGOV173   CGOV173T       NF1    RAD51D          NM_001128147
+88     CGOV173   CGOV173T       NF1    RAD51D          NM_001128147
+89     CGOV173   CGOV173T     FNDC8       NF1    promoter_NM_017559
+90     CGOV173   CGOV173T     FNDC8       NF1    promoter_NM_017559
+91     CGOV173   CGOV173T     FNDC8       NF1    promoter_NM_017559
+92     CGOV173   CGOV173T      MED1    STAT5B    promoter_NM_004774
+93     CGOV173   CGOV173T     GSDMB      DHX8    promoter_NM_018530
+94     CGOV173   CGOV173T     GSDMB      DHX8    promoter_NM_018530
+95     CGOV147   CGOV147T    TCF7L1      NAV2             NM_031283
+96     CGOV147   CGOV147T    TCF7L1      NAV2             NM_031283
+97     CGOV147   CGOV147T    TCF7L1      NAV2             NM_031283
+98     CGOV147   CGOV147T      NAV2    TCF7L1          NM_001111018
+99     CGOV147   CGOV147T      NAV2    TCF7L1          NM_001244963
+100    CGOV157   CGOV157T     NUP93   SLC12A3             NM_014669
+101    CGOV157   CGOV157T     NUP93   SLC12A3             NM_014669
+102    CGOV157   CGOV157T     NUP93   SLC12A3          NM_001242795
+103    CGOV157   CGOV157T     NUP93   SLC12A3          NM_001242795
+104    CGOV157   CGOV157T   SLC12A3     NUP93             NM_000339
+105    CGOV157   CGOV157T   SLC12A3     NUP93             NM_000339
+106    CGOV157   CGOV157T      WWOX     TTC28          NM_001291997
+107    CGOV157   CGOV157T      WWOX     TTC28             NM_016373
+108    CGOV157   CGOV157T     TTC28      WWOX          NM_001145418
+109    CGOV157   CGOV157T     TTC28      WWOX          NM_001145418
+110    CGOV161   CGOV161T    DNMT3A      DTNB             NM_022552
+111    CGOV161   CGOV161T    DNMT3A      DTNB             NM_022552
+112    CGOV161   CGOV161T    DNMT3A      DTNB             NM_022552
+113    CGOV161   CGOV161T    DNMT3A      DTNB             NM_022552
+114    CGOV161   CGOV161T    DNMT3A      DTNB             NM_022552
+115    CGOV161   CGOV161T    DNMT3A      DTNB             NM_022552
+116    CGOV161   CGOV161T    DNMT3A      DTNB             NM_022552
+117    CGOV161   CGOV161T      DTNB    DNMT3A          NM_001256308
+118    CGOV161   CGOV161T      DTNB    DNMT3A          NM_001256308
+119    CGOV161   CGOV161T      DTNB    DNMT3A          NM_001256304
+120    CGOV161   CGOV161T      DTNB    DNMT3A          NM_001256304
+121    CGOV161   CGOV161T      DTNB    DNMT3A          NM_001256303
+122    CGOV161   CGOV161T      DTNB    DNMT3A          NM_001256303
+123    CGOV161   CGOV161T      DTNB    DNMT3A             NM_021907
+124    CGOV161   CGOV161T      DTNB    DNMT3A             NM_021907
+125    CGOV161   CGOV161T      DTNB    DNMT3A             NM_033148
+126    CGOV161   CGOV161T      DTNB    DNMT3A             NM_033148
+127    CGOV161   CGOV161T      DTNB    DNMT3A             NM_183361
+128    CGOV161   CGOV161T      DTNB    DNMT3A             NM_183361
+129    CGOV161   CGOV161T     SPON2       HTT    promoter_NM_012445
+130    CGOV161   CGOV161T       HTT     SPON2             NM_002111
+131    CGOV161   CGOV161T     ZNF83     CDH18 promoter_NM_001277945
+132    CGOV161   CGOV161T     CDH18     PDE4D          NM_001291956
+133    CGOV161   CGOV161T     PDE4D     CDH18          NM_001165899
+134    CGOV161   CGOV161T    NUP155     KIF2A          NM_001278312
+135    CGOV161   CGOV161T    NUP155     KIF2A          NM_001278312
+136    CGOV161   CGOV161T    NUP155     KIF2A          NM_001278312
+137    CGOV161   CGOV161T    NUP155     KIF2A             NM_004298
+138    CGOV161   CGOV161T    NUP155     KIF2A             NM_004298
+139    CGOV161   CGOV161T    NUP155     KIF2A             NM_004298
+140    CGOV161   CGOV161T     KIF2A    NUP155          NM_001098511
+141    CGOV161   CGOV161T     KIF2A    NUP155          NM_001098511
+142    CGOV161   CGOV161T     KIF2A    NUP155          NM_001243952
+143    CGOV161   CGOV161T     KIF2A    NUP155          NM_001243952
+144    CGOV161   CGOV161T     KIF2A    NUP155          NM_001243953
+145    CGOV161   CGOV161T     KIF2A    NUP155          NM_001243953
+146    CGOV161   CGOV161T    ZNF614       GHR    promoter_NM_025040
+147    CGOV161   CGOV161T    ZNF614       GHR    promoter_NM_025040
+148    CGOV161   CGOV161T     ITGA1      ARSB             NM_181501
+149    CGOV161   CGOV161T     ITGA1      ARSB             NM_181501
+150    CGOV161   CGOV161T      ARSB     ITGA1             NM_000046
+151    CGOV161   CGOV161T      ARSB     ITGA1             NM_198709
+152    CGOV161   CGOV161T     IPO11      CDK7             NM_016338
+153    CGOV161   CGOV161T     IPO11      CDK7          NM_001134779
+154    CGOV161   CGOV161T      CDK7     IPO11             NM_001799
+155    CGOV161   CGOV161T  TRAPPC13      RCN3          NM_001093755
+156    CGOV161   CGOV161T     ZFP28    ZNF366          NM_001308440
+157    CGOV161   CGOV161T    ZNF366    NLRP11             NM_152625
+158    CGOV161   CGOV161T    ZNF366    NLRP11             NM_152625
+159    CGOV161   CGOV161T    NLRP11    ZNF366          NM_001297743
+160    CGOV161   CGOV161T     EDIL3    ZNF615          NM_001278642
+161    CGOV161   CGOV161T     EDIL3    ZNF615          NM_001278642
+162    CGOV161   CGOV161T     EDIL3    ZNF615             NM_005711
+163    CGOV161   CGOV161T     EDIL3    ZNF615             NM_005711
+164    CGOV161   CGOV161T    ZNF615     EDIL3          NM_001199324
+165    CGOV161   CGOV161T    ZNF615     EDIL3          NM_001199324
+166    CGOV161   CGOV161T     RMND1     KLHL7          NM_001271937
+167    CGOV161   CGOV161T     RMND1     KLHL7          NM_001271937
+168    CGOV161   CGOV161T     RMND1     KLHL7          NM_001271937
+169    CGOV161   CGOV161T     RMND1     KLHL7             NM_017909
+170    CGOV161   CGOV161T     RMND1     KLHL7             NM_017909
+171    CGOV161   CGOV161T     RMND1     KLHL7             NM_017909
+172    CGOV161   CGOV161T     KLHL7     RMND1          NM_001172428
+173    CGOV161   CGOV161T     KLHL7     RMND1          NM_001172428
+174    CGOV161   CGOV161T     KLHL7     RMND1             NM_018846
+175    CGOV161   CGOV161T     KLHL7     RMND1             NM_018846
+176    CGOV161   CGOV161T     UBAP1      GALT          NM_001171203
+177    CGOV161   CGOV161T     UBAP1      GALT          NM_001171203
+178    CGOV161   CGOV161T    IL11RA     UBAP1 promoter_NM_001142784
+179    CGOV161   CGOV161T    IL11RA     UBAP1 promoter_NM_001142784
+180    CGOV161   CGOV161T    CEP152      SHC4          NM_001194998
+181    CGOV161   CGOV161T      SHC4    CEP152             NM_203349
+182    CGOV161   CGOV161T      SHC4    CEP152             NM_203349
+183    CGOV161   CGOV161T       NF1 RAB11FIP4             NM_000267
+184    CGOV161   CGOV161T       NF1 RAB11FIP4          NM_001042492
+185    CGOV161   CGOV161T RAB11FIP4       NF1             NM_032932
+186    CGOV161   CGOV161T RAB11FIP4       NF1             NM_032932
+187    CGOV161   CGOV161T     UBXN6       NF2          NM_001171091
+188    CGOV161   CGOV161T     UBXN6       NF2          NM_001171091
+189    CGOV161   CGOV161T     UBXN6       NF2          NM_001171091
+190    CGOV161   CGOV161T     UBXN6       NF2          NM_001171091
+191    CGOV161   CGOV161T     UBXN6       NF2          NM_001171091
+192    CGOV161   CGOV161T     UBXN6       NF2          NM_001171091
+193    CGOV161   CGOV161T     UBXN6       NF2             NM_025241
+194    CGOV161   CGOV161T     UBXN6       NF2             NM_025241
+195    CGOV161   CGOV161T     UBXN6       NF2             NM_025241
+196    CGOV161   CGOV161T     UBXN6       NF2             NM_025241
+197    CGOV161   CGOV161T     UBXN6       NF2             NM_025241
+198    CGOV161   CGOV161T     UBXN6       NF2             NM_025241
+199    CGOV161   CGOV161T     UCKL1    DNAJC5 promoter_NM_001193379
+200    CGOV161   CGOV161T       BID    MICAL3          NM_001244572
+201    CGOV161   CGOV161T    MICAL3       BID             NM_015241
+202    CGOV161   CGOV161T    MICAL3       BID             NM_015241
+203    CGOV161   CGOV161T    MICAL3       BID             NM_015241
+204     GT_016   CGOV465T    SH2D4B    PIK3R5             NM_207372
+205     GT_016   CGOV465T    SH2D4B    PIK3R5             NM_207372
+206     GT_016   CGOV465T    SH2D4B    PIK3R5             NM_207372
+207     GT_016   CGOV465T    SH2D4B    PIK3R5          NM_001145719
+208     GT_016   CGOV465T    SH2D4B    PIK3R5          NM_001145719
+209     GT_016   CGOV465T    SH2D4B    PIK3R5          NM_001145719
+210     GT_016   CGOV465T    PIK3R5    SH2D4B          NM_001142633
+211     GT_016   CGOV465T    PIK3R5    SH2D4B          NM_001142633
+212     GT_016   CGOV465T     H3F3B     ITGB4             NM_005324
+213     GT_016   CGOV465T     H3F3B     ITGB4             NM_005324
+214     GT_016   CGOV465T     H3F3B     ITGB4             NM_005324
+215     GT_028   CGOV473T     CAPN7      RFC4             NM_014296
+216     GT_028   CGOV473T      RFC4     CAPN7             NM_002916
+217     GT_028   CGOV473T       EVC    SORCS2          NM_001306090
+218     GT_028   CGOV473T    SORCS2       EVC             NM_020777
+219     GT_028   CGOV473T    SORCS2       EVC             NM_020777
+220     GT_028   CGOV473T    ZNF438     CCDC7          NM_001143769
+221     GT_028   CGOV473T     CCDC7    ZNF438          NM_001026383
+222     GT_028   CGOV473T     CCDC7    ZNF438          NM_001026383
+223     GT_028   CGOV473T     CCDC7    ZNF438          NM_001026383
+224     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006019
+225     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006019
+226     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006019
+227     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006019
+228     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006019
+229     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006053
+230     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006053
+231     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006053
+232     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006053
+233     GT_028   CGOV473T    TCIRG1  SUV420H1             NM_006053
+234     GT_028   CGOV473T  SUV420H1    TCIRG1          NM_001300907
+235     GT_028   CGOV473T  SUV420H1    TCIRG1          NM_001300907
+236     GT_028   CGOV473T    ZNF714    ZNF431             NM_182515
+237     GT_028   CGOV473T    ZNF431    ZNF714             NM_133473
+           Tx 3&#39;     Junction 5&#39;    Junction 3&#39;    Exons 5&#39;     Exons 3&#39;
+1   NM_001079692  chr11:59902485 chr11:59922072  exons: 0-0   exons: 3-4
+2   NM_001261827  chr11:59902485 chr11:59922072  exons: 0-0   exons: 3-5
+3   NM_001261828  chr11:59902485 chr11:59922072  exons: 0-0   exons: 3-6
+4      NM_032597  chr11:59902485 chr11:59922072  exons: 0-0   exons: 3-5
+5   NM_001300742   chr16:3641496 chr12:12487994  exons: 0-0   exons: 4-4
+6      NM_006143   chr16:3641737 chr12:12736247  exons: 0-0   exons: 1-1
+7      NM_181336   chr6:33808749  chr6:33857712  exons: 1-1   exons: 4-9
+8      NM_181336   chr6:33808749  chr6:33857712  exons: 1-1   exons: 4-9
+9   NM_001142883   chr6:33857712  chr6:33808749  exons: 1-3   exons: 2-5
+10     NM_054111   chr6:33857712  chr6:33808749  exons: 1-3   exons: 2-5
+11  NM_001145371  chr9:111107964 chr9:111200418  exons: 1-1  exons: 9-15
+12  NM_001145372  chr9:111107964 chr9:111200418  exons: 1-1  exons: 8-14
+13  NM_001145369  chr9:111107964 chr9:111200418  exons: 1-1 exons: 15-21
+14  NM_001145370  chr9:111107964 chr9:111200418  exons: 1-1 exons: 14-20
+15  NM_001145368  chr9:111107964 chr9:111200418  exons: 1-1 exons: 18-24
+16     NM_002829  chr9:111107964 chr9:111200418  exons: 1-1 exons: 19-25
+17     NM_019114  chr9:111200418 chr9:111107964  exons: 1-8  exons: 2-26
+18     NM_018424  chr9:111200418 chr9:111107964  exons: 1-8  exons: 2-16
+19     NM_019114  chr9:111200418 chr9:111107964  exons: 1-7  exons: 2-26
+20     NM_018424  chr9:111200418 chr9:111107964  exons: 1-7  exons: 2-16
+21     NM_019114  chr9:111200418 chr9:111107964 exons: 1-14  exons: 2-26
+22     NM_018424  chr9:111200418 chr9:111107964 exons: 1-14  exons: 2-16
+23     NM_019114  chr9:111200418 chr9:111107964 exons: 1-13  exons: 2-26
+24     NM_018424  chr9:111200418 chr9:111107964 exons: 1-13  exons: 2-16
+25     NM_019114  chr9:111200418 chr9:111107964 exons: 1-17  exons: 2-26
+26     NM_018424  chr9:111200418 chr9:111107964 exons: 1-17  exons: 2-16
+27     NM_019114  chr9:111200418 chr9:111107964 exons: 1-18  exons: 2-26
+28     NM_018424  chr9:111200418 chr9:111107964 exons: 1-18  exons: 2-16
+29  NM_001291902   chr11:2784817 chr11:67882626 exons: 1-15  exons: 1-16
+30  NM_001291902   chr11:2784817 chr11:67882626 exons: 1-15  exons: 1-16
+31     NM_000218  chr11:67882626  chr11:2784817  exons: 0-0 exons: 16-16
+32  NM_001286556  chr21:32624579 chr21:32780382 exons: 1-30   exons: 5-8
+33     NM_058187  chr21:32624579 chr21:32780382 exons: 1-30   exons: 5-8
+34     NM_014825  chr21:32780382 chr21:32624579  exons: 1-4 exons: 31-39
+35  NM_001113755  chr22:49242212 chr22:49314707 exons: 1-29   exons: 2-9
+36  NM_001113756  chr22:49242212 chr22:49314707 exons: 1-29   exons: 2-9
+37  NM_001257989  chr22:49242212 chr22:49314707 exons: 1-29   exons: 2-9
+38     NM_183061 chr11:117774734 chr3:113448029  exons: 0-0 exons: 10-28
+39  NM_001242884  chr8:131880962  chr1:16157563 exons: 1-15  exons: 1-13
+40  NM_001287603  chr8:131880962  chr1:16157563 exons: 1-15  exons: 1-14
+41  NM_001287604  chr8:131880962  chr1:16157563 exons: 1-15  exons: 1-13
+42     NM_003443  chr8:131880962  chr1:16157563 exons: 1-15  exons: 1-14
+43  NM_001177972   chr2:36627235  chr2:36803247 exons: 1-15   exons: 2-5
+44  NM_001177969   chr2:36627235  chr2:36803247 exons: 1-15  exons: 2-14
+45  NM_001177970   chr2:36627235  chr2:36803247 exons: 1-15  exons: 2-13
+46  NM_001177971   chr2:36627235  chr2:36803247 exons: 1-15  exons: 2-13
+47     NM_053276   chr2:36627235  chr2:36803247 exons: 1-15  exons: 2-15
+48     NM_016441   chr2:36803247  chr2:36627235  exons: 1-1 exons: 16-17
+49  NM_001127192  chr3:130261194 chr3:130380778  exons: 0-0   exons: 1-4
+50  NM_001127193  chr3:130261194 chr3:130380778  exons: 0-0   exons: 1-4
+51  NM_001127194  chr3:130261194 chr3:130380778  exons: 0-0   exons: 1-4
+52  NM_001127195  chr3:130261194 chr3:130380778  exons: 0-0   exons: 1-4
+53  NM_001127196  chr3:130261194 chr3:130380778  exons: 0-0   exons: 1-4
+54     NM_003418  chr3:130261194 chr3:130380778  exons: 0-0   exons: 1-4
+55  NM_001040260  chr3:195549144 chr4:151374317  exons: 0-0 exons: 11-16
+56  NM_001040261  chr3:195549144 chr4:151374317  exons: 0-0 exons: 12-17
+57  NM_001080513  chr4:151374317 chr3:195549144 exons: 1-10   exons: 1-1
+58  NM_001080513  chr4:151374317 chr3:195549144 exons: 1-11   exons: 1-1
+59  NM_001301195    chr4:6137856 chr15:75829364  exons: 1-3   exons: 1-1
+60  NM_001301191    chr4:6137856 chr15:75829364  exons: 1-3   exons: 1-1
+61  NM_001301192    chr4:6137856 chr15:75829364  exons: 1-3   exons: 1-1
+62  NM_001301195    chr4:6137856 chr15:75829364  exons: 1-2   exons: 1-1
+63  NM_001301191    chr4:6137856 chr15:75829364  exons: 1-2   exons: 1-1
+64  NM_001301192    chr4:6137856 chr15:75829364  exons: 1-2   exons: 1-1
+65  NM_001099433  chr15:75829364   chr4:6137856  exons: 0-0  exons: 4-20
+66  NM_001306133  chr15:75829364   chr4:6137856  exons: 0-0  exons: 4-12
+67  NM_001306134  chr15:75829364   chr4:6137856  exons: 0-0  exons: 3-11
+68  NM_001285440   chr5:38378010  chr5:39057153  exons: 1-3  exons: 1-29
+69  NM_001205301   chr5:39057153  chr5:38378010  exons: 0-0  exons: 4-23
+70     NM_152403   chr5:39057153  chr5:38378010  exons: 0-0  exons: 4-22
+71     NM_000314  chr10:89516729 chr10:89696763  exons: 1-7   exons: 6-9
+72  NM_001304717  chr10:89516729 chr10:89696763  exons: 1-7  exons: 7-10
+73  NM_001304718  chr10:89516729 chr10:89696763  exons: 1-7   exons: 1-4
+74     NM_032810  chr10:89696763 chr10:89516729  exons: 1-5   exons: 8-9
+75     NM_032810  chr10:89696763 chr10:89516729  exons: 1-6   exons: 8-9
+76     NM_032810  chr10:89696763 chr10:89516729  exons: 0-0   exons: 8-9
+77     NM_174928  chr13:19930068 chr13:20210985  exons: 1-3   exons: 2-4
+78     NM_015974  chr13:20210985 chr13:19930068  exons: 1-1   exons: 4-8
+79     NM_018728  chr15:50020075 chr15:50367183  exons: 1-9  exons: 2-41
+80     NM_018728  chr15:50020075 chr15:50367183 exons: 1-11  exons: 2-41
+81  NM_001286430  chr15:50367183 chr15:50020075  exons: 1-1 exons: 10-10
+82     NM_138792  chr15:50367183 chr15:50020075  exons: 1-1 exons: 12-12
+83  NM_001136139   chr19:1476889  chr19:1578059  exons: 0-0  exons: 6-18
+84     NM_003200   chr19:1476889  chr19:1578059  exons: 0-0  exons: 6-18
+85  NM_001243079   chr19:1578059  chr19:1476889  exons: 1-5   exons: 1-9
+86  NM_001243079   chr19:1578059  chr19:1476889  exons: 1-5   exons: 1-9
+87  NM_001142571  chr17:26462905 chr17:30468589  exons: 1-1  exons: 3-10
+88     NM_133629  chr17:26462905 chr17:30468589  exons: 1-1   exons: 3-7
+89  NM_001128147  chr17:30468589 chr17:26462905  exons: 0-0  exons: 2-15
+90     NM_000267  chr17:30468589 chr17:26462905  exons: 0-0  exons: 2-57
+91  NM_001042492  chr17:30468589 chr17:26462905  exons: 0-0  exons: 2-58
+92     NM_012448  chr17:34862571 chr17:37668741  exons: 0-0  exons: 1-18
+93     NM_004941  chr17:35329224 chr17:38951930  exons: 0-0 exons: 19-23
+94  NM_001302623  chr17:35329224 chr17:38951930  exons: 0-0 exons: 19-23
+95  NM_001111018   chr2:85271688 chr11:19839458  exons: 1-3  exons: 4-38
+96  NM_001244963   chr2:85271688 chr11:19839458  exons: 1-3  exons: 4-40
+97     NM_182964   chr2:85271688 chr11:19839458  exons: 1-3  exons: 4-38
+98     NM_031283  chr11:19839458  chr2:85271688  exons: 1-3  exons: 4-12
+99     NM_031283  chr11:19839458  chr2:85271688  exons: 1-3  exons: 4-12
+100    NM_000339  chr16:55412038 chr16:55458551  exons: 1-5  exons: 3-26
+101 NM_001126108  chr16:55412038 chr16:55458551  exons: 1-5  exons: 3-26
+102    NM_000339  chr16:55412038 chr16:55458551  exons: 1-2  exons: 3-26
+103 NM_001126108  chr16:55412038 chr16:55458551  exons: 1-2  exons: 3-26
+104    NM_014669  chr16:55458551 chr16:55412038  exons: 1-1  exons: 6-21
+105 NM_001242795  chr16:55458551 chr16:55412038  exons: 1-1  exons: 3-18
+106 NM_001145418  chr16:77769308 chr22:27395474  exons: 1-5  exons: 2-23
+107 NM_001145418  chr16:77769308 chr22:27395474  exons: 1-8  exons: 2-23
+108 NM_001291997  chr22:27395474 chr16:77769308  exons: 1-1   exons: 6-6
+109    NM_016373  chr22:27395474 chr16:77769308  exons: 1-1   exons: 9-9
+110 NM_001256308   chr2:25374129  chr2:25468274  exons: 1-2 exons: 13-15
+111 NM_001256303   chr2:25374129  chr2:25468274  exons: 1-2 exons: 15-18
+112    NM_021907   chr2:25374129  chr2:25468274  exons: 1-2 exons: 16-19
+113    NM_033147   chr2:25374129  chr2:25468274  exons: 1-2 exons: 16-18
+114    NM_033148   chr2:25374129  chr2:25468274  exons: 1-2 exons: 15-17
+115    NM_183360   chr2:25374129  chr2:25468274  exons: 1-2 exons: 16-18
+116    NM_183361   chr2:25374129  chr2:25468274  exons: 1-2 exons: 14-16
+117    NM_022552   chr2:25468274  chr2:25374129 exons: 1-12  exons: 3-22
+118    NM_175630   chr2:25468274  chr2:25374129 exons: 1-12   exons: 3-3
+119    NM_022552   chr2:25468274  chr2:25374129 exons: 1-14  exons: 3-22
+120    NM_175630   chr2:25468274  chr2:25374129 exons: 1-14   exons: 3-3
+121    NM_022552   chr2:25468274  chr2:25374129 exons: 1-14  exons: 3-22
+122    NM_175630   chr2:25468274  chr2:25374129 exons: 1-14   exons: 3-3
+123    NM_022552   chr2:25468274  chr2:25374129 exons: 1-15  exons: 3-22
+124    NM_175630   chr2:25468274  chr2:25374129 exons: 1-15   exons: 3-3
+125    NM_022552   chr2:25468274  chr2:25374129 exons: 1-14  exons: 3-22
+126    NM_175630   chr2:25468274  chr2:25374129 exons: 1-14   exons: 3-3
+127    NM_022552   chr2:25468274  chr2:25374129 exons: 1-13  exons: 3-22
+128    NM_175630   chr2:25468274  chr2:25374129 exons: 1-13   exons: 3-3
+129    NM_002111    chr4:1161597   chr4:3142267  exons: 0-0 exons: 30-67
+130 NM_001199021    chr4:3142267   chr4:1161597 exons: 1-29   exons: 1-5
+131 NM_001291956  chr19:57887938  chr5:20026419  exons: 0-0  exons: 1-11
+132 NM_001165899   chr5:20243819  chr5:59800953  exons: 0-0  exons: 1-16
+133 NM_001291956   chr5:59800953  chr5:20243819  exons: 0-0  exons: 1-11
+134 NM_001098511   chr5:37368094  chr5:61687718 exons: 1-13  exons: 8-21
+135 NM_001243952   chr5:37368094  chr5:61687718 exons: 1-13  exons: 8-20
+136 NM_001243953   chr5:37368094  chr5:61687718 exons: 1-13  exons: 8-20
+137 NM_001098511   chr5:37368094  chr5:61687718 exons: 1-12  exons: 8-21
+138 NM_001243952   chr5:37368094  chr5:61687718 exons: 1-12  exons: 8-20
+139 NM_001243953   chr5:37368094  chr5:61687718 exons: 1-12  exons: 8-20
+140 NM_001278312   chr5:61687718  chr5:37368094  exons: 1-7 exons: 14-34
+141    NM_004298   chr5:61687718  chr5:37368094  exons: 1-7 exons: 13-34
+142 NM_001278312   chr5:61687718  chr5:37368094  exons: 1-7 exons: 14-34
+143    NM_004298   chr5:61687718  chr5:37368094  exons: 1-7 exons: 13-34
+144 NM_001278312   chr5:61687718  chr5:37368094  exons: 1-7 exons: 14-34
+145    NM_004298   chr5:61687718  chr5:37368094  exons: 1-7 exons: 13-34
+146    NM_000163  chr19:57227973  chr5:42558435  exons: 0-0   exons: 1-9
+147 NM_001242400  chr19:57227973  chr5:42558435  exons: 0-0   exons: 1-9
+148    NM_000046   chr5:52123102  chr5:78268591  exons: 1-1   exons: 5-8
+149    NM_198709   chr5:52123102  chr5:78268591  exons: 1-1   exons: 5-7
+150    NM_181501   chr5:78268591  chr5:52123102  exons: 1-4  exons: 2-29
+151    NM_181501   chr5:78268591  chr5:52123102  exons: 1-4  exons: 2-29
+152    NM_001799   chr5:61783337  chr5:68587530  exons: 1-3  exons: 6-12
+153    NM_001799   chr5:61783337  chr5:68587530  exons: 1-4  exons: 6-12
+154    NM_016338   chr5:68587530  chr5:61783337  exons: 1-5  exons: 5-29
+155    NM_020650   chr5:64970728 chr19:54732260  exons: 1-4   exons: 4-6
+156    NM_152625  chr19:61750695  chr5:71794332  exons: 1-2   exons: 1-4
+157 NM_001297743   chr5:71802294 chr19:61032108  exons: 0-0   exons: 1-8
+158    NM_145007   chr5:71802294 chr19:61032108  exons: 0-0   exons: 1-9
+159    NM_152625  chr19:61032108  chr5:71802294  exons: 0-0   exons: 1-4
+160 NM_001199324   chr5:83303644 chr19:57198230  exons: 1-8   exons: 2-5
+161    NM_198480   chr5:83303644 chr19:57198230  exons: 1-8   exons: 2-4
+162 NM_001199324   chr5:83303644 chr19:57198230  exons: 1-9   exons: 2-5
+163    NM_198480   chr5:83303644 chr19:57198230  exons: 1-9   exons: 2-4
+164 NM_001278642  chr19:57198230  chr5:83303644  exons: 1-1  exons: 9-10
+165    NM_005711  chr19:57198230  chr5:83303644  exons: 1-1 exons: 10-11
+166 NM_001172428  chr6:151772149  chr7:23118439  exons: 1-8   exons: 2-5
+167 NM_001031710  chr6:151772149  chr7:23118439  exons: 1-8  exons: 2-11
+168    NM_018846  chr6:151772149  chr7:23118439  exons: 1-8  exons: 1-10
+169 NM_001172428  chr6:151772149  chr7:23118439  exons: 1-9   exons: 2-5
+170 NM_001031710  chr6:151772149  chr7:23118439  exons: 1-9  exons: 2-11
+171    NM_018846  chr6:151772149  chr7:23118439  exons: 1-9  exons: 1-10
+172 NM_001271937   chr7:23118355 chr6:151772193  exons: 1-1  exons: 9-10
+173    NM_017909   chr7:23118355 chr6:151772193  exons: 1-1 exons: 10-11
+174 NM_001271937   chr7:23118355 chr6:151772193  exons: 0-0  exons: 9-10
+175    NM_017909   chr7:23118355 chr6:151772193  exons: 0-0 exons: 10-11
+176    NM_000155   chr9:34170574  chr9:34639732  exons: 0-0 exons: 11-11
+177 NM_001258332   chr9:34170574  chr9:34639732  exons: 0-0   exons: 8-8
+178 NM_001171203   chr9:34639732  chr9:34170574  exons: 0-0   exons: 1-6
+179    NM_016525   chr9:34639732  chr9:34170574  exons: 0-0   exons: 1-6
+180    NM_203349  chr15:46844197 chr15:46951240 exons: 1-16  exons: 6-12
+181 NM_001194998  chr15:46951240 chr15:46844197  exons: 1-5 exons: 17-26
+182    NM_014985  chr15:46951240 chr15:46844197  exons: 1-5 exons: 17-25
+183    NM_032932  chr17:26606251 chr17:26824831 exons: 1-30  exons: 4-15
+184    NM_032932  chr17:26606251 chr17:26824831 exons: 1-31  exons: 4-15
+185    NM_000267  chr17:26824831 chr17:26606251  exons: 1-3 exons: 31-57
+186 NM_001042492  chr17:26824831 chr17:26606251  exons: 1-3 exons: 32-58
+187    NM_181825   chr19:4399369 chr22:28357768  exons: 1-3  exons: 2-16
+188    NM_181831   chr19:4399369 chr22:28357768  exons: 1-3  exons: 2-14
+189    NM_000268   chr19:4399369 chr22:28357768  exons: 1-3  exons: 2-16
+190    NM_181828   chr19:4399369 chr22:28357768  exons: 1-3  exons: 2-15
+191    NM_181829   chr19:4399369 chr22:28357768  exons: 1-3  exons: 2-15
+192    NM_181833   chr19:4399369 chr22:28357768  exons: 1-3   exons: 2-5
+193    NM_181825   chr19:4399369 chr22:28357768  exons: 1-4  exons: 2-16
+194    NM_181831   chr19:4399369 chr22:28357768  exons: 1-4  exons: 2-14
+195    NM_000268   chr19:4399369 chr22:28357768  exons: 1-4  exons: 2-16
+196    NM_181828   chr19:4399369 chr22:28357768  exons: 1-4  exons: 2-15
+197    NM_181829   chr19:4399369 chr22:28357768  exons: 1-4  exons: 2-15
+198    NM_181833   chr19:4399369 chr22:28357768  exons: 1-4   exons: 2-5
+199    NM_025219  chr20:62053921 chr20:62022301  exons: 0-0   exons: 1-4
+200    NM_015241  chr22:16629497 chr22:16808662  exons: 0-0  exons: 1-31
+201 NM_001244572  chr22:16808662 chr22:16629497  exons: 0-0   exons: 1-3
+202    NM_001196  chr22:16808662 chr22:16629497  exons: 0-0   exons: 1-5
+203 NM_001244569  chr22:16808662 chr22:16629497  exons: 0-0   exons: 1-3
+204 NM_001142633  chr10:82333232  chr17:8802559  exons: 1-3  exons: 1-18
+205 NM_001251851  chr10:82333232  chr17:8802559  exons: 1-3  exons: 1-10
+206 NM_001251852  chr10:82333232  chr17:8802559  exons: 1-3  exons: 1-10
+207 NM_001142633  chr10:82333232  chr17:8802559  exons: 1-3  exons: 1-18
+208 NM_001251851  chr10:82333232  chr17:8802559  exons: 1-3  exons: 1-10
+209 NM_001251852  chr10:82333232  chr17:8802559  exons: 1-3  exons: 1-10
+210    NM_207372   chr17:8802559 chr10:82333232  exons: 0-0   exons: 4-7
+211 NM_001145719   chr17:8802559 chr10:82333232  exons: 0-0   exons: 4-7
+212    NM_000213  chr17:71286973 chr17:71257791  exons: 0-0 exons: 28-39
+213 NM_001005731  chr17:71286973 chr17:71257791  exons: 0-0 exons: 28-38
+214 NM_001005619  chr17:71286973 chr17:71257791  exons: 0-0 exons: 28-39
+215    NM_002916   chr3:15256782 chr3:187990789 exons: 1-12  exons: 9-10
+216    NM_014296  chr3:187990789  chr3:15256782  exons: 1-8 exons: 13-21
+217    NM_020777    chr4:5829554   chr4:7371446 exons: 1-11  exons: 2-27
+218 NM_001306090    chr4:7371446   chr4:5829554  exons: 1-1 exons: 12-21
+219    NM_153717    chr4:7371446   chr4:5829554  exons: 1-1 exons: 12-21
+220 NM_001026383  chr10:31189306 chr10:32792169  exons: 0-0  exons: 6-17
+221 NM_001143769  chr10:32792169 chr10:31189306  exons: 1-5   exons: 1-2
+222 NM_001143770  chr10:32792169 chr10:31189306  exons: 1-5   exons: 1-3
+223 NM_001143771  chr10:32792169 chr10:31189306  exons: 1-5   exons: 1-3
+224 NM_001300907  chr11:67573580 chr11:67715834 exons: 1-14   exons: 1-7
+225    NM_017635  chr11:67573580 chr11:67715834 exons: 1-14  exons: 1-10
+226 NM_001300908  chr11:67573580 chr11:67715834 exons: 1-14   exons: 1-5
+227    NM_016028  chr11:67573580 chr11:67715834 exons: 1-14   exons: 1-9
+228 NM_001300909  chr11:67573580 chr11:67715834 exons: 1-14   exons: 1-8
+229 NM_001300907  chr11:67573580 chr11:67715834  exons: 1-9   exons: 1-7
+230    NM_017635  chr11:67573580 chr11:67715834  exons: 1-9  exons: 1-10
+231 NM_001300908  chr11:67573580 chr11:67715834  exons: 1-9   exons: 1-5
+232    NM_016028  chr11:67573580 chr11:67715834  exons: 1-9   exons: 1-9
+233 NM_001300909  chr11:67573580 chr11:67715834  exons: 1-9   exons: 1-8
+234    NM_006019  chr11:67715834 chr11:67573580  exons: 0-0 exons: 15-19
+235    NM_006053  chr11:67715834 chr11:67573580  exons: 0-0 exons: 10-14
+236    NM_133473  chr19:21078913 chr19:21147674  exons: 1-2   exons: 5-5
+237    NM_182515  chr19:21147674 chr19:21078913  exons: 1-4   exons: 3-3
+    Rearrangement id Amino acids 5&#39; Amino acids 3&#39;
+1        63458-63459            0-0         90-663
+2        63458-63459            0-0         90-696
+3        63458-63459            0-0         90-713
+4        63458-63459            0-0         90-680
+5       107746-88501            0-0        102-178
+6       107746-88523            0-0          1-416
+7      186233-186244           1-66        285-504
+8      186233-186244           1-66        285-504
+9      186244-186233          1-284         67-411
+10     186244-186233          1-284         67-411
+11     271270-271286          1-102        365-627
+12     271270-271286          1-102        320-582
+13     271270-271286          1-102        521-783
+14     271270-271286          1-102        476-738
+15     271270-271286          1-102        607-869
+16     271270-271286          1-102        652-914
+17     271286-271270          1-364        103-901
+18     271286-271270          1-364        103-519
+19     271286-271270          1-319        103-901
+20     271286-271270          1-319        103-519
+21     271286-271270          1-520        103-901
+22     271286-271270          1-520        103-519
+23     271286-271270          1-475        103-901
+24     271286-271270          1-475        103-519
+25     271286-271270          1-606        103-901
+26     271286-271270          1-606        103-519
+27     271286-271270          1-651        103-901
+28     271286-271270          1-651        103-519
+29     296847-307143          1-598         1-1035
+30     296847-307143          1-471         1-1035
+31     307143-296847            0-0        599-677
+32     444194-444225         1-1653        212-439
+33     444194-444225         1-1653        212-442
+34     444225-444194          1-211      1654-2272
+35     452526-452542         1-1301         72-483
+36     452526-452542         1-1301         72-483
+37     452526-452542         1-1301         72-488
+38     482338-149680            0-0       400-1178
+39       260631-1817         1-1020          1-722
+40       260631-1817         1-1020          1-811
+41       260631-1817         1-1020          1-728
+42       260631-1817         1-1020          1-804
+43       48587-48634          1-915         18-204
+44       48587-48634          1-915         18-679
+45       48587-48634          1-915         18-658
+46       48587-48634          1-915         18-657
+47       48587-48634          1-915         18-694
+48       48634-48587           1-17       916-1037
+49     107462-107494            0-0          1-180
+50     107462-107494            0-0          1-179
+51     107462-107494            0-0          1-173
+52     107462-107494            0-0          1-172
+53     107462-107494            0-0          1-171
+54     107462-107494            0-0          1-178
+55     120736-146660            0-0        523-767
+56     120736-146660            0-0        540-784
+57     146660-120736          1-522          1-546
+58     146660-120736          1-539          1-546
+59     122401-381139          1-278          1-615
+60     122401-381139          1-278          1-615
+61     122401-381139          1-278          1-615
+62     122401-381139          1-113          1-615
+63     122401-381139          1-113          1-615
+64     122401-381139          1-113          1-615
+65     381139-122401            0-0        279-832
+66     381139-122401            0-0        279-627
+67     381139-122401            0-0        114-462
+68     157852-157997           1-97         1-1386
+69     157997-157852            0-0        98-1018
+70     157997-157852            0-0        98-1010
+71     298733-298739          1-277        165-404
+72     298733-298739          1-277        338-577
+73     298733-298739          1-277          1-207
+74     298739-298733          1-164        278-362
+75     298739-298733          1-337        278-362
+76     298739-298733            0-0        278-362
+77     344772-344812           1-92         49-215
+78     344812-344772           1-48         93-320
+79     376667-376750          1-572        10-1743
+80     376667-376750          1-632        10-1743
+81     376750-376667            1-9        573-607
+82     376750-376667            1-9        633-667
+83     420880-420900            0-0        123-652
+84     420880-420900            0-0        123-655
+85     420900-420880          1-122          1-337
+86     420900-420880          1-122          1-337
+87     630892-631874           1-20         49-349
+88     630892-631874           1-20         49-217
+89     631874-630892            0-0         21-594
+90     631874-630892            0-0        21-2819
+91     631874-630892            0-0        21-2840
+92     632945-633614            0-0          1-788
+93     633048-633941            0-0       934-1221
+94     633048-633941            0-0       934-1182
+95      77648-433059          1-147        83-2366
+96      77648-433059          1-147       147-2489
+97      77648-433059          1-147       147-2433
+98      433059-77648           1-82        148-589
+99      433059-77648          1-146        148-589
+100    358941-358947          1-188       144-1031
+101    358941-358947          1-188       144-1022
+102    358941-358947           1-65       144-1031
+103    358941-358947           1-65       144-1022
+104    358947-358941           1-94        189-820
+105    358947-358941           1-94         66-697
+106    362566-416296          1-239        35-2482
+107    362566-416296          1-352        35-2482
+108    416296-362566           1-34        240-302
+109    416296-362566           1-34        353-415
+110      59998-60020           1-59        462-546
+111      59998-60020           1-59        519-621
+112      59998-60020           1-59        526-628
+113      59998-60020           1-59        526-598
+114      59998-60020           1-59        496-568
+115      59998-60020           1-59        526-610
+116      59998-60020           1-59        489-561
+117      60020-59998          1-461         60-913
+118      60020-59998          1-461         60-167
+119      60020-59998          1-518         60-913
+120      60020-59998          1-518         60-167
+121      60020-59998          1-518         60-913
+122      60020-59998          1-518         60-167
+123      60020-59998          1-525         60-913
+124      60020-59998          1-525         60-167
+125      60020-59998          1-495         60-913
+126      60020-59998          1-495         60-167
+127      60020-59998          1-488         60-913
+128      60020-59998          1-488         60-167
+129    160612-161101            0-0      1289-3143
+130    161101-160612         1-1288          1-332
+131    616615-209133            0-0          1-791
+132    209184-217632            0-0          1-749
+133    217632-209184            0-0          1-791
+134    212966-218081          1-506        219-745
+135    212966-218081          1-506        199-687
+136    212966-218081          1-506        200-688
+137    212966-218081          1-447        219-745
+138    212966-218081          1-447        199-687
+139    212966-218081          1-447        200-688
+140    218081-212966          1-218       507-1328
+141    218081-212966          1-218       448-1333
+142    218081-212966          1-198       507-1328
+143    218081-212966          1-198       448-1333
+144    218081-212966          1-199       507-1328
+145    218081-212966          1-199       448-1333
+146    616425-214217            0-0          1-639
+147    616425-214217            0-0          1-639
+148    215720-221725           1-20        300-534
+149    215720-221725           1-20        300-414
+150    221725-215720          1-299        21-1180
+151    221725-215720          1-299        21-1180
+152    218107-219763          1-104        100-347
+153    218107-219763          1-144        100-347
+154    219763-218107           1-99        173-976
+155    218860-615803          1-100        207-329
+156    617626-220120          1-100          1-745
+157    220122-617440            0-0          1-935
+158    220122-617440            0-0         1-1034
+159    617440-220122            0-0          1-745
+160    222958-616418          1-369          6-743
+161    222958-616418          1-369          6-732
+162    222958-616418          1-379          6-743
+163    222958-616418          1-379          6-732
+164    616418-222958            1-5        370-471
+165    616418-222958            1-5        380-481
+166    284336-294762          1-230         41-167
+167    284336-294762          1-230         41-587
+168    284336-294762          1-230          1-539
+169    284336-294762          1-400         41-167
+170    284336-294762          1-400         41-587
+171    284336-294762          1-400          1-539
+172    294762-284336           1-40        231-280
+173    294762-284336           1-40        401-450
+174    294762-284336            0-0        231-280
+175    294762-284336            0-0        401-450
+176    369891-370023            0-0        354-380
+177    369891-370023            0-0        245-271
+178    370023-369891            0-0          1-503
+179    370023-369891            0-0          1-503
+180    536271-536293          1-760        299-631
+181    536293-536271          1-298       761-1711
+182    536293-536271          1-298       761-1655
+183    573406-573465         1-1370        113-638
+184    573406-573465         1-1391        113-638
+185    573465-573406          1-112      1371-2819
+186    573465-573406          1-112      1392-2840
+187    605154-644647           1-94         39-591
+188    605154-644647           1-94         39-508
+189    605154-644647           1-94         39-596
+190    605154-644647           1-94         39-549
+191    605154-644647           1-94         39-550
+192    605154-644647           1-94         39-166
+193    605154-644647          1-147         39-591
+194    605154-644647          1-147         39-508
+195    605154-644647          1-147         39-596
+196    605154-644647          1-147         39-549
+197    605154-644647          1-147         39-550
+198    605154-644647          1-147         39-166
+199    633480-633471            0-0          1-199
+200    642111-642163            0-0         1-2003
+201    642163-642111            0-0          1-100
+202    642163-642111            0-0          1-196
+203    642163-642111            0-0          1-100
+204    440488-614898          1-165          1-881
+205    440488-614898          1-165          1-495
+206    440488-614898          1-165          1-495
+207    440488-614898          1-116          1-881
+208    440488-614898          1-116          1-495
+209    440488-614898          1-116          1-495
+210    614898-440488            0-0        166-358
+211    614898-440488            0-0        117-310
+212    630320-630315            0-0      1159-1823
+213    630320-630315            0-0      1159-1753
+214    630320-630315            0-0      1159-1806
+215     76728-103464          1-469        295-364
+216     103464-76728          1-294        470-814
+217    105895-106230          1-521       161-1160
+218    106230-105895          1-160        522-992
+219    106230-105895          1-160        522-993
+220    259295-259583            0-0        171-487
+221    259583-259295          1-170          1-780
+222    259583-259295          1-170          1-819
+223    259583-259295          1-170          1-819
+224    285036-285060          1-629          1-714
+225    285036-285060          1-629          1-886
+226    285036-285060          1-629          1-646
+227    285036-285060          1-629          1-394
+228    285036-285060          1-629          1-371
+229    285036-285060          1-413          1-714
+230    285036-285060          1-413          1-886
+231    285036-285060          1-413          1-646
+232    285036-285060          1-413          1-394
+233    285036-285060          1-413          1-371
+234    285060-285036            0-0        630-831
+235    285060-285036            0-0        414-615
+236    392168-392185           1-47        107-577
+237    392185-392168          1-106         48-555</code></pre>
+<pre class="r"><code>write_csv(fus2, file.path(outdir, &quot;table_S9.csv&quot;))</code></pre>
+<pre class="r"><code>## Expecting no hits
+grep(&quot;PPM1E&quot;, fus2$`Gene 3&#39;`)
+grep(&quot;PPM1E&quot;, fus2$`Gene 5&#39;`)
+grep(&quot;RAD51C&quot;, fus2$`Gene 3&#39;`)
+grep(&quot;RAD51C&quot;, fus2$`Gene 5&#39;`)
+## expecting hits
+grep(&quot;ATAD1&quot;, fus2$`Gene 3&#39;`)
+grep(&quot;MED1&quot;, fus2$`Gene 5&#39;`)</code></pre>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+https://docs.mathjax.org/en/latest/web/configuration.html. This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

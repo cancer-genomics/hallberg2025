@@ -1,0 +1,114 @@
+# meth-data-raw image (ENV-14/ENV-17): the FIRST real package pin this arm has ever
+# had. hallberg2025.meth.data/data-raw currently has NO install_deps.R equivalent at
+# all -- its only "reproducibility" artifact is a packageVersion() print statement in
+# a SLURM log (tests/snapshots/env_hallberg2025_meth_data.rds captures it post-hoc,
+# non-fatally, per R/env_check.R's own comment: "there is nothing pinned to gate
+# against"). REPRODUCIBILITY_PLAN.qmd already calls this "a reproducibility claim
+# currently resting on a log line, not a committed artifact." This image is that gap
+# closed, not just documented.
+#
+# Versions below are not "whatever resolves today" -- they're taken from the most
+# recent real capture_environment() run against the actual JHPCE cluster
+# (tests/snapshots/env_hallberg2025_meth_data.rds, captured 2026-07-26, Rocky Linux
+# 9.4, conda_R/4.5.x, Bioconductor 3.22). The CRAN snapshot date below matches that
+# same capture date so every other CRAN dependency resolves to what was actually
+# current then, not whatever's newest at image-build time.
+#
+# Same rocker/r-ver:4.5.3 base as docker/Dockerfile.manuscript (ENV-15) -- consistency
+# across images matters more than matching the cluster's native Rocky Linux distro,
+# since Apptainer runs this image's own userland regardless of the JHPCE host OS.
+#
+# Do NOT bake hallberg2025.base into this image -- it changes on every card that
+# touches it; install from local source at container-run time (see ENV-15's
+# equivalent note and its documented safe bind-mount pattern in its own Notes/log).
+
+FROM rocker/r-ver:4.5.3@sha256:c3f39b365d1077fe24f8e9ab2742e352b6d3950897f51af1624a5bb5550c21c0
+
+# libbz2-dev/liblzma-dev: discovered live -- Rhtslib (an htslib wrapper, a minfi
+# dependency) fails compiling cram_io.c ("fatal error: bzlib.h: No such file or
+# directory") without them. htslib's CRAM support needs both bzip2 and LZMA headers;
+# adding both together rather than fixing one and hitting the other on the next build.
+#
+# libuv1-dev: the same bug ENV-15's docker/Dockerfile.manuscript already found and
+# fixed (fs needs libuv.so.1 at runtime, absent from this minimal base) -- it cascaded
+# here through fs -> pkgload/rmarkdown/bslib/sass -> Hmisc/htmlTable, taking down
+# Hmisc entirely. Should have been carried over from ENV-15 the first time; wasn't.
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+      curl ca-certificates \
+      libcurl4-openssl-dev libssl-dev libxml2-dev \
+      libpng-dev libtiff5-dev libjpeg-dev \
+      libbz2-dev liblzma-dev \
+      libuv1-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Dated CRAN snapshot matching the env_hallberg2025_meth_data.rds capture date --
+# freezes every CRAN-only dependency (ggplot2, dplyr, Hmisc, magrittr, pkgload,
+# tibble, targets, here) to what was actually current on that date, rather than
+# whatever's newest when this image happens to be built.
+RUN echo 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-07-26"))' \
+      >> /usr/local/lib/R/etc/Rprofile.site
+
+RUN Rscript -e '\
+      install.packages("BiocManager"); \
+      if (as.character(packageVersion("BiocManager")) != "1.30.27") { \
+        stop("BiocManager resolved to a different version than the recorded capture -- investigate before proceeding") \
+      }'
+
+# Bioconductor 3.22, matching the recorded capture and this project's root uvr.toml
+# ([project] bioc_version = "3.22").
+#
+# ilm10b4.hg19: NOT in env_hallberg2025_meth_data.rds's tracked set (only ilm10b2 is
+# this project's own code -- assay_functions.R/methylation.R -- ever calls directly).
+# Found live (ENV-18): minfi's read.metharray.exp()/preprocessFunnorm() auto-detects
+# the annotation package from the batch2 IDATs' own headers, independent of what this
+# project's code requests, and needs ilm10b4 for that chip generation. The old
+# module-based conda_R/4.5.x environment had it installed as an untracked,
+# undeclared side-effect of its much broader shared Bioconductor library -- the
+# minimal, explicitly-pinned container (the whole point of containerizing) doesn't,
+# so this is the first environment ever to surface the gap.
+RUN Rscript -e '\
+      BiocManager::install(version = "3.22", ask = FALSE, update = FALSE); \
+      BiocManager::install(c( \
+        "minfi", \
+        "IlluminaHumanMethylationEPICanno.ilm10b2.hg19", \
+        "IlluminaHumanMethylationEPICanno.ilm10b4.hg19", \
+        "IlluminaHumanMethylationEPICmanifest", \
+        "SummarizedExperiment", \
+        "S4Vectors", \
+        "GenomicRanges", \
+        "IRanges", \
+        "GenomeInfoDb", \
+        "BiocGenerics" \
+      ), ask = FALSE, update = FALSE)'
+
+# CRAN-only dependencies used by data-raw/*.R (ggplot2, dplyr, Hmisc, magrittr,
+# pkgload, tibble) and by the pipeline driver itself (targets, here), plus the rest of
+# hallberg2025.base's own declared Imports (DESCRIPTION) -- discovered live that
+# installing hallberg2025.base from local source at container-run time (per this
+# image's own convention, not baked in) needs its FULL dependency set satisfied, not
+# just the subset data-raw/*.R itself calls directly. Resolved against the same dated
+# snapshot set above, not "whatever's newest".
+RUN Rscript -e '\
+      install.packages(c( \
+        "ggplot2", "dplyr", "Hmisc", "magrittr", "pkgload", "tibble", \
+        "targets", "here", \
+        "tidyr", "purrr", "stringr", "rlang", "readr", "MASS", \
+        "broom", "broman", "cowplot", "plyr", "scales" \
+      ))'
+
+# Verify the tracked packages landed at exactly the recorded versions -- fail the
+# build loudly if any drifted, rather than silently shipping a different pin than
+# this Dockerfile documents.
+RUN Rscript -e '\
+      expected <- c( \
+        minfi = "1.56.0", \
+        IlluminaHumanMethylationEPICanno.ilm10b2.hg19 = "0.6.0", \
+        IlluminaHumanMethylationEPICmanifest = "0.3.0" \
+      ); \
+      actual <- vapply(names(expected), function(p) as.character(packageVersion(p)), character(1)); \
+      mismatched <- expected[actual != expected]; \
+      if (length(mismatched) > 0) { \
+        stop("Version pin mismatch: ", paste(names(mismatched), "expected", mismatched, "got", actual[names(mismatched)], collapse = "; ")) \
+      } else { \
+        cat("All tracked package versions match the recorded 2026-07-26 capture.\n") \
+      }'

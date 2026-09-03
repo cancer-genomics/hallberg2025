@@ -1,0 +1,223 @@
+---
+title: "ext-figure1.Rmd"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r libraries, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(hallberg2025.base)
+library(magrittr)
+library(ggridges)
+library(targets)
+library(hallberg2025.seq.data)
+data(manifest, package="hallberg2025.base")
+library(here)
+# wflow_build() renders from analysis/; pass explicit store path
+tgt_store <- here("_targets")
+tumor_colors <- tumor_colors()
+tumor_colors <- tumor_colors[names(tumor_colors) != "Uterine endometrial" ]
+```
+
+```{r load_external_data_endo}
+clean_names <- hallberg2025.base:::clean_colnames3
+manifest2 <- manifest %>%
+    mutate(sample_type=tumor.normal) %>%
+    select(-tumor.normal) %>%
+    filter(tumor_type %in% c("ovarian endometrioid",
+                             "uterine endometrioid"))
+mut.wes <- read_tsv(here("docs", "table", "table_s4.Rmd",
+                         "table_S4.tsv"),
+                    show_col_types=FALSE)
+mut.wgs <- read_tsv(here("docs", "table", "table_s5.Rmd",
+                         "table_S5.tsv"),
+                    show_col_types=FALSE)
+mut <- bind_rows(mut.wes, mut.wgs) %>%
+    clean_names() %>%
+    filter(lab_id %in% manifest2$lab_id)
+nmut <- mut %>%
+    left_join(manifest2, by="lab_id") %>%
+    group_by(lab_id, tumor_type) %>%
+    summarize(count=n(), .groups="drop")
+```
+
+```{r load_external_data_gi}
+manifest3 <- manifest %>%
+    dplyr::rename(sample_type=tumor.normal) %>%
+    filter(tumor_type %in% c("colorectal",
+                             "pancreas",
+                             "stomach"))
+mut.gi <- bind_rows(mut.wes, mut.wgs) %>%
+    clean_names() %>%
+    filter(lab_id %in% manifest3$lab_id)
+nmut.gi <- mut.gi %>%
+    left_join(manifest3, by="lab_id") %>%
+    group_by(lab_id, tumor_type) %>%
+    summarize(count=n(), .groups="drop")
+```
+
+```{r load_external_data_facets}
+manifest4 <- manifest %>%
+    dplyr::rename(sample_type=tumor.normal)
+mut.all <- bind_rows(mut.wes, mut.wgs) %>%
+    clean_names() %>%
+    filter(lab_id %in% manifest4$lab_id)
+nmut.all <- mut.all %>%
+    left_join(manifest4, by="lab_id") %>%
+    group_by(lab_id, tumor_type) %>%
+    summarize(count=n(), .groups="drop")
+
+facets_wgs <- wgs_summary_stats() %>%
+    rename(lab_id = Sample) %>%
+    mutate(platform = "WGS")
+facets_wes <- wes_summary_stats() %>%
+    rename(lab_id = Sample) %>%
+    mutate(platform = "WES")
+
+facets <- bind_rows(facets_wgs, facets_wes) %>%
+    mutate(Facets = ifelse(str_detect(Flags, "Insufficient") |
+                           str_detect(Flags, "Fail"),
+                       "Fail",
+                       "Pass"))
+```
+
+```{r ext_fig1-1, fig.width=10, fig.height=5, dev=c("png", "pdf")}
+ggplot(nmut, aes(count)) +
+    geom_rug() +
+    geom_density(fill="steelblue", adjust=0.75, alpha=0.2) +
+    scale_x_log10() +
+    theme_bw(base_size=18) +
+    xlab("Number of mutations") +
+    ylab("Density") +
+    theme(panel.grid=element_blank(),
+          strip.background=element_blank()) +
+    facet_wrap(~tumor_type) +
+    annotate("text", y=0.5, x=550, label=" Hypermutators\n(> 500 mutations)",
+             hjust=0) +
+    geom_vline(xintercept=550, linetype="dashed", color="gray")
+```
+
+```{r ext_fig1-2, fig.width=10, fig.height=5, dev=c("png", "pdf")}
+ggplot(nmut.gi, aes(count)) +
+    geom_rug() +
+    geom_density(fill="steelblue", adjust=0.75, alpha=0.2) +
+    scale_x_log10() +
+    theme_bw(base_size=18) +
+    xlab("Number of mutations") +
+    ylab("Density") +
+    theme(panel.grid=element_blank(),
+          strip.background=element_blank()) +
+    facet_wrap(~"gastrointestinal") +
+    annotate("text", y=0.5, x=550, label=" Hypermutators\n(> 500 mutations)",
+             hjust=0) +
+    geom_vline(xintercept=550, linetype="dashed", color="gray")
+```
+
+```{r ext_fig1comb, fig.width=12, fig.height=5, dev=c("png", "pdf")}
+tumor_type_label <- sort(names(tumor_colors))
+names(tumor_type_label)[1:6] <- sort(unique(manifest$tumor_type))
+tumor_type_label <- c(tumor_type_label, "gastrointestinal" = "GI mucinous")
+tumor_colors <- c(tumor_colors, "GI mucinous" = "#AA4499")
+nmut_v_purity <- nmut.all %>%
+    select(lab_id, count, tumor_type) %>%
+    left_join(select(facets, lab_id, purity = Purity, Facets), by = "lab_id") %>%
+    mutate(tumor_type = tumor_type_label[tumor_type],
+           purity = ifelse(is.na(purity), 0, purity))
+arrange(nmut_v_purity, purity) %>%
+    filter(lab_id=="CGOV486T")
+names(tumor_colors) <- str_wrap(names(tumor_colors), 10)
+tlevels <- c("GI\nmucinous",
+  "Ovarian\nmucinous",
+  "Ovarian\nendometrioid",
+  "Uterine\nendometrioid")
+
+# Reviewer comment: add a test to show that there is no correlation between the
+# number of mutations and tumor purity
+with(nmut_v_purity %>% filter(Facets == "Pass"), cor.test(log10(count), purity))
+with(nmut_v_purity %>% filter(Facets == "Pass"), cor.test(count, purity))
+
+fig_pan1 <- nmut_v_purity %>%
+    mutate(tumor_type=str_wrap(tumor_type, 10)) %>%
+    ggplot(aes(x = purity, y = count,
+               color = tumor_type,
+               shape = Facets)) +
+    geom_point() +
+    scale_color_manual(breaks = names(tumor_colors), values = tumor_colors) +
+    scale_shape_manual(breaks = c("Fail", "Pass"), values = c(4, 16)) +
+    scale_y_log10() +
+    scale_x_continuous(breaks = c(0, 0.25, 0.50, 0.75),
+                       labels = paste0(c("NA", 0.25, 0.50, 0.75), "\n")) +
+    theme_classic(base_size=12)+
+    xlab("Tumor purity") +
+    ylab("Number of mutations") +
+    theme(panel.grid=element_blank(),
+          strip.background=element_blank(),
+          legend.direction="horizontal",
+          legend.spacing.y = unit(0.1, "cm")) +
+    annotate("text", x=0.8, y=550, label=" Hypermutators\n(> 500 mutations)",
+             hjust=0, size = 3) +
+    geom_hline(yintercept=550, linetype="dashed", color="gray") +
+    guides(color = guide_legend(title = "Tumor type", nrow = 1))
+dat <- nmut.all %>%
+    mutate(tumor_type = ifelse(tumor_type %in% c("colorectal", "stomach", "pancreas"), "gastrointestinal", tumor_type),
+           tumor_group = ifelse(tumor_type %in% c("ovarian endometrioid", "uterine endometrioid"), "endometrioid", "mucinous")) %>%
+    mutate(tumor_type = tumor_type_label[tumor_type]) %>%
+    mutate(tumor_type=str_wrap(tumor_type, 10)) %>%
+    mutate(tumor_type=factor(tumor_type, tlevels))
+fig_pan2 <-
+    dat %>%
+    ggplot(aes(x = count, y = tumor_type)) +
+    geom_density_ridges(aes(fill = tumor_type), alpha = 0.2, scale = 0.6,
+                            jittered_points = TRUE,
+                            position = position_points_jitter(width = 0.05, height = 0),
+                            point_shape = '-', point_size = 3, point_alpha = 1) +
+    scale_fill_manual(breaks = names(tumor_colors), values = tumor_colors) +
+    scale_x_log10(breaks = c(1, 10, 100, 1000, 10000)) +
+    coord_flip(xlim = 10^(layer_scales(fig_pan1)$y$range$range)) +
+    theme_classic(base_size=12) +
+    xlab("") +
+    ylab("") +
+    theme(panel.grid=element_blank(),
+          strip.background=element_blank()) +
+    geom_vline(xintercept=550, linetype="dashed", color="gray")
+legend <- ggpubr::get_legend(fig_pan1)
+pgrid <- cowplot::plot_grid(fig_pan1 + theme(legend.position = "none"),
+                            fig_pan2 + theme(legend.position = "none"),
+                            ncol = 2,
+                            rel_widths = c(1.6, 1),
+                            labels = c("a", "b"))
+p <- cowplot::plot_grid(pgrid, legend, nrow = 2, rel_heights = c(1, .2))
+p
+```
+
+```{r ext_fig1-3, fig.width=10, fig.height=5, dev=c("png", "pdf")}
+del_vs_purity <- tar_read(marginal_frequencies, store = tgt_store) %>%
+    right_join(manifest4, by = "lab_id")  %>%
+    filter(sample_type == "tumor",
+           alteration == "deletion") %>%
+    select(lab_id, tumor_type, n) %>%
+    left_join(select(facets, lab_id, purity = Purity, Facets), by = "lab_id") %>%
+    mutate(tumor_type = tumor_type_label[tumor_type],
+           purity = ifelse(is.na(purity), 0, purity)) %>%
+    mutate(tumor_type=str_wrap(tumor_type, 10))
+
+ggplot(del_vs_purity, aes(x = purity, y = n, color = tumor_type, shape = Facets)) +
+    geom_point() +
+    scale_color_manual(breaks = names(tumor_colors), values = tumor_colors) +
+    scale_shape_manual(breaks = c("Fail", "Pass"), values = c(4, 16)) +
+    scale_y_log10() +
+    scale_x_continuous(breaks = c(0, 0.25, 0.50, 0.75), labels = paste0(c("NA", 0.25, 0.50, 0.75), "\n")) +
+    theme_classic(base_size=12)+
+    xlab("Tumor purity") +
+    ylab("Number of CN deletions") +
+    theme(panel.grid=element_blank(),
+          strip.background=element_blank()) +
+    guides(color = guide_legend(title = "Tumor type"))
+```

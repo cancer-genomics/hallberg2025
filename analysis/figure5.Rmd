@@ -1,0 +1,269 @@
+---
+title: "Figure 5"
+site: workflowr::wflow_site
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  workflowr::wflow_html:
+    code_folding: hide
+    toc: true
+    toc_depth: 3
+    toc_float: true
+editor_options:
+  chunk_output_type: console
+---
+
+## Model
+
+Let $y_{ij}$ denote the number of individuals with mutation $i$ for cancer type $j$ and $n_{j}$ the total number of individuals (excluding hypermutators). Then
+
+\begin{align*}
+y_{ij} &\sim \text{Binomial}(\theta_{ij}, n_{j})\\
+\text{logit}(\theta_{ij}) &= \alpha + \beta x\\
+\alpha &\sim \text{normal}(0, 10)\\
+\beta &\sim \text{normal}(0, 3).\\
+\end{align*}
+$x$ is an indicator for cancer type $j$ =2.
+
+## Analysis
+
+
+```{r packages, message=FALSE}
+library(hallberg2025.base)
+library(gridExtra)
+library(grid)
+library(tidyverse)
+library(dplyr)
+library(magrittr)
+library(here)
+```
+
+This analysis is limited to genes where the overall number of mutations in each of the two comparisons (uterine endometrioid vs ovarian endometrioid and GI mucinous vs ovarianmucinous) is at least 10%.
+
+```{r analytic.data}
+ue.v.oe <- "Uterine endometrioid - Ovarian endometrioid" %>%
+    str_wrap(25)
+gi.v.om <- "GI mucinous - Ovarian mucinous" %>%
+    str_wrap(25)
+bayes.out <- readRDS(here("output",
+                      "07-figure5.rmd",
+                      "bayes.rds")) %>%
+    filter(gene != "hypermutator") %>%
+    unite("uid", c(gene, tumors), remove=FALSE) %>%
+    mutate(tumors=str_replace_all(tumors, "vs", "-"),
+           tumors=case_when(tumors=="Ovarian endometrioid - Uterine endometrioid"~ue.v.oe,
+                            tumors=="Ovarian mucinous - GI mucinous"~gi.v.om,
+                            TRUE~tumors),
+           tumors=str_wrap(tumors, 25)) %>%
+    filter(tumors %in% c(ue.v.oe, gi.v.om))
+bayes <- filter(bayes.out, parameter=="beta")
+stats2 <- bayes %>%
+    mutate(lor=mean,
+           low=`5%`,
+           high=`95%`)
+```
+
+# Log odds ratio figures
+
+```{r endo.mafs}
+lr.data <- filter(stats2, tumors==ue.v.oe)
+base.size <- 16
+```
+
+```{r lrfig}
+bfig <- lr.data %>%
+    ggplot(aes(lor, gene)) +
+    geom_errorbarh(aes(xmin=low, xmax=high,
+                       color=pathway),
+                   height=0.25,
+                   linewidth=1.2) +
+    geom_point(aes(color=pathway), size=5) +
+    theme_classic(base_size=base.size) +
+    theme(panel.grid=element_blank(),
+          strip.background=element_blank(),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank(),
+          legend.direction="vertical",
+          legend.text=element_text(size=24)) +
+    geom_vline(xintercept=0, linetype="dashed",
+               color="gray") +
+    ylab("") + xlab("Log odds ratio") +
+    coord_cartesian(xlim=c(-10, 10)) +
+    guides(color=guide_legend(title="", ncol=2,
+                              override.aes=list(size=4)))
+lor.leg <- ggpubr::get_legend(bfig)
+bfig <- bfig + guides(color="none")
+```
+
+```{r lor.grobs}
+endo.lor <- ggplotGrob(bfig)
+lr.data <- filter(stats2, tumors==gi.v.om)
+<<lrfig>>
+muc.lor <- ggplotGrob(bfig)
+```
+
+
+```{r nsignif}
+e <- 0.1
+nsignif <- stats2 %>%
+    mutate(is.signif=ifelse(low + e > 0 | high - e < 0, 1, 0)) %>%
+    group_by(tumors) %>%
+    summarize(n=sum(is.signif))
+```
+
+# Mutation frequency figures
+
+```{r colors}
+dx.colors <- tumor_colors()
+endo.colors <- dx.colors[c("Uterine endometrioid",
+                           "Ovarian endometrioid")]
+muc.colors <- dx.colors[c("Ovarian mucinous",
+                          "Colorectal mucinous")]
+names(muc.colors)[2] <- "GI mucinous"
+```
+
+```{r prevalence}
+bayes.out2 <- bayes.out %>%
+    mutate(tmp=str_replace_all(parameter, "\\[", ""),
+           tmp=str_replace_all(tmp, "\\]", ""),
+           parameter=tmp) %>%
+    select(-tmp) %>%
+    filter(tumors %in% c(ue.v.oe, gi.v.om))
+cancer.ref <- filter(bayes.out2, parameter=="theta1") %>%
+    select(gene, pathway, ct,
+           "5%", "50%", "95%") %>%
+    mutate(cancertype=map_chr(ct, function(x) rownames(x)[1]),
+           empirical=map_dbl(ct, function(x) x[1,1]/x[1,2]),
+           label=map_chr(ct, function(x) paste0(x[1, 1], "/", x[1,2])))
+cancer.ref %>%
+    filter(gene=="NF1") %>%
+    select(gene, label, cancertype)
+cancer <- filter(bayes.out2, parameter=="theta2") %>%
+    select(gene, pathway, ct,
+           "5%", "50%", "95%") %>%
+    mutate(cancertype=map_chr(ct, function(x) rownames(x)[2]),
+           empirical=map_dbl(ct, function(x) x[2, 1]/x[2, 2]),
+           label=map_chr(ct, function(x) paste0(x[2, 1], "/", x[2,2])))
+cancer %>%
+    filter(gene=="NF1") %>%
+    select(gene, label, cancertype)
+prev <- bind_rows(cancer.ref, cancer)
+prev %>%
+    filter(gene=="NF1") %>%
+    select(gene, label, cancertype)
+dwidth <- 0.6
+text_size <- 6
+```
+
+```{r endodata}
+err <- 0.1
+prev2 <- prev %>%
+    mutate(comparison=ifelse(grepl("endo", cancertype),
+                             "Endometrioid",
+                             "Mucinous"))
+endo <- filter(prev2, comparison=="Endometrioid") %>%
+    mutate(genei=factor(gene),
+           breaks=as.numeric(genei),
+           e=ifelse(cancertype %in% c("Ovarian endometrioid",
+                                      "Ovarian mucinous"),
+                    err, -err),
+           genei=breaks+e)
+dat <- endo
+tumor.colors <- endo.colors
+```
+
+```{r figcode}
+a <- dat %>%
+    ggplot(aes(`50%`, genei, label=label)) +
+    geom_errorbarh(aes(xmin=`5%`, xmax=`95%`,
+                       color=cancertype), height=0.2,
+                   linewidth=1) +
+##    geom_point(shape="X", aes(empirical, genei), color="gray",
+##               size=3) +
+    geom_point(aes(color=cancertype),
+               size=3) +
+    theme_classic(base_size=base.size) +
+    theme(panel.grid=element_blank(),
+          strip.background=element_rect(fill="white",
+                                        color="white"),
+          ##axis.text.x=element_text(size=18),
+          ##axis.title.x=element_text(size=20),
+          legend.direction="vertical",
+          legend.text=element_text(size=24)) +
+    ylab("") +
+    xlab("Mutation frequency") +
+    xlim(c(0, 1)) +
+    scale_y_continuous(breaks=dat$breaks, labels=dat$gene) +
+    scale_color_manual(values=tumor.colors)
+b <- a + geom_text(aes(x=`95%`+0.02), data=dat,
+                   size=text_size,
+                   hjust=0) +
+    guides(color=guide_legend(title=""),
+           fill=guide_legend(title=""))
+```
+
+```{r endofig}
+endo.maf.leg <- ggpubr::get_legend(b)
+b <- b+guides(color="none", fill="none")
+endo.maf <- ggplotGrob(b)
+```
+
+```{r mucdata}
+muc <- filter(prev2, comparison=="Mucinous") %>%
+    mutate(genei=factor(gene),
+           breaks=as.numeric(genei),
+           e=ifelse(cancertype == "Ovarian mucinous",
+                    err, -err),
+           genei=breaks+e)
+dat <- muc
+tumor.colors <- muc.colors
+```
+
+```{r mucfig}
+<<figcode>>
+muc.maf.leg <- ggpubr::get_legend(b)
+b <- b+guides(color="none", fill="none")
+muc.maf <- ggplotGrob(b)
+##print(b)
+```
+
+```{r fig5, fig.width=20, fig.height=12, dev=c("pdf", "png")}
+lo <- rbind(c(1, 1, 2, 2, 5, 3, 3, 4, 4),
+            c(6, 6, 6, 7, 7, 7, 8, 8, 8))
+widths <- c(0.5, 0.5, 0.375, .375, 0.15, 0.5, 0.5, 0.375, 0.375)
+widths <- unit(widths/sum(widths), "npc")
+heights <- c(1, 0.2)
+ng <- nullGrob()
+grob <- arrangeGrob(endo.maf, endo.lor,
+                    muc.maf, muc.lor, ng,
+                    endo.maf.leg,
+                    lor.leg,
+                    muc.maf.leg,
+                    #ng,
+                    widths=widths,
+                    heights=heights,
+                    layout_matrix=lo)
+vp.overall <- viewport(0.025, 0.025,
+                       width=unit(0.95, "npc"), height=unit(0.95, "npc"),
+                       just=c("left", "bottom"))
+gl <- grid.layout(2, 5, widths=widths, heights=heights)
+##grid.show.layout(gl)
+grid.newpage()
+pushViewport(vp.overall)
+grid.draw(grob)
+popViewport()
+grid.text(c("a", "b"),
+          x=unit(c(0.02, 0.52), "npc"),
+          y=unit(0.98, "npc"),
+          gp=gpar(cex=3))
+grid.text("Ovarian and uterine endometrioid",
+          x=unit(0.25, "npc"),
+          y=unit(0.98, "npc"),
+          gp=gpar(cex=1.75))
+grid.text("GI mucinous and ovarian mucinous",
+          x=unit(0.75, "npc"),
+          y=unit(0.98, "npc"),
+          gp=gpar(cex=1.75))
+```
+
+
+

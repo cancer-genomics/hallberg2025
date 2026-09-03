@@ -1,0 +1,60 @@
+---
+title: "Table S6: WGS Amplifications"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(magrittr)
+library(hallberg2025.base)
+library(hallberg2025.seq.data)
+outdir <- here("docs", "table", "table_s6.Rmd")
+fs::dir_create(outdir)
+data(manifest, package="hallberg2025.base")
+```
+
+```{r suppl_table}
+amp <- wgs_amplicon_table() %>%
+    rename(lab_id = Sample)
+man <- select(manifest, subject_id, lab_id)
+cnms <- c("Subject id", "Lab id", "Chrom",
+          "Start", "End",
+          "Copy number",
+          "Segment mean",
+          "Driver",
+          "Biol significant",
+          "Overlapping genes",
+          "Group")
+amp2 <- inner_join(amp, man, by="lab_id") %>%
+    select(subject_id, lab_id, Chromosome,
+           Start, End,
+           CopyNumber, SegmentMean,
+           Driver,
+           BiolSignificant,
+           OverlappingGenes,
+           Group) %>%
+    mutate(SegmentMean=round(SegmentMean, 2)) %>%
+    set_colnames(cnms)
+amp3 <- amp2
+amp3$Start <- prettyNum(amp2$Start, big.mark=",")
+amp3$End <- prettyNum(amp2$End, big.mark=",")
+amp3
+pretty.ids <- c("Subject ID", "Lab ID",
+                "Chromosome", "Start", "End",
+                "Total Copy Number", "Segment Mean (log ratio)",
+                "Cancer connection",
+                "Biological significance",
+                "Overlapping genes",
+                "Amplicon group")
+colnames(amp3) <- pretty.ids
+write_tsv(amp3, file.path(outdir, "table_S6.tsv"))
+```

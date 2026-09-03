@@ -1,0 +1,93 @@
+---
+title: "Supplementary Fig. 2"
+subtitle: "Structure of ESR1 protein"
+site: workflowr::wflow_site
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages}
+##BiocManager::install("drawProteins")
+#devtools::install_github("swsoyee/r3dmol")
+library(r3dmol)
+library(drawProteins)
+library(protr)
+library(pdftools)
+library(tidyverse)
+library(here)
+library(grid)
+library(gridExtra)
+library(magick)
+```
+
+```{r primary.structure, fig.width=20, fig.height=2, dev=c("png", "pdf")}
+uniprot.id <- "G4XH65"
+rel_json <- get_features(uniprot.id)
+rel_data <- feature_to_dataframe(rel_json)
+p <- draw_canvas(rel_data)
+p <- draw_chains(p, rel_data, labels="")
+p <- draw_motif(p, rel_data)
+p <- draw_regions(p, rel_data)
+p <- draw_domains(p, rel_data)
+p <- draw_phospho(p, rel_data, size = 8)
+p <- p + theme_classic(base_size = 20) +
+    theme(panel.grid.minor=element_blank(),
+          panel.grid.major=element_blank()) +
+    theme(axis.ticks.y = element_blank(),
+          axis.text.y = element_blank()) +
+    ##theme(panel.border = element_blank()) +
+    ##guides(fill=guide_legend(title="ESR1 Domains")) +
+    guides(fill="none") +
+    scale_x_continuous(breaks=c(1, 150, 300, 450, 595)) +
+    geom_vline(xintercept=537, linetype="dashed",
+               color="steelblue") +
+    annotate("text", x=537, y=1.5, label="Y537C/N",
+             hjust=0)
+p
+gp <- ggplotGrob(p)
+```
+
+```{r eval=FALSE}
+aa <- getUniProt(uniprot.id)
+substr(aa, 537, 537)
+```
+
+```{r cartoon.style.3d, fig.width=20, fig.height=18, dev=c("png", "pdf"), eval=FALSE}
+r3dmol() %>%
+  m_add_model(data =  here("extdata", "AF-G4XH65-F1-model_v4.pdb"), format = "pdb") %>%
+  m_set_style(style = m_style_cartoon(
+    colorfunc = paste0("
+       function(atom) {
+          if (atom.resi == 536) {return 'blue'};
+          if (atom.resi == 537) {return 'blue'};
+          return 'white';
+        }")
+  )) %>%
+  m_zoom_to()
+```
+
+```{r stick.style.3d, fig.width=20, fig.height=18, dev=c("png", "pdf"), eval=FALSE}
+r3dmol() %>%
+  m_add_model(data =  here("extdata", "AF-G4XH65-F1-model_v4.pdb"), format = "pdb") %>%
+  m_set_style(style = m_style_stick(
+    colorfunc = paste0("
+       function(atom) {
+          if (atom.resi == 536) {return 'blue'};
+          if (atom.resi == 537) {return 'blue'};
+          return 'white';
+        }")
+  )) %>%
+  m_zoom_to()
+```
+
+```{r ext_fig2, fig.width=8, fig.height=8, dev=c("png", "pdf")}
+panel_bot <- image_ggplot(image_read(here("extdata",
+                                          "alphaFold_ESR1_snapshot.png")))
+panel_bot_grob <- ggplotGrob(panel_bot)
+grid.arrange(grobs=list(gp, panel_bot_grob),
+             layout_matrix=rbind(1, 2),
+             widths=1,
+             heights=c(3/10, 7/10),
+             newpage=FALSE)
+```
+

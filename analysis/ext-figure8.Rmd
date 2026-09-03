@@ -1,0 +1,62 @@
+---
+title: "Extended Figure 8"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(trellis)
+library(here)
+library(grid)
+library(gridExtra)
+library(hallberg2025.base)
+```
+
+```{r data}
+rlist <- hallberg2025.seq.data::extfig8_rlist()
+```
+
+```{r column1_row2, results="hide"}
+r2 <- filter_rearrangement(rlist[["CGOV161T"]], "chr5",  68587530, 61783337, element = 2L)
+r2.grob <- ggRearrange2(r2) |> update.reargraph(show_legend = FALSE, size = 12)
+```
+
+```{r column2_row1}
+t2 <- filter_rearrangement(rlist[["CGOV172T"]], "chr19",  1476889,  1578059, element = 1L)
+t2.grob <- ggRearrange2(t2) |> update.reargraph(show_legend = FALSE, size = 12)
+```
+
+```{r column3_row2}
+last.df   <- filter_rearrangement(rlist[["CGOV173T"]], "chr17", 34862571, 37668741, element = 1L)
+last.grob <- ggRearrange2(last.df)
+legend    <- last.grob$grobs[["legend"]]
+last.grob <- update.reargraph(last.grob, show_legend = FALSE, size = 12)
+```
+
+```{r ext-fig8, fig.width=12, fig.height=9, dev=c("png", "pdf")}
+grob.list <- list(r2.grob, t2.grob, last.grob, legend)
+m <- matrix(1:4, 2, 2, byrow = TRUE)
+vp <- viewport(height = unit(0.95, "npc"),
+               width  = unit(0.98, "npc"),
+               y      = unit(0.95, "npc"),
+               x      = unit(0.50, "npc"),
+               just   = c("center", "top"))
+pushViewport(vp)
+grid.arrange(grobs = grob.list, layout_matrix = m, newpage = FALSE)
+ids <- paste0("CGOV", c("161T", "172T", "173T"))
+grid.text(ids,
+          x  = unit(c(0.25, 0.75, 0.25), "npc"),
+          y  = unit(c(0.995, 0.995, 0.5), "npc"),
+          gp = gpar(cex = 1.2))
+upViewport()
+grid.text(letters[1:3],
+          x  = unit(c(0.02, 0.5, 0.02), "npc"),
+          y  = unit(c(0.98, 0.98, 0.505), "npc"),
+          gp = gpar(cex = 2))
+```

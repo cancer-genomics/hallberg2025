@@ -1,0 +1,336 @@
+---
+title: "Survival analyses - Supplementary Figure 11"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+library(survival)
+library(survminer)
+library(magrittr)
+library(grid)
+library(gridExtra)
+library(here)
+library(hallberg2025.base)
+data(manifest, package="hallberg2025.base")
+manifest <- purity_filter(manifest)
+```
+
+```{r external_data}
+rename <- dplyr::rename
+data(clinical, package="hallberg2025.base")
+data(idat.endometrioid, package="hallberg2025.base")
+data(idat.mucinous, package="hallberg2025.base")
+data(idat.gi, package="hallberg2025.base")
+idat <- bind_rows(idat.endometrioid, idat.mucinous, idat.gi) %>%
+    unite("gene.type", c(gene, type), sep="-", remove=FALSE) %>%
+    filter(lab_id %in% manifest$lab_id)
+idat2 <- idat %>%
+    group_by(lab_id) %>%
+    summarize(wnt=ifelse(any(pathway=="WNT"), 1, 0),
+              wnt.alterations=paste(unique(gene.type), collapse=","),
+              pi3k=ifelse(any(gene!="PPP2R1A" & pathway == "PI3K"), 1, 0),
+              pi3k.alt=paste(unique(gene.type), collapse=","),
+              p53=ifelse(any(gene=="TP53"), 1, 0),
+              wnt.p53=ifelse(any(gene=="TP53"|pathway=="WNT"), 1, 0))
+cdat <- clinical %>%
+    filter(lab_id %in% manifest$lab_id) %>%
+    left_join(idat2,
+              join_by(lab_id)) %>%
+    filter(!is.na(os)) %>%
+    select(lab_id, tumor_type, os, sex, stage, is_alive, wnt, pi3k, p53, wnt.p53, pi3k.alt) %>%
+    mutate(event=ifelse(is_alive, 0, 1), ## 0 alive, 1 dead
+           wnt=ifelse(is.na(wnt), 0, wnt),
+           pi3k=ifelse(is.na(pi3k), 0, pi3k),
+           p53=ifelse(is.na(p53), 0, p53),
+           wnt.p53=ifelse(is.na(wnt.p53), 0, wnt.p53),
+           os=os/365)
+## CGOV104T_Rep missing OS
+```
+
+Plot genes on x-axis and number samples with alteration on y-axis. Facet by tumor type
+
+```{r}
+pi3k <- filter(idat, pathway=="PI3K") %>%
+    filter(tumor_type %in% c("Ovarian endometrioid", "Ovarian mucinous")) %>%
+    group_by(gene, tumor_type) %>%
+    summarize(n=length(unique(lab_id)),
+              .groups="drop")
+##pi3k %>%
+##    ggplot(aes(gene, n)) +
+##    geom_point() +
+##    theme_classic(base_size=16) +
+##    facet_wrap(~tumor_type) +
+##    xlab("") +
+##    theme(axis.text.x=element_text(angle=90))
+npi3k.fig <- pi3k %>%
+    ggplot(aes(gene, n, group=tumor_type)) +
+    geom_vline(xintercept=1:8, linetype="dashed", color="gray") +
+    geom_point(aes(color=tumor_type), position=position_dodge(width=0.2)) +
+    theme_classic(base_size=16) +
+    ##facet_wrap(~tumor_type) +
+    xlab("") +
+    theme(axis.text.x=element_text(angle=90, hjust=1),
+          legend.position="top") +
+    guides(color=guide_legend(title="")) +
+    ylab("Number of mutations") +
+    scale_y_continuous(breaks=seq(1, 15, 1))
+```
+
+```{r ctnnb1}
+n.alt <- cdat %>%
+    group_by(tumor_type) %>%
+    summarize(n.wnt=sum(wnt),
+              n.pi3k=sum(pi3k))
+dat.oe <- filter(cdat, tumor_type=="ovarian endometrioid")
+dat.om <- filter(cdat, tumor_type=="ovarian mucinous")
+fit1 <- survfit(Surv(os, event) ~ wnt, data=dat.oe)
+d1 <- survdiff(Surv(os, event) ~ wnt, data=dat.oe)
+pval1 <- round(d1$pvalue, 3)
+```
+
+```{r wnt.p53}
+n.alt <- cdat %>%
+    group_by(tumor_type) %>%
+    summarize(n.wnt=sum(wnt),
+              n.pi3k=sum(pi3k),
+              n.p53=sum(p53),
+              n.p53.wnt=sum(p53|wnt))
+dat.oe <- filter(cdat, tumor_type=="ovarian endometrioid")
+dat.om <- filter(cdat, tumor_type=="ovarian mucinous")
+fit1 <- survfit(Surv(os, event) ~ wnt, data=dat.oe)
+fit2 <- survfit(Surv(os, event) ~ wnt.p53, data=dat.oe)
+fit3 <- survfit(Surv(os, event) ~ wnt.p53, data=dat.om)
+d1 <- survdiff(Surv(os, event) ~ wnt, data=dat.oe)
+d2 <- survdiff(Surv(os, event) ~ wnt.p53, data=dat.oe)
+d3 <- survdiff(Surv(os, event) ~ wnt.p53, data=dat.om)
+pval1 <- round(d1$pvalue, 2)
+pval2 <- round(d2$pvalue, 2)
+pval3 <- round(d3$pvalue, 2)
+```
+
+```{r fig_ctnnb1}
+fig.ctnnb1 <- fit1 %>%
+    ggsurvplot(data = dat.oe,
+               fun = "pct",
+               conf.int=FALSE,
+               risk.table = TRUE,
+               risk.table.col="black",
+               risk.table.y.text.col=FALSE,
+               ggtheme = theme_classic(base_size=16))
+fig.ctnnb1$plot <- fig.ctnnb1$plot +
+    scale_color_manual(values=c("steelblue", "red"),
+                       labels=c("Wild-type", "Mutant"),
+                       name="WNT Pathway") +
+    theme(panel.grid=element_blank(),
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle("Ovarian endometrioid") +
+    xlab("Years") +
+    ylab("Overall survival") +
+    annotate("text", x=18, y=100,
+             label=paste0("p = ", pval1),
+             hjust=1, vjust=1)
+fig.ctnnb1$table <- fig.ctnnb1$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color="gray", size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c("Mutant", "Wild-type"),
+                     name="")
+gfig <- ggplotGrob(fig.ctnnb1$plot)
+gtab <- ggplotGrob(fig.ctnnb1$table)
+```
+
+```{r fig.wnt.p53, eval=FALSE}
+#Ovarian Endometrioid WNT Pathway or TP53 Mutation Survival Curve
+fig.wnt.p53 <- fit2 %>%
+    ggsurvplot(data = dat.oe,
+               fun = "pct",
+               conf.int=FALSE,
+               risk.table = TRUE,
+               risk.table.col="black",
+               risk.table.y.text.col=FALSE,
+               ggtheme = theme_classic(base_size=16))
+fig.wnt.p53$plot <- fig.wnt.p53$plot +
+    scale_color_manual(values=c("steelblue", "red"),
+                       labels=c("Wild-type", "Mutant"),
+                       name="WNT Pathway or TP53") +
+    theme(panel.grid=element_blank(),
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle("Ovarian endometrioid") +
+    xlab("Years") +
+    ylab("Overall survival") +
+    annotate("text", x=18, y=100,
+             label=paste0("p = ", pval2),
+             hjust=1, vjust=1)
+fig.wnt.p53$table <- fig.wnt.p53$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color="gray", size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c("Mutant", "Wild-type"),
+                     name="")
+gfig <- ggplotGrob(fig.wnt.p53$plot)
+gtab <- ggplotGrob(fig.wnt.p53$table)
+```
+
+```{r fig.wnt.p53.om, eval=FALSE}
+#Ovarian Mucinous WNT Pathway or TP53 Mutation Survival Curve
+fig.wnt.p53.om <- fit3 %>%
+    ggsurvplot(data = dat.om,
+               fun = "pct",
+               conf.int=FALSE,
+               risk.table = TRUE,
+               risk.table.col="black",
+               risk.table.y.text.col=FALSE,
+               ggtheme = theme_classic(base_size=16))
+fig.wnt.p53.om$plot <- fig.wnt.p53.om$plot +
+    scale_color_manual(values=c("steelblue", "red"),
+                       labels=c("Wild-type", "Mutant"),
+                       name="WNT Pathway or TP53") +
+    theme(panel.grid=element_blank(),
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle("Ovarian mucinous") +
+    xlab("Years") +
+    ylab("Overall survival") +
+    annotate("text", x=18, y=100,
+             label=paste0("p = ", pval3),
+             hjust=1, vjust=1)
+fig.wnt.p53.om$table <- fig.wnt.p53.om$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color="gray", size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c("Mutant", "Wild-type"),
+                     name="")
+gfig <- ggplotGrob(fig.wnt.p53.om$plot)
+gtab <- ggplotGrob(fig.wnt.p53.om$table)
+```
+
+```{r add_risk_tables}
+## Put a legend in each panel
+fit1 <- survfit(Surv(os, event) ~ pi3k, data=dat.oe)
+d1 <- survdiff(Surv(os, event) ~ pi3k, data=dat.oe)
+pval1 <- round(d1$pvalue, 3)
+fit2 <- survfit(Surv(os, event) ~ pi3k, data=dat.om)
+d2 <- survdiff(Surv(os, event) ~ pi3k, data=dat.om)
+pval2 <- round(d2$pvalue, 3)
+fig1 <- ggsurvplot(fit1, data = dat.oe,
+                   fun = "pct",
+                   conf.int=FALSE,
+                   risk.table = TRUE,
+                   risk.table.col="black",
+                   risk.table.y.text.col=FALSE,
+                   ggtheme = theme_classic(base_size=16))
+fig2 <- ggsurvplot(fit2, data = dat.om,
+                   fun = "pct",
+                   conf.int=FALSE,
+                   risk.table = TRUE,
+                   risk.table.col="black",
+                   risk.table.y.text.col=FALSE,
+                   ggtheme = theme_classic(base_size=16))
+fig1$plot <- fig1$plot +
+    scale_color_manual(values=c("steelblue", "red"),
+                       labels=c("Wild-type", "Mutant"),
+                       name="PI3K Pathway") +
+    theme(panel.grid=element_blank(),
+          legend.position=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5)) +
+    ggtitle("Ovarian endometrioid") +
+    xlab("Years") +
+    ylab("Overall survival") +
+    annotate("text", x=20, y=100,
+             label=paste0("p = ", pval1),
+             hjust=1, vjust=1)
+fig2$plot <- fig2$plot +
+    scale_color_manual(values=c("steelblue", "red"),
+                       labels=c("Wild-type", "Mutant"),
+                       name="PI3K Pathway") +
+    theme(panel.grid=element_blank(),
+          legend.position="inside",
+          legend.position.inside=c(0.8, 0.2),
+          plot.title=element_text(size=16, hjust=0.5),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank(),
+          axis.title.y=element_blank()) +
+    ggtitle("Ovarian mucinous") +
+    xlab("Years") +
+    ylab("Overall survival") +
+    annotate("text", x=30, y=100,
+             label=paste0("p = ", pval2),
+             hjust=1, vjust=1)
+fig1$table <- fig1$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color="gray", size=12),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c("PI3K altered", "Wild-type"),
+                     name="")
+fig2$table <- fig2$table +
+    theme(panel.grid=element_blank(),
+          plot.title=element_text(color="gray", size=12),
+          axis.text.y=element_blank(),
+          axis.ticks.y=element_blank(),
+          axis.title.y=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.title.x=element_blank(),
+          panel.border=element_blank()) +
+    scale_y_discrete(labels=c("PI3K altered", "Wild-type"),
+                     name="")
+```
+
+```{r figS11, fig.width=12, fig.height=12, dev=c("png", "pdf")}
+fig1$plot <- fig1$plot + ylab("")
+g1 <- ggplotGrob(fig1$plot)
+g1t <- ggplotGrob(fig1$table)
+g2 <- ggplotGrob(fig2$plot)
+g2t <- ggplotGrob(fig2$table)
+g1$widths <- g1t$widths
+g2$widths <- g2t$widths
+gfig$widths <- g1$widths
+gtab$widths <- gfig$widths
+nullg <- nullGrob()
+gl <- list(g1, g1t, g2, g2t, gfig, gtab, nullg)
+m <- cbind(c(1, 2, 7, 5, 6), c(3, 4, 7, 7, 7))
+grid.arrange(grobs=gl, layout_matrix=m,
+             widths=c(1.2, 1),
+             heights=c(8, 2, 1, 8, 2))
+grid.text(c("a", "c", "b"),
+          x=unit(c(0.02, 0.02, 0.525), "npc"),
+          y=unit(c(0.98, 0.49, 0.98), "npc"),
+          gp=gpar(cex=2.5))
+```
+
+```{r pi3kfig, fig.width=12, fig.height=10, dev=c("png", "pdf"), eval=FALSE}
+pi3k.genes <- ggplotGrob(npi3k.fig)
+grobs <- list(npi3k.fig, g1, g1t, g2, g2t)
+m <- rbind(c(1, 1),
+           c(2, 4),
+           c(3, 5))
+grid.arrange(grobs=grobs, layout_matrix=m,
+             widths=c(1.3, 1),
+             heights=c(1.1, 1.1, 0.3))
+grid.text(letters[1:2], x=unit(c(0.01, 0.03), "npc"),
+          y=unit(c(0.98, 0.55), "npc"),
+          gp=gpar(cex=2))
+```
+

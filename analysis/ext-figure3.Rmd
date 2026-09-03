@@ -1,0 +1,175 @@
+---
+title: "Mutation signatures"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r libraries, message=FALSE}
+library(here)
+library(tidyverse)
+library(ComplexHeatmap)
+library(RColorBrewer)
+library(circlize)
+library(readxl)
+library(magrittr)
+library(grid)
+library(gridExtra)
+library(hallberg2025.base)
+rename <- dplyr::rename
+```
+
+
+```{r external-data}
+data(manifest, package="hallberg2025.base")
+manifest <- purity_filter(manifest)
+manifest2 <- select(manifest, lab_id, tumor_type) %>%
+    cancer_names()
+manifest3 <- manifest %>%
+    mutate(t.n=substr(tumor.normal, 1, 1),
+           t.n=toupper(t.n),
+           lab_id2=ifelse(grepl("^GT", subject_id),
+                          paste0(subject_id, t.n),
+                          lab_id))
+muclabels <- c("Colorectal mucinous",
+               "Ovarian mucinous",
+               "Pancreatic mucinous",
+               "Stomach mucinous")
+endolabels <- c("Ovarian endometrioid",
+                "Uterine endometrioid")
+manifest.endo <- filter(manifest2, tumor %in% endolabels)
+manifest.muc <- filter(manifest2, tumor %in% muclabels)
+##
+## Read signatures 
+##
+endosigs <- readRDS(here("extdata", "endosigs.rds"))
+rownames(endosigs) <- str_replace_all(rownames(endosigs),
+                                      "\\.", " ")
+sigs <- paste("Signature", 1:30)
+esigs <- sigs[sigs %in% rownames(endosigs)]
+mucsigs <- readRDS(here("extdata", "mucsigs.rds"))
+rownames(mucsigs) <- str_replace_all(rownames(mucsigs),
+                                     "\\.", " ")
+msigs <- sigs[sigs %in% rownames(mucsigs)]
+endosigs <- endosigs[esigs, ]
+mucsigs <- mucsigs[msigs, ]
+lab_id_map <- manifest3$lab_id2
+names(lab_id_map) <- manifest3$lab_id
+```
+
+Use same colors from Figure 6.
+
+```{r legends}
+dx.colors <- tumor_colors() 
+muc.colors <- dx.colors[muclabels]
+muc.lgd <- Legend(labels=muclabels,
+                  legend_gp=gpar(fill=muc.colors),
+                  labels_gp=gpar(fontsize=17),
+                  title_gp=gpar(fontsize=23),
+                  title="")
+endo.colors <- dx.colors[endolabels]
+endo.lgd <- Legend(labels=endolabels,
+                  legend_gp=gpar(fill=endo.colors),
+                  labels_gp=gpar(fontsize=17),
+                  title_gp=gpar(fontsize=23),
+                  title="")
+pd <- packLegend(muc.lgd, endo.lgd,
+                 direction="horizontal")
+leg <- grid.grabExpr(draw(pd))
+```
+
+```{r annotation2}
+colors <- endo.colors
+endosigs2 <- endosigs[, colnames(endosigs) %in% manifest.endo$lab_id]
+mucsigs2 <- mucsigs[, colnames(mucsigs) %in% manifest.muc$lab_id] 
+df2 <- select(manifest.endo, lab_id, tumor) %>%
+    rename(Histology=tumor) %>%
+    filter(lab_id %in% colnames(endosigs2)) %>%
+    mutate(color=colors[Histology]) %>%
+    arrange(Histology)
+df3 <- select(df2, Histology)
+dx2 <- list(Histology=colors)
+ha_row <- HeatmapAnnotation(df=as.data.frame(df3),
+                            col=dx2,
+                            show_legend=FALSE)
+endosigs3 <- endosigs2[, df2$lab_id]
+endocols <- colnames(endosigs3)
+colnames(endosigs3) <- lab_id_map[match(endocols, names(lab_id_map))]
+```
+
+```{r Extended_Figure_3a}
+endosigshm <-
+    endosigs3 %>%
+    Heatmap(col = colorRamp2(c(0,1),c("#FFFFFF","#ED504A")),
+            row_names_gp = gpar (fontsize = 10),
+            top_annotation = ha_row,
+            show_heatmap_legend = TRUE,
+            show_row_dend = FALSE,
+            show_column_dend=FALSE,
+            row_dend_reorder=FALSE,
+            row_order=seq_len(nrow(endosigs2)),
+            heatmap_legend_param = list(title = "Probability"),
+            column_names_gp = gpar (fontsize = 8),
+            column_order=seq_len(ncol(endosigs2)))
+A <- endosigshm
+```
+
+
+```{r Extended_Figure_3b}
+colors <- muc.colors
+##manifest.muc <- manifest %>%
+##    filter(tumor_type %in% names(colors))
+mucinous <- select(manifest.muc, lab_id, tumor) %>%
+    rename(Histology=tumor) %>%
+    filter(lab_id %in% colnames(mucsigs2)) %>%
+    mutate(color=colors[Histology]) %>%
+    arrange(Histology)
+mucinous2 <- select(mucinous, Histology)
+dx <- list(Histology=colors)
+muc_row <- HeatmapAnnotation(df=as.data.frame(mucinous2), col=dx,
+                             show_legend=FALSE)
+mucsigs3 <- mucsigs2[, mucinous$lab_id]
+muccols <- colnames(mucsigs3)
+colnames(mucsigs3) <- lab_id_map[match(muccols, names(lab_id_map))]
+mucsigshm <-
+    Heatmap(mucsigs3,
+            col = colorRamp2(c(0,1),c("#FFFFFF","#ED504A")),
+            row_names_gp = gpar (fontsize = 10),
+            top_annotation = muc_row,
+            show_heatmap_legend = TRUE,
+            heatmap_legend_param=list(title="Probability"),
+            show_row_dend = FALSE,
+            row_order=seq_len(nrow(mucsigs3)),
+            show_column_dend=FALSE,
+            column_names_gp = gpar (fontsize=8),
+            column_order = rev(seq_len(ncol(mucsigs3))))
+B <- mucsigshm
+```
+
+
+
+```{r ext_fig3, dev=c("png", "pdf"), fig.width=10, fig.height=12}
+ag <- grid.grabExpr(draw(A))
+bg <- grid.grabExpr(draw(B))
+gl <- list(ag, bg, leg)
+m <- matrix(1:3, nrow=3)
+vp <- viewport(x=unit(0.5, "npc"),
+               y=unit(0.5, "npc"),
+               width=unit(0.95, "npc"),
+               height=unit(0.95, "npc"),
+               just="center")
+
+grid.arrange(grobs=gl, layout_matrix=m,
+             heights=c(0.5, 0.5, 0.1),
+             vp=vp)
+##upViewport()
+grid.text(c("a", "b"),
+          x=unit(c(0.01, 0.01), "npc"),
+          y=unit(c(0.98, 0.55), "npc"),
+          gp=gpar(cex=2))
+```

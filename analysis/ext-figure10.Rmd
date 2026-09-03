@@ -1,0 +1,104 @@
+---
+title: "Supplementary Figure 10 Heatmaps of methylation"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+library(ggplot2)
+library(here)
+library(tidyverse)
+library(grid)
+library(gridExtra)
+library(circlize)
+library(targets)
+draw <- ComplexHeatmap::draw
+Heatmap <- ComplexHeatmap::Heatmap
+# wflow_build() renders Rmds from analysis/, so tar_read() needs an explicit
+# store path (default "_targets" would resolve to analysis/_targets, not found)
+tgt_store <- here("_targets")
+```
+
+```{r grobs}
+tcga_components <- tar_read(tcga_heatmap, store = tgt_store)
+tcga.heatmap <- Heatmap(tcga_components$cluster_data,
+                        col = colorRamp2(c(0, 0.25, 0.5),
+                                         c("#00FFCC", "#FFFFFF", "#0099FF")),
+                        show_column_names = FALSE,
+                        left_annotation = tcga_components$ha_rows,
+                        show_column_dend = FALSE,
+                        show_heatmap_legend = FALSE,
+                        row_title_rot = 0,
+                        clustering_distance_rows = "euclidean")
+vert.legends  <- tcga_components$vert.legends
+horiz.legends <- tcga_components$horiz.legends
+
+jhu_components <- tar_read(jhu_heatmap, store = tgt_store)
+jhu.heatmap <- Heatmap(jhu_components$cluster_data,
+                       col = colorRamp2(c(0, 0.25, 0.5),
+                                        c("#00FFCC", "#FFFFFF", "#0099FF")),
+                       show_column_names = FALSE,
+                       left_annotation = jhu_components$ha_rows,
+                       show_column_dend = FALSE,
+                       show_heatmap_legend = FALSE,
+                       row_title_rot = 0,
+                       clustering_distance_rows = "euclidean")
+gr.tcga <- grid.grabExpr(draw(tcga.heatmap))
+gr.jhu  <- grid.grabExpr(draw(jhu.heatmap))
+```
+
+```{r heatmaps, fig.width=18, fig.height=8, dev=c("png", "pdf")}
+grid.newpage()
+vp.tcga <- viewport(x=unit(0.02, "npc"),
+                    width=unit(0.48, "npc"),
+                    y=unit(0.02, "npc"),
+                    height=unit(0.96, "npc"),
+                    just=c("left", "bottom"))
+vp.jhu <- viewport(x=unit(0.52, "npc"),
+                   width=unit(0.48, "npc"),
+                   y=unit(0.4, "npc"),
+                   height=unit(0.58, "npc"),
+                   just=c("left", "bottom"))
+vp.leg1 <- viewport(x=unit(0.52, "npc"),
+                    width=unit(0.1, "npc"),
+                    y=unit(0.02, "npc"),
+                    height=unit(0.4, "npc"),
+                    just=c("left", "bottom"))
+vp.leg2 <- viewport(x=unit(0.65, "npc"),
+                    width=unit(0.3, "npc"),
+                    y=unit(0.02, "npc"),
+                    height=unit(0.4, "npc"),
+                    just=c("left", "bottom"))
+grid.newpage()
+pushViewport(vp.tcga)
+grid.draw(gr.tcga)
+popViewport()
+pushViewport(vp.jhu)
+grid.draw(gr.jhu)
+popViewport()
+pushViewport(vp.leg1)
+grid.draw(vert.legends)
+popViewport()
+pushViewport(vp.leg2)
+grid.draw(horiz.legends)
+popViewport()
+grid.text(letters[1:2], x=unit(c(0.015, 0.51), "npc"),
+          y=unit(c(0.96, 0.96), "npc"),
+          gp=gpar(cex=3))
+grid.text("TCGA (n=150)", x=unit(0.25, "npc"),
+          y=unit(0.94, "npc"),
+          gp=gpar(cex=2))
+grid.text("Hallberg et al. (n=36)", x=unit(0.75, "npc"),
+          y=unit(0.94, "npc"),
+          gp=gpar(cex=2))
+```
+
+
+
+

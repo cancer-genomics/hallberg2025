@@ -1,0 +1,826 @@
+\documentclass[11pt]{article}
+
+\setlength\headheight{24pt}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
+\usepackage{xcolor}
+\usepackage{manyfoot}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\usepackage{lineno}
+\usepackage{ragged2e}
+\usepackage{siunitx}
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+%\usepackage{mathastext}
+\usepackage{fancyhdr}
+\renewcommand{\headrulewidth}{0pt}
+% so that footnote with number 2 is a dagger
+% to indicate corresponding author
+\usepackage[symbol]{footmisc}
+\usepackage[margin=15pt, labelfont={bf,sf}, font=small]{caption}
+\usepackage{xr}
+\usepackage[numbers, round]{natbib}
+\usepackage{microtype}
+%\usepackage[T1]{fontenc}
+%\usepackage{sectsty}
+\usepackage[english]{babel}
+\usepackage{framed}
+
+%\makeatletter
+%\newcommand*{\addFileDependency}[1]{% argument=file name and extension
+%  \typeout{(#1)}
+%  \@addtofilelist{#1}
+%  \IfFileExists{#1}{}{\typeout{No file #1.}}
+%}
+%\makeatother
+%\newcommand*{\myexternaldocument}[1]{%
+%    \externaldocument{#1}%
+%    \addFileDependency{#1.tex}%
+%    \addFileDependency{#1.aux}%
+%  }
+  %\myexternaldocument{supplemental}
+  %\myexternaldocument{excel_tables}
+\newcommand*\mean[1]{\overline{#1}}
+\renewcommand{\figurename}{\textbf{Fig.}}
+\newcommand{\R}{\textsf{R}}
+\newcommand{\comment}[1]{{\color{blue}{#1}}}
+\pagenumbering{gobble}
+\usepackage{setspace}
+\usepackage{authblk}
+\renewcommand\Affilfont{\fontsize{11}{12}\selectfont\normalsize\normalfont}
+\renewcommand\Authfont{\fontsize{11pt}{1em}\selectfont} % 11pt font, 1em space between lines
+
+\title{ \textbf{Genomic landscapes of endometrioid and mucinous ovarian cancers and morphologically similar tumor types}}
+\date{}
+% change footnote to dagger
+\makeatletter
+\def\@fnsymbol#1{\ensuremath{\ifcase#1\or \dagger\or \ddagger\or
+      \mathsection\or \mathparagraph\or \|\or **\or \dagger\dagger
+      \or \ddagger\ddagger \else\@ctrerr\fi}}
+\makeatother
+% same footnote for second corresponding author
+\newcommand*\colast[1][\value{footnote}]{\footnotemark[#1]}
+\newcommand*\cofirst[1][\value{footnote}]{\footnotemark[#1]}
+\author[1]{Dorothy Hallberg\thanks{These authors contributed equally.}}
+\author[1]{Alice C. Eastman\cofirst}
+\author[1]{Shashikant Koul\cofirst}
+\author[1]{Daniel C. Bruhm}
+\author[1]{Eniko Papp}
+\author[2]{Simon Davenport}
+\author[1]{Vilmos Adleff}
+\author[1]{Leonardo Ferreira}
+\author[1]{Noushin Niknafs}
+\author[1]{Jamie E. Medina}
+\author[1]{Stephen Cristiano}
+\author[1]{Carolyn Hruban}
+\author[1]{Jacob Fiksel}
+\author[1]{Kaui P. Lebarbenchon}
+\author[1]{Luis Aparicio}
+\author[1]{Nicholas A. Vulpescu}
+\author[3]{Kuan-Ting Kuo}
+\author[1,4]{Nita Ahuja}
+\author[5]{Ronny Drapkin}
+\author[5]{Euihye Jung}
+\author[5]{Sarah H. Kim}
+\author[6]{Mark A. Eckert}
+\author[6]{Ernst Lengyel}
+\author[7]{Kentaro Nakayama}
+\author[1,8]{Ayse Ayhan}
+\author[1]{Ie-Ming Shih}
+\author[2]{Tian-Li Wang}
+\author[9]{Ofer Lavie}
+\author[10]{Gad Rennert}
+\author[1]{Hariharan Easwaran}
+\author[1]{Stephen B. Baylin}
+\author[2]{Michael F. Press}
+\author[1]{Victor E. Velculescu\thanks{To whom correspondence should be addressed:\ velculescu@jhmi.edu (V.E.V.) and rscharpf@jhu.edu (R.B.S.).}}
+\author[1, 11]{Robert B. Scharpf\colast}
+
+
+\affil[1]{The Sidney Kimmel Comprehensive Cancer Center, Johns Hopkins University School of Medicine, Baltimore, MD, USA\vspace{0.5em}}
+\affil[2]{Department of Pathology, Norris Comprehensive Cancer Center, University of Southern California, Los Angeles, CA, USA\vspace{0.5em}}
+\affil[3]{Department of Pathology, National Taiwan University Hospital, Taipei, Taiwan\vspace{0.5em}}
+\affil[4]{Department of Pathology and Surgery, Yale University School of Medicine, New Haven, CT, USA\vspace{0.5em}}
+\affil[5]{Penn Ovarian Cancer Research Center and Department of Obstetrics and Gynecology,  Division of Gynecologic Oncology,  Hospital of the University of Pennsylvania and Perelman School of Medicine, University of Pennsylvania, Philadelphia, PA, USA\vspace{0.5em}}
+\affil[6]{Department of Obstetrics and Gynecology and Section of Gynecologic Oncology,  The University of Chicago, Chicago, IL, USA\vspace{0.5em}}
+\affil[7]{Department of Gynecology and Obstetrics, Nagoya City University East Medical Center, Nagoya, Japan.\vspace{0.5em}}
+\affil[8]{Department of Pathology, Seirei Mikatahara Hospital, Hamamatsu, Japan;  Department of Tumor Pathology, Hamamatsu University School of Medicine, Hamamatsu, Japan; Department of Molecular Pathology, Hiroshima University School of Medicine, Hiroshima, Japan\vspace{0.5em}}
+\affil[9]{Division of Obstetrics and Gynecology, Carmel Medical Center, Haifa, Israel\vspace{0.5em}}
+\affil[10]{B. Rappaport Faculty of Medicine, Technion – Israel Institute of Technology and The Association for Promotion of Research in Precision Medicine, Haifa, Israel\vspace{0.5em}}
+\affil[11]{Department of Biostatistics,  Johns Hopkins Bloomberg School of Public Health, Baltimore, MD, USA}
+
+\raggedbottom
+
+\usepackage[sf,bf,medium,compact]{titlesec}
+%\linenumbers
+
+\justifying
+
+<<rpackages, echo=FALSE, message=FALSE>>=
+knitr::opts_chunk$set(echo=FALSE, message=FALSE, warning=FALSE)
+library(targets)
+## pctfun() is a package function (hallberg2025.base/R/manuscript.R), not a
+## target -- it moved there in the 2026-06-23 encapsulation refactor.
+library(hallberg2025.base)
+tar_load(mfest)
+tar_load(mfest.purity.l20)
+tar_load(mfest.purity.g20)
+tar_load(abstract)
+tar_load(downstream)
+tar_load(nsample_tcga)
+@
+
+\begin{document}
+\thispagestyle{empty}
+
+\maketitle
+
+\clearpage
+\pagenumbering{arabic}
+\pagestyle{fancy}
+\fancyfoot[C]{\textcolor{gray}{Hallberg et al., Page \thepage}}
+
+\begin{spacing}{1.1}
+\noindent\textbf{Abstract}\\
+While endometrioid and mucinous ovarian carcinomas represent nearly a fifth of ovarian cancers, their molecular characteristics and pathologic origins are poorly understood.
+To identify the genomic and epigenomic alterations characteristic of these ovarian cancer subtypes and to evaluate links to morphologically similar tumors from other sites, we performed a combination of sequence, copy number, mutation signature, and rearrangement analyses from tumor samples and matched normal tissues of \Sexpr{abstract$N} patients, as well as methylation analyses of these tumors and tissues of \Sexpr{nsample_tcga} patients from the Cancer Genome Atlas.  
+Genomic analyses included samples from patients with ovarian endometrioid \Sexpr{abstract$n.types[1]}, ovarian mucinous \Sexpr{abstract$n.types[2]}, uterine endometrioid \Sexpr{abstract$n.types[3]}, and gastrointestinal mucinous carcinomas \Sexpr{abstract$n.types[4]}, including mucinous carcinomas of the stomach, colon, and pancreas.
+In addition to identifying genes previously known to be involved in these tumors, we identified alterations in \textit{RAD51C, NOTCH4, SMARCA1/4} and \textit{JAK1} in ovarian endometrioid, \textit{ESR1} in uterine endometrioid, and \textit{SMARCA4} in ovarian mucinous carcinomas.
+Whole genome sequencing revealed rearrangements involving \textit{PTEN, NF1}, and \textit{NF2} in ovarian endometrioid carcinomas, and \textit{NF1} and \textit{MED1} in ovarian mucinous carcinomas.
+The number of alterations and affected genes as well as genome-wide methylation profiles were not distinguishable between ovarian and uterine endometrioid carcinomas, supporting the hypothesis that these tumors share a tissue of origin.
+In contrast, mutation and methylation patterns in ovarian mucinous carcinomas were different from gastrointestinal mucinous carcinomas. These analyses provide insights into the genomic landscapes and origins of mucinous and endometrioid ovarian carcinomas, providing new avenues for early clinical intervention and management of patients with these cancers.\\
+
+\noindent\textbf{Significance:} Integrative multi-omic analyses support a common tissue of origin between ovarian endometrioid and uterine endometrioid carcinomas, but not between ovarian mucinous and gastric or pancreatic mucinous carcinomas.
+\end{spacing}
+
+\begin{spacing}{1.2}
+  
+\section*{Introduction}
+
+
+Ovarian cancer is the leading cause of gynecological cancer death and is the seventh most common cancer in women worldwide.
+Epithelial ovarian cancer comprises about 90\% of all ovarian malignancies and includes high grade serous, low grade serous, mucinous, endometrioid and clear cell ovarian carcinomas.
+High grade serous ovarian carcinomas (HGSOC) represent more than half of all epithelial ovarian cancers and is the most widely studied epithelial ovarian tumor, while endometrioid and mucinous carcinomas account for 10\% and 6\%, respectively \cite{torre2018}.
+Through extensive whole genome, exome, and methylation analyses of HGSOC, a variety of genes have been identified as likely drivers in these tumors \cite{cancergenomeatlasresearchnetwork2011}, and both clinical and evolutionary analyses have implicated the fallopian tube as the tissue of origin of HGSOC \cite{labidi-galy2017, eckert2016, ducie2017, piek2001, finch2006, medeiros2006, kuhn2012, perets2013, rabban2014}.
+%Alice - adding piek2001, finch2006, medeiros2006, kuhn2012, perets2013, and rabban2014 as clinico-pathologic studies of fallopian tube HGSOC origin.
+Apart from alterations in a few well-known drivers including \textit{KRAS} and \textit{HER2} amplification in ovarian serous and mucinous carcinomas and mutations in \textit{ARID1A}, \textit{PIK3CA}, and \textit{PTEN} genes as well as mismatch repair (MMR) deficiency in ovarian endometrioid carcinomas, comparatively little is known about molecular alterations in these tumors \cite{slamon1989}.
+Comprehensive genomic analyses of these tumor subtypes could delineate additional alterations and pathways frequently altered in these cancers and shed light on their likely tissue of origin.
+
+
+Uterine endometrioid adenocarcinomas account for nearly 85\% of all epithelial uterine carcinomas and accumulating evidence suggests a shared molecular etiology between these cancers and ovarian endometrioid adenocarcinomas \cite{buhtoiarova2016}.
+Synchronous endometrioid ovarian and uterine carcinomas can arise from independent primary tumors or as metastases from a single primary tumor \cite{makris2017, hajkova2019}, suggesting that these tumors may share the same cell of origin \cite{wu2001, wu2017}.
+Women with synchronous ovarian and uterine cancers have improved survival compared to women with a single cancer, in part due to early diagnosis from the symptoms of vaginal bleeding associated with uterine carcinomas \cite{matsuo2018}. 
+Understanding the origin of these cancers could lead to more accurate prognoses of survival or more aggressive early intervention.
+While whole genome, whole exome, and targeted next generation sequencing analyses have been performed on ovarian endometrioid carcinomas \cite{wang2017, hoang2015, hollis2020},  and whole exome studies have been performed on uterine endometroid carcinomas \cite{cancergenomeatlasresearchnetwork2013}, the extent to which these cancers share similar alterations and a potentially common tissue of origin has not been systematically evaluated.
+
+Distinguishing between primary mucinous ovarian cancer and mucinous adenocarcinoma metastases from other sites, including GI mucinous tumors, may be challenging.
+Some histological features can favor primary diagnosis but there are several discordant and overlapping features that make a definitive diagnosis difficult \cite{brown2014}.
+Molecular analyses for mucinous ovarian and GI cancers, including pancreatic, stomach and colorectal cancer, have largely been limited to targeted sequencing \cite{lee2017, khan2018, nakata2002, cheasley2019, dundr2023}, gene expression \cite{elias2018}, or immunohistochemistry \cite{elias2014}, though recently work has begun on exomic genomic analyses of these malignancies \cite{cheasley2019, mueller2018}.
+No studies to date have compared the epigenomes of mucinous carcinomas from the ovary with those of other sites.
+Such analyses could establish the tissue of origin and lead to better risk stratification and treatment for patients with these cancers.
+In this study, we characterize the molecular landscapes of endometrioid and mucinous adenocarcinomas, comparing genomes and epigenomes in both the cancer and adjacent normal tissues (Figure \ref{fig:fig1}a).
+Our analyses indicate the major pathways affected by these cancers and identify molecular alterations that may improve our understanding of their tissue of origin.
+
+\section*{Materials and Methods}
+
+\noindent \textbf{Specimens obtained for sequencing analysis}\\
+\noindent The diagnosis of primary ovarian carcinoma was made at the at the referral institution and required not only the presence of an adnexal mass, but also no evidence of malignancy in mucosal surfaces of the digestive tract or uterus. 
+The ovarian cancer subtype was diagnosed by board-certified pathologists at the referral institution and subsequently confirmed by a central laboratory board-certified pathologist. 
+Matched tumor and normal tissue were collected from patients at the time of resection (Supplementary Table \ref{tab:patients}).
+The matched normal tissue was obtained from white blood cells isolated from peripheral blood.
+When peripheral blood was not available, connective tissue adjacent to the tumor that contained no tumor by histopathological examination was used as the source of normal DNA.
+The percent viable tumor cell content was determined by histopathologic assessment.
+All samples were obtained under Institutional Review Board (IRB) approved protocols with informed consent for research use at participating institutions.
+
+\vspace{1em}
+\noindent \textbf{Sample preparation and next-generation sequencing}\\
+\noindent DNA was extracted from patient whole blood using a QIAamp DNA Blood Mini QIAcube Kit (Qiagen Valencia, CA).
+Microdissection was performed using a scalpel and dissecting microscope with comparison of unstained sections to be dissected to a serial section that was stained with hematoxylin-and-eosin.
+Genomic DNA from FFPE blocks was extracted from the microdissected tissues using the QIAamp DNA FFPE Tissue kit (Qiagen, Valencia, CA).
+In brief, the samples were incubated in proteinase K for 16 hours before DNA extraction.
+The digested mixture was transferred to a microtube for DNA fragmentation using the truXTRAC™ FFPE DNA Kit with 10 min shearing time as per the manufacturer's instructions (Covaris, Woburn, MA).
+Following fragmentation, the sample was further digested for 24 hours followed by one hour incubation at 80$^\circ$ C. DNA purification was performed using the QIAamp DNA FFPE Tissue kit following the manufacturer's instructions (Qiagen, Valencia, CA).
+Fragmented genomic DNA from tumor and normal samples were used for Illumina TruSeq library construction (Illumina, San Diego, CA) according to the manufacturer's instructions or as previously described \cite{bertotti2015}.
+Exonic or targeted regions were captured in solution using the Agilent SureSelect v.4 kit or a custom targeted panel according to the manufacturer's instructions (Agilent, Santa Clara, CA).
+Paired-end sequencing, 100 bases from each end of the fragments for exome libraries and 150 bases from each end of the fragment for targeted libraries, was performed using Illumina HiSeq 2000/2500 and Illumina MiSeq instrumentation (Illumina, San Diego, CA).
+Whole genome sequencing (WGS) for tumor and matched normal samples was performed at an average depth of 60x and 30x, respectively, while whole exome sequencing (WES) was performed at an average depth of 700x and 400x, respectively (Supplementary Table \ref{tab:sequencing}).
+
+
+\vspace{1em}
+\noindent \textbf{Genotype concordance of matched samples}\\
+Where multiple tissue samples were available from a single patient, we assessed the concordance of genotypes at single nucleotide polymorphisms (SNPs) genome-wide.
+The dbSNP build 130 (reference genome hg18) was downloaded from the UCSC Genome Browser.
+Only positions of single-base substitutions were retained from which 10,000 positions were randomly sampled.
+Rsamtools (v2.16.0) was used to generate pileup statistics for each BAM file at the filtered dbSNP positions.
+The pileup was evaluated at positions with mapping and base quality scores greater than 30.
+Positions were considered evaluable only if there was at least 20 spanning reads and 95\% of reads supported the same base.
+For every pair of BAM files, the proportion of concordant genotypes was calculated as the ratio of matched bases to the total number of evaluated bases.
+Using the distribution of concordance among randomly sampled pairs, we obtained a null distribution of concordance for unrelated individuals.
+A sample pair was considered genotype-matched if the concordance was an outlier relative to the null distribution (i.e., the concordance exceeded the third quartile plus 1.5 times the interquartile range of the null).
+Out of 315 samples, 297 samples had genotype concordance that matched the reported tumor-normal pair.
+When genotype matching differed from available annotation, our analyses used the genotype-matched pairing.
+We excluded samples from further analyses when no genotype-matched sample was identified or when the annotated tumor types differed between the genotype-matched samples (n = 27).
+
+\vspace{1em}
+\noindent \textbf{Mutation analyses}\\
+\noindent Prior to mutation calling, primary processing of sequence data for both tumor and normal samples were performed using Illumina CASAVA software (v1.8), including masking of adapter sequences.
+Sequence reads were aligned against the human reference genome version hg18 using ELAND.
+Candidate somatic mutations, consisting of point mutations, insertions, and deletions were identified using VariantDx and Strelka as previously described \cite{habedanck2005, jones2015}.
+For samples analyzed using targeted sequencing, we identified candidate mutations that were altered in $>10$\% of distinct reads.
+For samples analyzed using whole exome sequencing, we additionally required $\geq$ 5 altered reads in at least one sample.
+
+Each candidate mutation was confirmed using BLAT and examined by visual inspection.
+For each mutation, 101 bases including 50 bases 5' and 3' flanking the mutated base was used as query sequence. 
+Candidate mutations were removed if the analyzed region resulted in more than one BLAT hit with 90\% identity or a score of at least 70.
+Mutation signature analyses were performed using the deconstructSigs package in \R{} with default parameters \cite{rosenthal2016}.
+
+To model the prevalence of mutations that commonly arise in ovarian endometroid and uterine endometrioid carcinomas, we identified the set of genes with a combined mutation frequency of at least 10\% in these tumors.
+For a given gene, we denote the number of samples with a mutation in tumor subtype $j$ by $y_{j}$ and $x$ a dummy variable for uterine endometrioid cancer (0 if ovarian endometrioid and 1 if uterine endometrioid).
+We modeled the observed mutation frequency as
+\begin{eqnarray*}
+y_{j} &\sim& \text{Binomial}(\theta_{j}, n_j)\\
+\text{logit}(\theta_{j}) &=& \alpha_0 + \alpha_1 x_{j}\\
+\alpha_0 &\sim& \text{normal}(0, 10)\\
+\alpha_1 &\sim& \text{Double Exponential}(0, 1).
+\end{eqnarray*}
+\noindent The prevalence of mutations was obtained from the two available log odds from this model and the difference in mutation prevalence was obtained from the log odds ratio given by $\alpha_1$.
+95\% posterior credible intervals for these parameters were obtained from the 5th and 95th percentiles of these posteriors.
+Computation was performed using stan and rstan.
+The same approach was used to model the prevalence of mutations in ovarian mucinous and GI mucinous adenocarcinoma types.
+
+To compute the probability of observing $n$ or more statistically significant differences ($\alpha = 0.1$) in allele frequencies out of $P$ commonly altered genes under the null that the population allele frequencies are the same for these tumor types, we simulated a 1000 x $P$ matrix of uniform(0, 1) random deviates.
+We binarized this matrix such that random deviates $<$ 0.1 were assigned the value 1 and zero otherwise. The row-wise sums provide a null distribution for the number of statistically significant genes.
+A p-value was obtained by calculating the fraction of observations from the null distribution that were at least as large as the observed number of differences.
+
+\vspace{1em}
+<<excluded.samples>>=
+tar_load(facets.missing)
+tar_load(facets.low.purity)
+@
+
+\noindent \textbf{Structural variant analyses}\\
+We used FACETS to estimate tumor purity and ploidy \cite{shen2016}.
+Tumor samples for which purity could not be estimated by facets (n = \Sexpr{facets.missing}), or tumors with purity estimates at or below 0.20 (n = \Sexpr{facets.low.purity}) were excluded from downstream analyses.
+GC-adjusted log$_2$ ratios (log R) were obtained as previously described in both tumor and normal samples \cite{papp2018}.
+To remove technical biases and germline alterations, the log Rs from matched normal samples were subtracted from the corresponding log Rs in the tumor sample.
+The \R{} package DNAcopy (v1.74.1) was used to perform circular binary segmentation on the corrected log Rs \cite{olshen2004}.
+
+To obtain integer copy number estimates, we modeled the log Rs for a segment $i$ from a sample as a mixture of normal and cancer cells given by the relationship
+$R_{i} = \log_{2}\left( \frac{C_{Ti}\  \times \ p + C_{Ni}\  \times \ (1 - p)}{P_T  \times \ p\ + \ P_N  \times \ (1 - p)} \right)$,
+where $p$ is the tumor purity, $C_{Ti}$ is the number of copies of segment $i$ in the tumor cells, $C_{Ni}$ is the number of copies of segment $i$ in the normal cells, $P_T$ is the average ploidy of the tumor cells, and $P_N$ is the average ploidy of the normal cells.
+Log Rs were converted to integer copy numbers for each genomic segment by solving for $C_T$ and rounding to the nearest integer.
+Focal deletions were defined as segments less than 3 Mb where the integer copy number was either 0 or 1.
+If 2 or more improper read pairs supported the deletion, we referred to the segment as hemizygous$^+$ or homozygous$^+$, with $^+$ denoting the identification of multiple improper read pairs that have alignments consistent with the deletion call.
+Amplicons were seeded with high-copy focal amplifications of greater than 2.5 times the average ploidy of the sample.
+Low copy gains defined as segments with copy number 1.5 times the average ploidy of the sample were linked to the seed amplicon if at least 2 read pairs bridged the low copy segment to the amplicon.
+
+Somatic copy-neutral intra- and inter-chromosomal translocations and inversions were identified using Trellis as previously described for each tumor sample and its matched normal sample \cite{papp2018}.
+At least 2 improper read pairs and at least 1 split read was required to identify rearrangements.
+Rearrangements in tumor samples that overlapped any rearrangement identified in their matched normal samples were excluded.
+In-frame gene fusions were identified as previously described \cite{papp2018}.
+Fusions where the left and right fusion partner were in the same gene, and fusions where none of the exons in the three prime gene were predicted to be in the fusion protein were excluded.
+
+\vspace{1em}
+<<methylation_analysis.r>>=
+n.probes <- "735,052"
+tar_load(se.tcga)
+tar_load(nt2)
+@
+\noindent \textbf{Methylation analyses}\\
+\noindent We used the Infinium MethylationEPIC arrays with probes for more than 850,000 CpG sites for genome-wide methylation analysis.
+Raw IDAT files from the Infinium MethylationEPIC array were pre-processed and normalized using the funnorm function in the \R{} package minfi \cite{aryee2014}.
+Probes on chomosomes X or Y, probes with detection $p$ value greater than 0.5, or probes overlapping a SNP with dbSNP minor allele frequency greater than 10\% were excluded.
+The proportion of methylated CpG sites was calculated as the fraction of CpG probes with $\beta > 0.3$.
+To evaluate the methylation profiles of these samples in the context of tumor and normal samples from TCGA, we analyzed \Sexpr{nt2} samples obtained from four TCGA studies that were processed on the 450k Infinium Methylation array (Supplementary Table \ref{tab:methylation}).
+Using \Sexpr{n.probes} probes in common with the EPIC array, we identified the 1000 most variable probes and performed a PCA analysis on the TCGA samples. The five principal components with largest eigenvalues were retained.
+A linear discriminant analyses (LDA) was fit with tissue type as the response (colorectal mucinous, stomach mucinous, or uterine endometrioid) and five principal components as independent variables using the TCGA samples.
+The tumor samples sequenced in this study were first projected onto the principal components, and then onto the linear discriminant axes.
+
+
+
+\vspace{1em}
+\noindent \textbf{Survival Analyses}\\
+\noindent Time-to-event analyses of overall survival were performed using Kaplan-Meier, and log-rank tests were used to compare differences between Kaplan-Meier survival curves.
+A pathway was considered altered if a somatic mutation or structural variant (copy number alteration or rearrangement) was identified in any gene belonging to the pathway.
+
+\section*{Results}
+<<overall.approach>>=
+tar_load(n.wes.tumors)
+tar_load(n.wgs.tumors)
+@
+
+<<cellularity>>=
+tar_load(mafs)
+tar_load(low.cell)
+tar_load(percent.low.cell)
+@
+
+<<coverage>>=
+tar_load(wgs.coverage)
+tar_load(wes.coverage)
+@
+
+<<methylation.stats>>=
+tar_load(n.jhu)
+tar_load(n.st.pan)
+@
+
+\noindent\textbf{Overall approach}\\
+A total of \Sexpr{abstract$N} ovarian endometrioid, uterine endometrioid, ovarian mucinous, and GI mucinous carcinomas and matching normal tissues were collected from patients of seven institutions in the US, Israel, Taiwan and Japan (Fig. \ref{fig:fig1}b, Supplementary Table \ref{tab:patients}).
+More than \Sexpr{percent.low.cell}\% (\Sexpr{abstract$N-low.cell} of \Sexpr{abstract$N}) ovarian and GI mucinous tumor samples had tumor cellularity exceeding 20\% and samples with low cellularity ($\leq$ 20\%) were excluded from downstream analyses (n=\Sexpr{length(unique(mfest.purity.l20$subject_id))}).
+We performed genomic analyses of these matched tumor and normal tissue samples to identify sequence and structural changes, and compared tumor and TCGA methylation data for epigenetic changes (Fig. \ref{fig:fig1}).
+
+All samples were analyzed by WES analyses, or, for the subset of cases where frozen tumors were available, we performed WGS. Overall, we analyzed \Sexpr{n.wes.tumors} tumors using WES and \Sexpr{n.wgs.tumors} tumors using WGS.
+The median coverage for WES and WGS samples was \Sexpr{wes.coverage} and \Sexpr{wgs.coverage}, respectively (Supplementary Table \ref{tab:sequencing}).
+We assessed substitutions, small insertions and deletions as well as copy number changes in samples with WES, while samples with WGS were evaluated for these changes as well as for rearrangements, linked amplicons and gene fusions. Copy number analyses identifying both focal amplifications, deletions, as well as chromosomal gains and losses were performed for WES using FACETS and for WGS using our recently developed Trellis approach \cite{papp2018, shen2016}.
+We also used Trellis to evaluate linked amplicons that may be derived from an amplification of a single target gene that is connected to multiple different regions of the genome.
+Finally, we performed methylation analyses using microarrays containing probes for 850,000 CpG sites on \Sexpr{n.jhu - n.st.pan} samples, including ovarian endometrioid, ovarian mucinous, and colorectal mucinous carcinomas that had remaining genomic DNA, and an additional \Sexpr{n.st.pan} stomach mucinous and pancreatic mucinous samples.
+
+\vspace{1em}
+
+<<ch03>>=
+tar_load(stab3)
+tar_load(stab4)
+tar_load(tumortypes)
+tar_load(mut.oall)
+tar_load(prop)
+tar_load(n.p53.ctnnb1)
+tar_load(spearman.cor)
+sp.cor <- round(spearman.cor, 2)
+ue.hyp <- num_hypermut('ue', stab3, stab4, mfest.purity.g20)
+ue.hyp2 <- y.of.n(ue.hyp, mfest.purity.g20, 'ue')
+oe.hyp <- num_hypermut('oe', stab3, stab4, mfest.purity.g20)
+oe.hyp2 <- y.of.n(oe.hyp, mfest.purity.g20, 'oe')
+@
+\noindent\textbf{Ovarian endometrioid and uterine endometrioid carcinomas}\\
+We employed a highly sensitive mutation analysis to identify somatic alterations in ovarian endometrioid (n=\Sexpr{downstream$n.types2['OE']}) and uterine endometrioid (n=\Sexpr{downstream$n.types2['UE']}) cancers (Supplementary Tables \ref{tab:mutationswes} and \ref{tab:mutationswgs}).
+The median number of somatic alterations was \Sexpr{round(mut.oall['OE'], 0)} for both ovarian endometrioid and uterine endometrioid cancers and did not appear to be associated with tumor purity (Spearman correlation = \Sexpr{sp.cor}, Supplementary Fig. \ref{fig:sfig1}, Supplementary Tables \ref{tab:sequencing},  \ref{tab:mutationswes}, and \ref{tab:mutationswgs}).
+Consistent with previous analyses, we observed a bimodal distribution of the number of mutations for uterine endometrioid carcinomas, with nearly half of the \Sexpr{downstream$n.types2['UE']} tumors analyzed having more than 500 mutations per exome, likely the result of a hypermutator status \cite{cancergenomeatlasresearchnetwork2013} (Supplementary Fig.\ref{fig:sfig1}).
+As in previous studies, uterine endometrioid carcinomas were more likely to be hypermutated
+(\Sexpr{ue.hyp2} patients) compared to ovarian endometrioid carcinomas (\Sexpr{oe.hyp2} patients).
+
+Evaluation of the altered genes in ovarian endometrioid and uterine endometrioid carcinomas without a hypermutation phenotype revealed similar affected pathways (Fig. \ref{fig:fig2}).
+Mutations involving chromatin regulating genes, and PI3K and RAS pathways were common in both tumor types.
+The proportion of patients with alterations in the \textit{PTEN, PIK3CA, KRAS, PIK3R1, NF1,} or \textit{ARID1A} genes was {\Sexpr{prop['OE']}}\% for ovarian endometrioid and {\Sexpr{prop['UE']}}\% for uterine endometrioid, consistent with previous studies \cite{legallo2014, talhouk2015, hollis2020}.
+As previously reported \cite{mcconechy2014}, we observed mutations in \textit{TP53} and \textit{CTNNB1} in \Sexpr{n.p53.ctnnb1['OE']} patients with ovarian endometrioid carcinomas ({\Sexpr{pctfun(n.p53.ctnnb1['OE'], mfest.purity.g20, 'oe')}}\% of patients) and \Sexpr{n.p53.ctnnb1['UE']} patients with uterine endometrioid carcinomas ({\Sexpr{pctfun(n.p53.ctnnb1['UE'], mfest.purity.g20, 'ue')}}\% of patients).
+We identified several mutations in driver genes among patients with ovarian endometrioid carcinomas that have not been previously reported, including the homologous recombination \textit{RAD51C} gene, the Notch signaling genes (\textit{NOTCH1-4}), chromatin remodeling genes \textit{SMARCA1/4}, transcription factor \textit{E2F1}, the receptor tyrosine kinase \textit{RET}, and the \textit{ABL1} kinase.
+
+
+<<ch04>>=
+tar_load(n.esr1)
+tar_load(n.hotspot)
+@
+
+Interestingly, we found that \Sexpr{n.esr1} of the \Sexpr{downstream$types2["uterine endometrioid"]} patients with uterine endometrioid carcinomas had alterations in \textit{ESR1}\label{esr1}, including \Sexpr{n.hotspot} hotspot mutations at Tyr537 (Y537C and Y537N) and an alteration at Leu536 (L536R) (Supplementary Fig. \ref{fig:sfig2}).
+The Tyr537 hotspot constitutively activates the estrogen receptor independent of estrogen, and has been reported in patients with breast cancer that have become resistant to tamoxifen or aromatase inhibitor therapy \cite{toy2013, robinson2013}.
+While the consequence of the Leu536 amino acid substitution is not well understood, its adjacency to the Tyr537 hotspot suggests that a similar functional role is likely.
+Though neither woman with an \textit{ESR1} hotspot mutation had been treated with anti-estrogen therapy, both women were above the average age of menopause and would likely have had low levels of estrogen.
+
+To understand the role of mutations in these ovarian cancer subtypes in the context of mutational signatures \cite{alexandrov2020}, we evaluated the types of mutations and linked these to mutational processes that include exogenous or endogenous mutagen exposure, enzymatic modification of DNA, and defective DNA repair (Supplementary Fig. \ref{fig:sfig3}a).
+As expected, we found that the age-related mutation signature, Signature 1, characterized by a predominance of C$>$T transitions was present in all samples.
+Such C$>$T transitions are believed to be caused by spontaneous deamination of 5-methylcytosine.
+In patients with hypermutator defects, we identified signatures 6 and 15 known to be associated with DNA mismatch repair deficiency and microsatellite instability \cite{alexandrov2020}.
+
+In addition to mutations, we evaluated both whole exome and genome sequence data for focal amplifications. 
+For WGS data, we examined the read-pair information to pinpoint the presence of amplicons that may be linked genomically using the Trellis approach \cite{papp2018} (Fig. \ref{fig:fig3}a, Supplementary Fig. \ref{fig:sfig4}-\ref{fig:sfig7}, and Supplementary Table \ref{tab:ampwgs}). 
+The multiple genomic insertion sites as a result of \textit{MYC} and \textit{KRAS} amplification in tumors from patients CGOV161 and CGOV172, respectively, could be connected to other amplicons (Fig. \ref{fig:fig3}b), likely indicating that these genes and the neighboring genomic region at an insertion site were duplicated in successive cell divisions \cite{bignell2007}. 
+\textit{KRAS} has been shown to be amplified in ovarian endometrioid and HGSOC and has been associated with an aggressive phenotype of metastatic uterine endometrioid carcinoma \cite{rahman2013, birkeland2012}, while \textit{MYC} amplifications have been observed in a variety of ovarian cancers including endometrioid carcinomas \cite{jung2018}.
+
+We evaluated both whole exome and genome sequence data for homozygous deletions and identified losses in multiple genes known to be altered in ovarian endometrioid carcinomas, including \textit{PTEN}, \textit{NF1}, \textit{ARID1A}, \textit{BRCA1}, and others. 
+Additionally, we identified deletions in genes \textit{TSC2} and \textit{STK11} that have not been previously reported in endometrioid ovarian carcinoma (Supplementary Tables \ref{tab:cnvwes} and \ref{tab:deletionswgs}).
+\textit{TSC2} deletions have been observed in HGSOC and mutations in this gene have been associated with increased sensitivity to rapamycin-induced apoptosis, making \textit{TSC2} a potentially targetable biomarker \cite{tanwar2014, guertin2005}.
+Germline \textit{STK11} inactivating mutations have been associated with Peutz-Jeghers syndrome \cite{schumacher2005}, and somatic changes in this gene have been reported in a variety of cancers including non-small cell lung cancer, cervical cancer, colorectal cancer, melanoma, and pancreatic cancer with predominantly truncating mutations, but have not yet been reported in endometrioid ovarian carcinoma.
+
+For samples with available WGS, we also used Trellis to identify rearrangements and fusions (Supplementary Fig. \ref{fig:sfig4}, Supplementary Table \ref{tab:fusionswgs}). 
+These analyses revealed several novel rearrangements that were predicted to result in in-frame protein fusions in ovarian endometrioid carcinomas including \textit{ATAD1-PTEN}, the neurofibromin genes \textit{NF1} and \textit{NF2}, as well as cyclin-dependent and polo-like kinase genes \textit{CDK7} and \textit{PLK5} (Fig. \ref{fig:fig3}c).
+The \textit{ATAD1-PTEN} rearrangement was linked to the homozygous deletion of a portion of \textit{PTEN}.
+While \textit{PTEN} loss in the ovarian surface epithelium has been shown to induce papillary serous ovarian cancer, rearrangements of \textit{PTEN} associated with deletions have not been previously reported in ovarian endometrioid tumors \cite{tanwar2014}.
+The neurofibromin gene fusions \textit{NF1-RAB11FIP4} and \textit{UBXN6-NF2} were identified in patient CGOV161T with ovarian endometrioid carinoma.
+Rearrangements involving \textit{NF1} and \textit{NF2} have been reported in other cancers and have been associated with therapeutic resistance in HGSOC \cite{philpott2017, papp2018}, but have not been previously identified in ovarian endometrioid carcinoma.
+Fusions of kinase genes \textit{IPO11-CDK7} and \textit{PLK5-TCF3} were detected in two different tumors.
+\textit{CDK7} is involved in cell cycle progression and \textit{CDK7} inhibitors have been shown to exert broad cytotoxicity against ovarian tumors \cite{zhang2017, zeng2018}.
+The \textit{IPO11} gene is involved in nuclear protein import and is expressed in both ovarian and endometrial cells.
+The fusion of \textit{IPO11-CDK7} may lead to constitutive activation of \textit{CDK7}, promoting cell cycle progression and tumor growth.
+The polo-like kinase 5 gene (\textit{PLK5}) has been reported to be altered in glioblastoma and, along with other members of the PLK family, plays a role in cell division and centriole duplication \cite{decarcer2011, moyer2019}.
+As recent studies suggest that aberrant expression of PLKs affect cell division and influence genomic instability \cite{habedanck2005,kuriyama2009}, PLKs may provide a useful target for therapeutic interventions \cite{press2019}.
+
+
+\vspace{1em}
+<<ch05>>=
+tar_load(nmut)
+tar_load(crc.tumor)
+tar_load(ov.tumor)
+@
+
+\noindent\textbf{Ovarian mucinous and GI mucinous cancers}\\
+We analyzed \Sexpr{downstream$types2["ovarian mucinous"]} patients with ovarian mucinous carcinoma and \Sexpr{downstream$types2["colorectal"]} patients with colorectal mucinous carcinomas for sequence (mutations and mutation signatures) and structural alterations (deletions, amplifications, rearrangements, and fusions).
+Using a threshold of 500 mutations per exome, we identified \Sexpr{nrow(nmut)} hypermutated mucinous tumors. 
+One was mucinous colorectal carcinoma \Sexpr{crc.tumor$lab_id} which had \Sexpr{prettyNum(max(crc.tumor$n), big.mark=",")} exome mutations, likely a consequence of the R197S mutation in \textit{POLE} (Fig. \ref{fig:fig4} and Supplementary Tables \ref{tab:mutationswes} and \ref{tab:mutationswgs}).
+The hotspot somatic mutation observed in \textit{POLE} occurred in the exonuclease domain of the encoded protein and has been reported in a small subset of microsatellite‐stable and hypermutated colorectal carcinomas, affecting the proofreading activity of the enzyme during DNA replication \cite{guerra2017}.
+The other hypermutated mucinous carcinoma was ovarian tumor \Sexpr{ov.tumor$lab_id} with \Sexpr{prettyNum(max(ov.tumor$n), big.mark=",")} exome mutations.
+Using the Open Custom Ranked Analysis of Variants Toolkit we determined that this tumor had at least two variants implicated in mismatch repair deficiency, T981M in \textit{MSH3} which is predicted to disrupt protein function according to SIFT, as well as a R248Tfs*8 in \textit{MSH6} which is predicted as pathogenic/likely pathogenic by ClinVar \cite{sim2012, landrum2014, pagel2020}.
+
+Of the genes known to be altered through sequence changes in ovarian and colorectal mucinous carcinomas, we found alterations at similar frequencies in \textit{KRAS}, \textit{PIK3CA}, \textit{RNF43}, and \textit{TP53}.
+We identified several genes known to be mutated in ovarian mucinous carcinomas including \textit{ERBB2, ARID1A}, and \textit{CREBBP} \cite{cheasley2019, ricci2018, lin2011a, anglesio2013}.
+We also detected mutations in the chromatin modifier gene \textit{SMARCA4} that had not been previously reported in ovarian mucinous carcinomas.
+With the exception of the \textit{POLE} mutant tumor, these genes were infrequently altered in colorectal mucinous carcinomas.
+
+<<cnv>>=
+tar_load(erbb2.n.amp)
+tar_load(cdkn2a)
+tar_load(n.cdkn2.mut)
+tar_load(ncrc2)
+tar_load(crc.frac)
+tar_load(ci3)
+@
+
+Analyses of focal copy number changes revealed amplifications of \textit{CCND1} and \textit{ERBB2}, and homozygous deletions of \textit{CDKN2A/B} in mucinous ovarian carcinomas, a finding consistent with previous studies \cite{papp2018,dimova2004,niederacher1999,ryland2013}.
+Amplification of \textit{ERBB2} was observed in \Sexpr{erbb2.n.amp} of the \Sexpr{downstream$types2["ovarian mucinous"]} ovarian mucinous carcinomas and provides a potentially useful target for trastuzumab therapy \cite{mcalpine2009}.
+\textit{CDKN2A} deletions were observed in \Sexpr{cdkn2a$n[cdkn2a$alteration=="deletion"]} cases, and \Sexpr{n.cdkn2.mut} additional tumors had a sequence alteration in this gene \cite{niederacher1999}.
+In contrast, \Sexpr{ncrc2} of the colorectal mucinous carcinomas had copy number alternations in \textit{ERBB2}, \textit{CCND1} or \textit{CDKN2A/B} (\Sexpr{crc.frac}, 95\% CI: \Sexpr{ci3}).
+
+Interestingly, homozygous deletions of \textit{NF1} were present in a small number of both ovarian and colorectal mucinous carcinomas.
+In addition, we identified a novel \textit{NF1-RAD51D} rearrangement resulting in the likely inactivation of \textit{NF1} in one ovarian mucinous carcinoma (Fig. \ref{fig:fig4}).
+Inactivating alterations of \textit{NF1} have been shown to lead to RAS overactivity in HGSOC \cite{cancergenomeatlasresearchnetwork2011}.
+Although the role of \textit{RAD51D} is unclear in this context, germline \textit{RAD51D} carriers have been reported to develop ovarian tumors at an early age  \cite{sanchez-bermudez2018}.
+We also identified a novel \textit{MED1-STAT5B} rearrangement in the same ovarian mucinous carcinoma (Supplementary Fig. \ref{fig:sfig8}).
+\textit{MED1} alterations have been implicated in bladder and breast cancers and may be a potential target for treatment in endocrine resistant breast cancer \cite{cui2012, viallefont2001a}.
+
+\vspace{1em}
+
+<<integrative>>=
+tar_load(pct_)
+@
+
+<<mutations>>=
+tar_load(cdkn2a.mean)
+tar_load(cdkn2a.ci)
+tar_load(tp53.mean)
+tar_load(tp53.ci)
+tar_load(kras.mean)
+tar_load(kras.ci)
+tar_load(erbb2.mean)
+tar_load(erbb2.ci)
+tar_load(p4plusin9)
+tar_load(p1plusin9)
+@
+\noindent\textbf{Genomic and epigenomic analyses}\\
+We assessed whether cancers with the same morphological tumor type had differences in the genetic and epigenetic alterations that commonly arise in the development of these cancers.
+To facilitate comparisons of the molecular alterations between the different tumor types, we integrated the sequence and structural changes at the gene level and limited our analyses to known cancer genes with an overall mutation rate of at least 10\% within endometrioid and mucinous histotypes.
+For ovarian and uterine endometrioid carcinomas, somatic mutation frequencies were similar at 9 commonly mutated genes in these tissues, including \textit{TP53, PTEN, PIK3CA, NF1, MYC, KRAS, CTNNB1, BRCA1,} and \textit{ARID1A} (Fig. \ref{fig:fig5}a).
+Despite a similar somatic mutation burden and tumor purity among mucinous cancers (Supplementary Fig. \ref{fig:sfig1}), higher mutation frequencies were observed in ovarian mucinous compared to GI mucinous carcinomas in four of the six genes frequently mutated in these tumors, including \textit{CDKN2A} (posterior mean log odds ratio ($\mean{LOR}$) = \Sexpr{cdkn2a.mean}, 90\% CI: \Sexpr{cdkn2a.ci}), \textit{TP53} ($\mean{LOR}$ = \Sexpr{tp53.mean}, 90\% CI: \Sexpr{tp53.ci}), \textit{KRAS} ($\mean{LOR}$ = \Sexpr{kras.mean}, 90\% CI: \Sexpr{kras.ci}), and \textit{ERBB2} ($\mean{LOR}$ = \Sexpr{erbb2.mean}, 90\% CI: \Sexpr{erbb2.ci}).
+As four of the six genes evaluated had a statistically significant difference in mutation rates (at type I error of 10\%), these analyses suggest that ovarian and GI mucinous carcinomas, while histologically similar, may have different evolutionary cells of origin or selective pressures (p = \Sexpr{p4plusin9}).
+By contrast, the lack of differences among all nine genes evaluated in the comparison of ovarian to uterine endometrioid tumors suggested that these tumors are likely to have a similar evolutionary origin (p \Sexpr{p1plusin9}).
+
+<<methylated>>=
+tar_load(Fstat)
+tar_load(Fstat.p)
+@
+
+<<pca>>=
+tar_load(n.tcga.ue)
+tar_load(n.tcga)
+tar_load(n.st)
+tar_load(n.crc)
+tar_load(n.pa)
+@
+
+Given the mutational differences observed, we hypothesized that ovarian mucinous carcinomas may be epigenetically distinct from GI mucinous carcinomas while ovarian endometrioid carcinomas may be similar to their uterine morphological counterpart.
+We performed genome-wide methylation analyses of the GI mucinous, ovarian mucinous, and ovarian endometrioid carcinomas using arrays that interrogated more than 850,000 CpG sites within gene promoter regions, gene bodies, intragenic and various annotated regulatory elements across the genome \cite{pidsley2016}.
+After normalization, we estimated the proportion of methylated CpG sites as the fraction of CpG probes with $\beta > 0.3$. 
+We observed modest differences in the overall proportion of methylated CpG sites between mucinous and endometrioid tissues ($F_{3,89}$ = \Sexpr{Fstat}, p = \Sexpr{Fstat.p}, Supplementary Fig. \ref{fig:sfig9}).
+
+To evaluate the methylation profiles of these samples in the context of tumor and normal samples from The Cancer Genome Atlas (TCGA), we included \Sexpr{n.tcga} samples (\Sexpr{n.tcga.ue} normal uterine endometrial tissue, \Sexpr{n.st} stomach mucinous tumors, \Sexpr{n.pa} pancreas mucinous tumors, and \Sexpr{n.crc} colorectal mucinous cancers) that had been previously analyzed using methylation arrays  (Supplementary Table \ref{tab:methylation}, Supplementary Fig. \ref{fig:sfig10}).
+As the methylation probes would have substantial colinearity in a model for classifying tissue type on the basis of methylation patterns, we performed a linear discriminant analysis (LDA) using the first five principal components as features.
+The first linear discriminant (LD$_1$) captures a gradient in the composition of normal, endometrial histology to mucinous histologies of tumor origin, while the second linear discriminant (LD$_2$) separates stomach and colorectal mucinous tumors (Fig. \ref{fig:fig6}a).
+We projected the methylation profiles of these samples onto the principal components from TCGA, to examine how these samples compared to methylation profiles of uterine endometrioid or mucinous carcinomas represented in TCGA (Fig. \ref{fig:fig6}b).
+Overlaying the study CRC and stomach mucinous carcinoma profiles onto the 95\% confidence intervals for the TCGA tumor type classifications confirmed biological differences in these tumor types.
+Next, we assessed the ovarian mucinous and endometrioid carcinomas for which no corresponding tumor types were available in TCGA.
+We observed that ovarian endometrioid carcinomas clustered with TCGA uterine endometrial samples, corroborating their likely shared evolutionary origin.
+Ovarian mucinous carcinomas were more heterogeneous in their histological classification, mapping to confidence groups across the different TCGA histologies (Fig. \ref{fig:fig6}c).
+Overall, these analyses provide further evidence that ovarian endometrioid carcinomas share an evolutionary origin with uterine endometrioid carcinomas and that ovarian and gastrointestinal mucinous carcinomas are more heterogeneous and unlikely to be evolutionarily related.
+
+\vspace{1em}
+<<survival>>=
+tar_load(lr1)
+tar_load(pval1)
+tar_load(lr2)
+tar_load(pval2)
+tar_load(pval.ctnnb1)
+tar_load(n.surv)
+@
+\noindent\textbf{Survival analyses}\\
+We integrated sequence and structural alterations within pathways to assess differences in overall survival for \Sexpr{n.surv} patients.
+Genomic alterations in the PI3K pathway were weakly associated with longer overall survival for patients with ovarian endometrioid carcinomas ($\chi^2_1$ = \Sexpr{lr1}, p = \Sexpr{pval1}, Supplementary Fig. \ref{fig:sfig11}), while no differences in overall survival were observed in patients with ovarian mucinous carcinomas ($\chi^2_1$ = \Sexpr{lr2}, p = \Sexpr{pval2}, Supplementary Fig. \ref{fig:sfig11}b).
+While 13 patients with ovarian endometrioid carcinomas had alterations in the tumor suppressor gene \textit{PTEN}, only one patient with ovarian mucinous carcinoma had an alteration in this gene.
+Previous studies have reported improved survival for patients with \textit{PTEN} mutations \cite{risinger1998, akiyama-abe2013}.
+Mutations in \textit{CTNNB1}, a gene in the Wnt/$\beta$-catenin signalling pathway, tend to be mutually exclusive of \textit{TP53}, a finding corroborated by this study (Fig. \ref{fig:fig2}),  and patients with \textit{CTNNB1} mutations have been reported to have lower genomic complexity \cite{hollis2020}.  
+We observed a weak association between \textit{CTNNB1} mutation status and survival in individuals with ovarian endometrioid carcinomas (p = \Sexpr{pval.ctnnb1}, Supplementary Fig. \ref{fig:sfig11}c).
+
+\section*{Discussion} \label{discussion}
+These analyses provide an extensive genomic and epigenomic characterization of ovarian mucinous and endometrioid carcinomas.
+Through the integration of somatic mutations, structural variants, including deletions, linked amplicons, intra- and inter-chromosomal rearrangements, as well as methylation analyses, we were able to detect frequently altered genes and pathways that describe the genomic and epigenomic landscape of these tumor types.
+These efforts revealed that ovarian endometrioid and uterine endometrioid carcinomas were genetically and epigenetically similar, suggesting they may share a common cellular precursor.
+In contrast, at both genomic and epigenomic levels, ovarian and GI mucinous carcinomas had distinct characteristics, highlighting the unique origins of these cancers.
+
+We identified alterations that have not been previously observed in these tumors.
+These included alterations in \textit{RAD51C, NOTCH4, SMARCA4, SMARCA1} and \textit{JAK1} in ovarian endometrioid, and \textit{SMARCA4} genes in ovarian mucinous carcinomas.
+Whole genome sequence analyses revealed rearrangements involving \textit{PTEN}, \textit{NF1}, and \textit{NF2} in ovarian endometrioid carcinomas, and \textit{NF1} and \textit{MED1} in ovarian mucinous carcinomas.
+Many of these alterations provide new avenues for potential therapeutic intervention or new insights into the biology of these cancers.
+For example, patients with germline \textit{NF1} mutations have been shown to respond well to MEK1/2 inhibitors, providing a new treatment avenue for tumors with alterations in this gene \cite{papalia2018}.
+\textit{SMARCA4} loss, while not directly targetable, may result in cyclin D1 deficiency and susceptibility to CDK4/6 inhibition \cite{xue2019}.
+\textit{JAK1} is essential for IL-6-class inflammatory cytokine signaling and plays a critical role in metastatic cancer progression in breast cancer, and may provide a similar role in ovarian endometrioid carcinoma \cite{wehde2018}.
+\textit{MED1} is a tissue-specific co-activator of the estrogen receptor that mediates breast cancer metastasis and treatment resistance \cite{leonard2019} and when targeted in model systems results in reduced growth and metastasis of breast cancer xenografts  \cite{zhang2017}.
+\textit{MED1} rearrangements may lead to overexpression of this protein that could be exploited in ovarian mucinous carcinoma patients.
+
+In uterine endometrioid carcinomas, we identified \textit{ESR1} activating mutations in \Sexpr{n.esr1} patients at amino acid residue 537 resulting in a mutation hotspot commonly seen in breast cancer patients who have become resistant to estrogen targeted therapies.
+Although aromatase inhibitors have been shown to select for Tyr537 \textit{ESR1} mutations \cite{toy2013, robinson2013}, none of the patients in this study had been treated with these therapies.
+We hypothesize that these  \Sexpr{n.esr1} women, each over the age of 60, may have been in a post-menopausal estrogen-low environment similar to anti-estrogen therapy that increased selection for \textit{ESR1} mutations.
+The significant interest in overcoming \textit{ESR1} mutations for patients with resistance to aromatase inhibitors may ultimately provide new avenues for patients with these de novo alterations in uterine endometrioid carcinomas.
+
+Additionally, we observed an association between alterations in specific pathways known to be important in other cancers with patient survival.
+Alterations in the PI3K and CTNNB1 pathways among patients with ovarian endometrioid carcinomas were associated with prolonged survival, while patients with ovarian mucinous carcinomas harboring alterations in the PI3K pathway had reduced survival and may benefit from additional targeted therapeutic approaches.
+Consistent with previous studies \cite{hollis2020}, \textit{TP53} mutations among individuals with ovarian endometrioid carcinoma were associated with poor outcomes.
+
+This study has several limitations.  First, histopathological diagnoses of endometrioid carcinomas were made without WT1 or TP53 protein levels from immunohistochemistry, which have been shown to increase the accuracy of diagnosis \cite{madore2010}.  
+Similarly, immunohistochemical markers progesterone receptor and vimentin have been reported to improve classification accuracy of ovarian mucinous cancers, but were not evaluated in this study \cite{woodbeck2019}.   Because of these limitations, this study may include misdiagnosed cases.  Similarly, Woodbeck et al. report that as many of 20\% of ovarian mucinous cancers may be misdiagnoses of ovarian endometrioid cancer \cite{woodbeck2019, kobel2016}.
+Finally, tumor grading that incorporates architectural features and rate of growth of ovarian and GI carcinomas were not available.  
+Differences in grade between tumor subtypes could confound associations of molecular alterations with survival in these tumor types.
+
+Despite these limitations, this study enables several important observations about endometrioid and mucinous carcinomas.
+Integrated analyses of the sequence and structural changes revealed that the genomic landscapes of ovarian and GI mucinous carcinomas were different, but that ovarian endometrioid and uterine endometrioid carcinomas were related and may share similar origins.
+Global methylation patterns of ovarian and GI mucinous carcinomas indicate different cellular origins as has been recently suggested \cite{cheasley2019}.
+GI mucinous carcinomas clustered with their respective matched normal tissue, suggesting that these tumors originate from their normal epithelium.
+On the other hand, genomic and methylation analyses suggest that ovarian and uterine endometrioid carcinomas share a similar cellular precursor, possibly explaining the high co-occurrence of these diseases.
+The accumulating evidence that other ovarian cancers such as HGSOC arise in the fallopian tube \cite{labidi-galy2017}, together with pathologic evidence suggests that the endometrium, through retrograde menstruation and endometriosis, is a likely source of both ovarian endometrioid and uterine endometrioid carcinoma.
+Taken together, these observations have important clinical implications and may suggest new methods for disease management.
+
+\vspace{1em}
+
+\noindent \textbf{Data availability}
+
+\noindent Sequence data for WGS and WES can be found in the European Genome-phenome Archive (EGA), under study accession EGAS50000000523 and methylation array data can be found in the European Nucleotide Archive (ENA) under study accession EGAS00001008175.
+
+\vspace{1em}
+\noindent \textbf{Acknowledgements}
+
+\noindent We thank members of our laboratories for critical review of the manuscript.
+This work was supported by the Dr. Miriam and Sheldon G. Adelson Medical Research Foundation (R.B.S, R.D., M.F.P and V.E.V), the Gray Foundation (R.B.S, R.D. and V.E.V.), Commonwealth Foundation (V.E.V.), US National Institutes of Health grants CA121113 (V.E.V.), CA006973 (V.E.V.), CA062924 (R.B.S.), CA083636 (R.D.), CA200469 (I.S.), CA271896 (R.B.S. and V.E.V.), CA228991 (R.D., I.S., T-L.W., and V.E.V), US Department of Defense grant OCRP-OC-100517 (R.J.K and I.S.), the Honorable Tina Brozman Foundation for Ovarian Cancer Research (R.D.), the SU2C-DCS International Translational Cancer Research Dream Team Grant (SU2C-AACR-DT1415; V.E.V.), National Institute of General Medical Sciences grant T32GM148383 (D.H., D.C.B., N.A.V.), and the Richard W. TeLinde Gynecologic Pathology Laboratory Endowment (I.S.).
+Stand Up To Cancer is a program of the Entertainment Industry Foundation administered by the American Association for Cancer Research.  
+
+\vspace{1em}
+\noindent \textbf{Author Contributions}
+
+\noindent D.H., E.P., R.B.S. and V.E.V. were involved in the conception and design of this project. D.H., E.P., V.A., N.N., D.C.B., R.B.S and V.E.V developed the methodology. D.H., V.A., N.N., D.C.B., L.F., J.E.M., S.D., S.C., J.F., N.A., R.D., E.J., S.K., M.A.E., E.L., K.T.K., K.N., A.A., I.S., T.W., O.L., G.R., M.F.P., S.R.B., H.E., R.B.S and V.E.V were involved in the acquisition of data, acquiring and managing patients, providing facilities and equipment.
+D.H., A.C.E., S.K., E.P., N.N., D.C.B., C.H., N.A.V, L.F., S.C., J.F., H.E., R.B.S. and V.E.V. were involved in the analysis and interpretation of data through statistical analysis, biostatistics and computational analysis.
+C.H. provided original artwork.
+D.H., A.C.E., S.K., E.P., R.B.S. and V.E.V. were involved in the writing, review and revision of the manuscript.
+D.H., S.K., E.P., R.B.S. and V.E.V. were involved with administrative, technical or material support by reporting or organizing data or construction databases.
+R.B.S. and V.E.V supervised the study.
+
+\vspace{1em}
+\noindent \textbf{Conflicts of Interest}
+
+\noindent The authors declare the following competing interests: N.A. has received grant funding from Cepheid Astex and has served as a consultant to Ethicon and has licensed methylation biomarkers to Cepheid. V.A. and R.B.S are founders of Delfi Diagnostics, own Delfi Diagnostics stock, and are consultants of this organization.
+M.F.P. has received consulting fees for scientific advisory boards (Astra Zeneca, Merck, and Novartis), fee-for-service research contracts (Ambrx, Eli Lilly, Jazz, Novartis, TORL Biotherapeutics, TRIO, and Zymeworks), and holds private equity in TORL Biotherapeutics that has been reviewed and proved by the University of Southern California.
+V.E.V. is a founder of Delfi Diagnostics, serves on the Board of Directors for this organization, and owns Delfi Diagnostics stock, which is subject to restrictions under university policy. Additionally, Johns Hopkins University owns equity in Delfi Diagnostics.
+V.E.V. divested his equity in Personal Genome Diagnostics (PGDx) to LabCorp in February 2022.
+V.E.V. is an inventor on patent applications submitted by Johns Hopkins University related to cancer genomic and cell-free DNA analyses that have been licensed to one or more entities, including Delfi Diagnostics, LabCorp, Qiagen, Sysmex, Agios, Genzyme, Esoterix, Ventana and ManaT Bio. Under the terms of these license agreements, the University and inventors are entitled to fees and royalty distributions. V.E.V. is an advisor to Viron Therapeutics and Epitope. These arrangements have been reviewed and approved by the Johns Hopkins University in accordance with its conflict-of-interest policies. The remaining authors declare no competing interests.
+
+\end{spacing}
+
+\begin{spacing}{1.0}
+\bibliographystyle{vancouver}
+\bibliography{references}
+\end{spacing}
+
+\clearpage{}
+
+\begin{spacing}{1.2}
+
+\section*{List of Figures}
+\begin{figure}
+  \begin{center}
+    \includegraphics[height=6.5in]{../docs/figure/figure1.Rmd/fig1-1.pdf}
+  \end{center}
+  \caption{\textbf{Overview of genomic and epigenomic analyses.}
+    \textbf{(a)} We performed genomic analyses of tumor and matched WBC samples from patients with ovarian mucinous, ovarian endometrioid, uterine endometrioid and GI mucinous carcinomas to identify sequence, structural, and epigenetic changes using whole genome sequencing (WGS),  whole exome sequencing (WES), and Infinium MethylationEPIC arrays.
+We integrated these data to characterize and evaluate differences between the commonly altered pathways and cancer driver genes in these histological subtypes.
+\textbf{(b)} Overview of the availability of genomic, exomic, and methylation (Me) for the ovarian and GI carcinomas.}
+\label{fig:fig1}
+\end{figure}
+
+\begin{figure}
+ \includegraphics[width=\textwidth]{../docs/figure/figure2.Rmd/fig2-1.pdf}
+ \caption{\textbf{Integrated genomic analyses of ovarian and uterine endometrioid adenocarcinomas.}
+Integrated analyses of somatic point mutations, structural variants including linked amplicons, deletions, and rearrangements, organized by pathways.
+The top of the figure shows number of each type of alteration, the middle portion reflects the alterations present in each sample for each gene and pathway, and the bottom shows the mutation spectra.}
+  \label{fig:fig2}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{../docs/figure/figure3.Rmd/fig3.2-1.pdf}
+  \caption{\textbf{Whole genome analyses of linked amplicons and rearrangements.}
+\textbf{(a)} Circos plots for linked amplicons for individual tumor samples with $>$100 structural variants.
+Circos plots depict copy number alterations as well as intra- and inter-chromosomal rearrangements.
+Segmented normalized estimates of read depth were used to identify candidate focal amplifications (yellow) and focal deletions (green).
+Rearranged read pairs and split reads were used to identify inter- and intra-chromosomal rearrangements (blue).
+\textbf{(b)} For linked amplicon graphs, nodes represent genes, node size represents number of times the segment is represented in the genome, color indicates the chromosome location of the amplified segment, and edges denote segments that are connected in the rearranged cancer genome.
+Known driver genes indicated by triangles are often hubs in these networks, suggesting that amplification of these genes occurs early and can be connected to many of the other amplicons.
+\textbf{(c)} Reads aligned to the fusion junction of two representative rearrangements.
+Split reads that span the fusion junction are shown in black, while read pairs, that reside on either side of the junction are shown in green and blue, providing additional evidence for specific rearrangements.}
+  \label{fig:fig3}
+\end{figure}
+
+
+\begin{figure}
+  \centering
+  \includegraphics[width=\textwidth]{../docs/figure/figure4.Rmd/fig4-1.pdf}
+  \caption{\textbf{Integrated genomic analyses of ovarian and colorectal mucinous cancers.}
+    Integrated analyses of somatic point mutations, structural variants including linked amplicons, deletions, and rearrangements, organized by pathways.
+    The top of the figure shows number of each type of alteration, the middle portion reflects the alterations present in each sample for each gene and pathway, and the bottom shows the mutation spectra. }
+  \label{fig:fig4}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{../docs/figure/figure5.Rmd/fig5-1.pdf}
+  \caption{\textbf{Comparison of mutation frequencies across histological subtypes in commonly altered genes.}
+    \textbf{(a)} For known cancer driver genes with an alteration frequency of at least 10\% in patients with ovarian or uterine endometrioid cancer, we compared the proportion of samples with alterations between these histological subtypes.
+  Overall, mutation rates were comparable in ovarian and uterine endometrioid subtypes with 90\% CIs of the log odds ratio including zero (no difference).
+  By contrast, we observed more differences between GI mucinous and ovarian mucinous tumors despite only 6 driver genes having an overall mutation frequency of at least 10\% \textbf{(b)}.
+  Higher mutation rates were observed in ovarian mucinous tumors at \textit{CDKN2A}, \textit{KRAS}, \textit{ERBB2}, and \textit{TP53}.
+  For all panels, horizontal line segments indicate 90\% CIs and filled circles denote posterior medians.  Hypermutators were excluded from these analyses.}
+  \label{fig:fig5}
+\end{figure}
+
+\begin{figure}
+  \includegraphics[width=\textwidth]{../docs/figure/figure6.Rmd/fig6-1.pdf}
+\caption{\textbf{Ovarian endometrioid carcinomas are epigenetically similar to healthy uterine endometrium while ovarian mucinous carcinomas are mixed with both mucinous- and endometrial-like signatures.}
+  \textbf{(a)}
+  We trained a linear discriminant model for the classification of samples as stomach mucinous, colorectal mucinous, or uterine endometrial from variably methylated CpG sites in TCGA samples.
+    Ellipses denote the 95${^\text{th}}$ percentile of the bivariate normal distribution for each of these histology classifications.
+    \textbf{(b)} Using the linear discriminant model from \textbf{(a)}, the histological classification  of samples were obtained and overlaid on the ellipses re-drawn from panel \textbf{(a)}.
+    The co-clustering of colorectal and stomach mucinous carcinomas with the corresponding tumor types from TCGA confirm that the methylation patterns that separate these tissues in TCGA broadly reflect histology differences (top panels of \textbf{(b)}).
+  While ovarian mucinous and ovarian endometrioid samples have no counterpart in TCGA (bottom panels of \textbf{(b)}), we evaluated whether these samples would be epigenetically similar to their morphological counterparts in TCGA.
+  \textbf{(c)}
+  Class probabilities from the linear discriminant model evaluated on the analyzed samples.
+  As expected, patients with stomach and colorectal mucinous carcinomas were correctly classified as mucinous, and patients with ovarian endometrioid carcinomas were correctly classified as endometrial.
+  Interestingly, classification of patients with ovarian mucinous carcinoma was more heterogenous, with nearly half of the samples exhibiting a mucinous signature and the remaining samples bearing more of a resemblance to endometrial methylation patterns. The two colorectal mucinous samples in panel \textbf{(b)} (top-left) were sequencing replicates from a single patient's tumor (patient CGCRC330).}
+    \label{fig:fig6}
+\end{figure}
+
+\end{spacing}
+
+\clearpage
+
+\captionsetup{justification=raggedright,singlelinecheck=false}
+\renewcommand{\figurename}{Supplementary Figure}
+\raggedright
+
+
+%Supplementary Figures
+%Restart figure counter
+\setcounter{figure}{0}
+
+
+\begin{figure}
+\section*{List of Supplementary Figures}
+\caption{\textbf{Relationship between tumor purity and number of somatic mutations.}  (\textbf{a}) Tumor purity for multiple histological tumor types were estimated using FACETS. Samples that FACETS did not process due to undetectable copy number changes are marked with an `X'.
+  (\textbf{b}) Patients with uterine endometrioid adenocarcinomas were more than twice as likely to have a hypermutator defect compared to patients with other cancers, including patients with ovarian endometrioid cancer (95\% CI: 1.1 - 4.2-fold increase).}
+\label{fig:sfig1}
+\end{figure}
+
+\begin{figure}
+ \caption{\textbf{Mutations in ESR1 at Tyr537 and Leu536.} \textit{ESR1} mutations identified in two patients with uterine endometrioid carcinomas occurred at Tyr537, a hotspot most commonly associated with aromatase inhibitor resistance in patients with breast cancer patients, and Leu536.
+This hotspot is located in close proximity to the region of the estrogen receptor that is important for ligand-dependent transcriptional function.
+The Tyr537 mutations cause a conformational change that constitutively activates the receptor independent of estrogen receptor binding.
+The Tyr537 residue is highlighted in blue in a three dimensional view of the ESR1 protein (bottom).
+Due to its physical proximity to the Tyr537 hotspot, the Leu536 mutation is likely to have the same activating effect on the estrogen receptor.}
+\label{fig:sfig2}
+\end{figure}
+
+\begin{figure}
+\caption{\textbf{Mutation signature analyses.}
+  \textbf{(a)} Mutation signatures for ovarian and uterine endometrioid carcinomas visualized with unsupervised clustering.
+  \textbf{(b)} Mutation signatures for ovarian and GI mucinous carcinomas.
+  The intensity of the heatmap colors indicates the percentage of the overall mutational profile for a sample that is explained by the mutation signature.}
+\label{fig:sfig3}
+\end{figure}
+
+\begin{figure}
+\caption{\textbf{Circos plots of ovarian endometrioid carcinoma samples.}
+Circos plots depict copy number alterations (black line segments interior of the chromosomes) as well as intra- and inter-chromosomal rearrangements (blue lines that connect different portions of the cancer genome).}
+\label{fig:sfig4}
+\end{figure}
+
+\begin{figure}
+  \caption{\textbf{Circos plots of uterine endometrioid carcinoma samples.}}
+  \label{fig:sfig5}
+\end{figure}
+
+\begin{figure}
+\caption{\textbf{Circos plots of ovarian mucinous carcinoma samples.}}
+\label{fig:sfig6}
+\end{figure}
+
+
+\begin{figure}
+\caption{\textbf{Circos plots of colorectal mucinous carcinoma samples}}
+\label{fig:sfig7}
+\end{figure}
+
+
+\begin{figure}
+\caption{\textbf{Rearrangements of ovarian endometrioid and ovarian mucinous carcinomas identified by \textsc{Trellis}.}
+Rearrangements present in ovarian endometrioid carcinomas CGOV161T and CGOV172T (\textbf{a,b}) and an ovarian mucinous tumor CGOV173T (\textbf{c}).
+Split reads that span the fusion junction are shown in black, while read pairs that reside on either side of the junction are shown in green and blue.}
+\label{fig:sfig8}
+\end{figure}
+
+\begin{figure}
+\caption{\textbf{Proportion of methylated CpG sites in ovarian and mucinous carcinomas.}
+The proportion of methylated CpG sites (mean $\beta$ values $>$ 0.3) are shown for patients with mucinous stomach, mucinous pancreatic, and ovarian mucinous and ovarian endometrioid carcinomas.
+Methylation was only available for one individual with colorectal mucinous carcinoma (not shown).  }
+\label{fig:sfig9}
+\end{figure}
+
+\begin{figure}
+  \caption{\textbf{Heatmap of methylation values in mucinous and endometrial histotypes.}
+    \textbf{(a)} Methylation levels ($\beta$s) at 945 CpG sites having the highest variance across 164 TCGA patient samples that included 77 colorectal mucinous tumors, 37 stomach mucinous tumors, and 46 uterine endometrial samples from normal tissue.   \textbf{(b)} Methylation levels at the same CpG sites were obtained from 16 patients with ovarian mucinous carcinomas, 8 patients with ovarian endometrioid carcinomas, 5 patients with stomach mucinous carcinomas, 6 patients with pancreatic mucinous carcinomas, and 1 patient with colorectal mucinous carcinoma.
+    }
+  \label{fig:sfig10}
+\end{figure}
+
+\begin{figure}
+  \caption{\textbf{Kaplan-Meier survival curves for ovarian cancer patients with and without mutations in the PI3K and WNT pathways.}
+    \textbf{(a, b)} Alterations in the PI3K pathway trended towards increased survival among patients with ovarian endometrioid carcinomas and decreased survival among patients with ovarian mucinous carcinomas. \textbf{(c)} \textit{CTNNB1} alternations in the WNT pathway trended towards association with increased survival among patients with ovarian endometrioid carcinomas.}
+  \label{fig:sfig11}
+\end{figure}
+
+\clearpage
+
+\raggedright
+% S1
+\renewcommand{\tablename}{Supplementary Table}
+\begin{table}
+\section*{List of Supplementary Tables}  
+  \caption{Summary of Ovarian, Uterine, and GI Tumors Analyzed Through Whole-Exome and Whole-Genome Analyses}
+\label{tab:patients}
+\end{table}
+
+% S2
+\begin{table}
+  \caption{Summary of Next-Generation Sequencing Analyses.}
+  \label{tab:sequencing}
+\end{table}
+
+% S3
+\begin{table}
+  \caption{TCGA samples included in methylation analysis}
+  \label{tab:methylation}
+\end{table}
+
+% S4
+\begin{table}
+  \caption{Somatic Sequence Alterations from Whole Exome Analyses}
+\label{tab:mutationswes}
+\end{table}
+
+% S5
+\begin{table}
+  \caption{Somatic Sequence Alterations from Whole Genome Analyses}
+\label{tab:mutationswgs}
+\end{table}
+
+% S6
+\begin{table}
+  \caption{Amplifications from Whole Genome Analyses}
+  \label{tab:ampwgs}
+\end{table}
+
+% S7
+\begin{table}
+  \caption{Copy Number Segments from Whole Exome Analyses}
+\label{tab:cnvwes}
+\end{table}
+
+% S8
+\begin{table}
+  \caption{Deletions from Whole Genome Analyses}
+\label{tab:deletionswgs}
+\end{table}
+
+% S9
+\begin{table}
+  \caption{Gene Fusions Identified from Whole Genome Analyses}
+\label{tab:fusionswgs}
+\end{table}
+
+\end{document}

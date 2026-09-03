@@ -1,0 +1,251 @@
+---
+title: "Figure 2 devel"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+  toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(tidyverse)
+library(grid)
+library(gridExtra)
+library(cowplot)
+library(here)
+library(magrittr)
+library(targets)
+library(hallberg2025.base)
+# wflow_build() renders from analysis/; pass explicit store path
+tgt_store <- here("_targets")
+data(manifest, package="hallberg2025.base")
+manifest <- purity_filter(manifest)
+rename <- dplyr::rename
+manifest2 <- manifest %>%
+    mutate(t.n=substr(tumor.normal, 1, 1),
+           t.n=toupper(t.n),
+           lab_id2=ifelse(grepl("^GT", subject_id),
+                          paste0(subject_id, t.n),
+                          lab_id))
+```
+
+```{r idat}
+data(idat.endometrioid, package="hallberg2025.base")
+idat2 <- idat.endometrioid %>%
+    filter(lab_id %in% manifest$lab_id) %>%
+    rename(gene_symbol=gene) %>%
+    swap_lab_id(manifest2)
+
+pathway.levels <- levels(idat2$pathway)
+pathways <- select(idat2, gene_symbol, pathway) %>%
+    distinct()
+tumortypes <- select(idat2, lab_id, tumor_type) %>%
+    distinct()
+tiles <- expand.grid(lab_id=levels(idat2$lab_id),
+                     gene_symbol=levels(idat2$gene_symbol)) %>%
+    as_tibble() %>%
+    left_join(pathways, by="gene_symbol") %>%
+    left_join(tumortypes, by="lab_id") %>%
+    drop_na()
+```
+
+```{r setup}
+pathway.labels <- str_wrap(levels(tiles$pathway), 15) %>%
+    setNames(levels(tiles$pathway))
+ix <- grep("Large", levels(tiles$pathway))
+pathway.labels[ix] <- "Large gene"
+tile.colors <- c("#FD6467","#046C9A","#D69C4E","#5BBCD6") %>%
+    setNames(c("amplification", "deletion", "fusion",
+               "mutation"))
+setup <- tiles %>%
+    ggplot(aes(lab_id, gene_symbol)) +
+    geom_tile(fill="grey88", color="white", linewidth=1.2) +
+    geom_tile(data=idat2, aes(fill=alteration),
+              color="white", size=1.2) +
+    xlab("") + ylab("") +
+    facet_grid(pathway~tumor_type,
+               scales="free",
+               space="free",
+               drop=TRUE,
+               labeller=labeller(pathway=pathway.labels)) +
+    theme(strip.background=element_rect(fill="white", color="white"),
+          strip.text.x=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.text.x=element_blank(),
+          strip.text.y=element_text(angle=0, hjust=0, size=15),
+          legend.text=element_text(size=15)) +
+    guides(fill=guide_legend(title="")) +
+    scale_fill_manual(values=tile.colors)
+```
+
+
+```{r tileplot}
+igrob <- ggplotGrob(setup)
+```
+ 
+# Mutation spectra
+
+Not all samples have subsitutions (e.g., CGOV103T and CGOV450T), so need to take care with layout to adhere to the same sample-order.
+
+```{r mutation_spectra}
+mut.spectra <- tar_read(mutation_spectra, store = tgt_store) %>%
+    swap_lab_id(manifest2) %>%
+    filter(lab_id %in% levels(tumortypes$lab_id)) %>%
+    mutate(lab_id=factor(lab_id, levels(tumortypes$lab_id))) %>%
+    left_join(tumortypes, by="lab_id") %>%
+    mutate(mutation.spectra="Mutation spectra (%)") %>%
+    distinct()
+layout <- tumortypes %>%
+    mutate(percent=1,
+           mutation="NA")
+barlayout <- layout %>%
+    mutate(mutation.spectra="Mutation spectra (%)") %>%
+    ggplot(aes(x= lab_id, y = percent)) +
+    geom_bar(stat = "identity", position="fill",
+             fill="transparent")  +
+    theme(axis.text.x=element_text(angle=90))
+mutspectra.panel <- barlayout +
+    geom_bar(data=mut.spectra,
+             aes(lab_id, y=percent, fill=mutation),
+             position="stack", stat="identity") +
+    theme(axis.title=element_blank(),
+          panel.grid=element_blank(),
+          axis.text.x=element_text(size=11, angle=90,
+                                   hjust=1, vjust=0.5),
+          panel.background=element_rect(fill="white"),
+          legend.background=element_rect(fill="white"),
+          panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          axis.line = element_blank(),
+          strip.text.x=element_blank(),
+          strip.text.y=element_text(angle=0,
+                                    size=17),
+          strip.background.y=element_rect(fill="white",
+                                          color = "white"),
+          strip.background.x = element_blank(),
+          axis.text.y=element_text(size=11),
+          legend.text=element_text(size=15),
+          legend.title=element_text(size=17)) +
+    scale_fill_discrete(na.translate=FALSE) +
+    facet_grid(mutation.spectra~tumor_type,
+               scales="free",
+               space="free",
+               drop=TRUE,
+               labeller=label_wrap_gen(width=5)) +
+    guides(fill=guide_legend(title=""))
+```
+
+
+# Number of alterations
+
+```{r alteration_count_plot}
+cutoffs <- tibble(type=c("Mutation", "Copy number"),
+                  tumor_type="Ovarian endometrioid",
+                  cutoff=c(500, NA))
+cutoffs2 <- bind_rows(cutoffs, cutoffs)
+cutoffs2$tumor_type[3:4] <- "Uterine endometrioid"
+cutoffs2$type_label <- ifelse(cutoffs2$type == "Copy number", "Count", "")
+cutoffs2$type_label <- factor(cutoffs2$type_label, levels = c("Count", ""))
+marginal <- tar_read(marginal_frequencies, store = tgt_store) %>%
+    swap_lab_id(manifest2) %>%
+    filter(lab_id %in% levels(tumortypes$lab_id)) %>%
+    left_join(tumortypes, by="lab_id") %>%
+    mutate(lab_id=factor(lab_id, levels(tumortypes$lab_id)),
+           type_label = ifelse(type == "Copy number", "Count", ""),
+           type_label = factor(type_label, levels = c("Count", "")))
+marginal.panel <- marginal %>%
+    ggplot(aes(x= lab_id,
+               y = n, fill = alteration)) +
+    geom_bar(stat = "identity") +
+    scale_y_log10() +
+    xlab("\nSample") +
+    ylab("Mutation spectra") +
+    theme(axis.title=element_blank(),
+          strip.placement="outside",
+          panel.grid=element_blank(),
+          axis.ticks.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.line = element_blank(),
+          panel.background=element_rect(fill="white"),
+          legend.background=element_rect(fill="white"),
+          strip.text.x=element_text(size=17),
+          strip.text.y=element_text(##angle=180,
+              angle=0,
+              size=17),
+          strip.background.x=element_rect(fill="white",
+                                        color = "white")) +
+    geom_hline(data=cutoffs2,
+               aes(yintercept=cutoff), linetype="dashed") +
+    guides(fill='none') +
+    scale_fill_discrete(na.translate=FALSE) +
+    scale_fill_manual(values=tile.colors) +
+    facet_grid(type_label~tumor_type,
+               scales="free",
+               space="free",
+               drop=TRUE,
+               labeller=label_wrap_gen(width=5))
+```
+
+
+```{r grobs}
+mpanel <- marginal.panel +
+    theme(strip.background.y=element_rect(fill="white",
+                                        color="white"))
+g1 <- ggplotGrob(mpanel)
+g3 <- ggplotGrob(mutspectra.panel)
+g1$widths <- igrob$widths
+g3$widths <- igrob$widths
+g2 <- igrob
+```
+
+```{r fig2, fig.width=15, fig.height=18, dev=c("png", "pdf")}
+plot_grid(g1, g2, g3, nrow=3,
+          rel_heights = c(1/5,1,1/6))
+grid.text("- Hypermutators", x=unit(0.815, "npc"),
+          y=unit(0.8945, "npc"), gp=gpar(cex=1.2))
+grid.text("Count", x=unit(0.04, "npc"),
+          y=unit(0.94, "npc"), gp=gpar(cex=1.2))
+```
+
+# Samples without copy number
+
+```{r copynum, eval = FALSE}
+cndat <- filter(marginal, type=="Copy number") %>%
+    mutate(lab_id=as.character(lab_id))
+missing.cn  <- filter(tumortypes, !lab_id %in% cndat$lab_id) %>%
+    left_join(select(manifest, lab_id, platform), by="lab_id")
+missing.cn
+missing.wes <- filter(missing.cn, platform=="WES")
+missing.wgs <- filter(missing.cn, platform=="WGS")
+clean_names <- hallberg2025.base:::clean_colnames3
+s5 <- here("docs", "table", "table_s5.Rmd",
+            "table_S5.tsv") %>%
+    read_csv(show_col_types=FALSE) %>%
+    clean_names() %>%
+    select(lab_id, is_focal_cnv, cnv_type, is_loh) %>%
+    swap_lab_id(manifest2) %>%
+    filter(is_focal_cnv, cnv_type %in% c("LOSS", "GAIN") | is_loh) %>%
+    distinct() %>%
+    filter(lab_id %in% missing.wes$lab_id)
+s5
+s6 <- here("docs", "table", "table_s6.Rmd",
+           "deletions.csv") %>%
+    read_csv(show_col_types=FALSE) %>%
+    clean_names() %>%
+    select(lab_id, call) %>%
+    swap_lab_id(manifest2) %>%
+    distinct() %>%
+    filter(lab_id %in% missing.wgs$lab_id)
+s6
+s7 <- here("docs", "table", "table_s7.Rmd",
+           "amplicons.csv") %>%
+    read_csv(show_col_types=FALSE) %>%
+    clean_names() %>%
+    swap_lab_id(manifest2) %>%
+    filter(lab_id %in% missing.wgs$lab_id)
+s7
+```

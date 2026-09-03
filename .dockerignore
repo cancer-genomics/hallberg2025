@@ -1,0 +1,14 @@
+# Build context for docker/Dockerfile.manuscript needs only uvr.toml/uvr.lock/
+# .r-version at build time (the three companion packages install from local
+# source at container *run* time, via a bind mount, not baked into the image --
+# see ENV-15) -- exclude everything else so the build context stays small and
+# builds aren't invalidated by unrelated file changes.
+.git/
+_targets/
+docs/
+output/
+manuscript/auto/
+.uvr/
+*.Rproj.user/
+cards/
+provenance/

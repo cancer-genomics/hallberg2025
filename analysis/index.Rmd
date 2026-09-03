@@ -1,0 +1,74 @@
+---
+title: "Code/Data for reproducing figures in Hallberg et al."
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+### Code repository
+
+The source code for these analyses is available at
+[cancer-genomics/hallberg2025](https://github.com/cancer-genomics/hallberg2025).
+
+### Figures
+
+- **Figure 1**: [ [rmd](../analysis/figure1.Rmd), [png](figure/figure1.Rmd/fig-1.png) ] Overview of genomic and epigenomic analyses.
+
+- **Figure 2**: [ [rmd](../analysis/figure2.Rmd), [png](figure/figure2.Rmd/fig2-1.png) ] Integrated genomic and epigenomic analyses of ovarian endometrioid and uterine endometrial cancers.
+
+- **Figure 3**: [ [rmd](../analysis/figure3.Rmd), [png](figure/figure3.Rmd/fig3.2-1.png) ] Whole genome analyses of linked amplicons and rearrangements.
+
+- **Figure 4**: [ [rmd](../analysis/figure4.Rmd), [png](figure/figure4.Rmd/fig4-1.png) ] Integrated genomic analyses of ovarian and colorectal mucinous cancers.
+
+- **Figure 5**: [ [rmd](../analysis/figure5.Rmd), [png](figure/figure5.Rmd/composite-1.png) ] Comparison of mutation frequencies across histological subtypes in commonly altered genes.
+
+- **Figure 6**: [ [rmd](../analysis/figure6.Rmd), [png](figure/figure6.Rmd/fig6-1.png) ] Methylation analyses of ovarian endometrioid, ovarian mucinous, and GI mucinous tumors.
+
+
+### Supplemental Figures
+
+- **Supplemental Figure 1**: [ [rmd](../analysis/ext-figure0.Rmd), [png](figure/ext-figure0.Rmd/ext_fig0-1.png) ] Relationship between tumor purity and number of somatic mutations.
+
+- **Supplemental Figure 3**: [ [rmd](../analysis/ext-figure3.Rmd), [png](figure/ext-figure3.Rmd/ext_fig3-1.png) ] Mutation signature analyses.
+
+- **Supplemental Figure 4**: [ [rmd](../analysis/ext-figure4-7.Rmd), [png](figure/ext-figure4-7.Rmd/ovarian_endometrioid-1.png) ] Circos plots of ovarian endometrioid tumor samples.
+
+- **Supplemental Figure 5**: [ [rmd](../analysis/ext-figure4-7.Rmd), [png](figure/ext-figure4-7.Rmd/uterine-1.png) ]  Circos plots of uterine endometrial tumor samples.
+
+- **Supplemental Figure 6**:  [ [rmd](../analysis/ext-figure4-7.Rmd), [png](figure/ext-figure4-7.Rmd/ovarian_mucinous-1.png) ] Circos plots of ovarian mucinous tumor samples.
+
+- **Supplemental Figure 7**: [ [rmd](../analysis/ext-figure4-7.Rmd), [png](figure/ext-figure4-7.Rmd/colorectal-1.png) ] Circos plots of ovarian mucinous tumor samples.
+
+- **Supplemental Figure 8**: [ [rmd](../analysis/ext-figure8.Rmd), [png](figure/ext-figure8.Rmd/ext-fig8-1.png) ]  Rearrangement analyses of ovarian endometrioid and ovarian mucinous tumors.
+
+- **Supplemental Figure 9**: [ [rmd](../analysis/ext-figure9.Rmd), [png](figure/ext-figure9.Rmd/ext_fig9-1.png) ] Proportion of methylated CpG sites in GI and ovarian tumors.
+
+- **Supplemental Figure 10**: [ [rmd](../analysis/ext-figure10.Rmd), [png](figure/ext-figure10.Rmd/heatmaps-1.png) ] Heatmap of methylation values in mucinous and endometrial histotypes.
+
+- **Supplemental Figure 11**: [ [rmd](../analysis/ext-figure11.Rmd), [png](figure/ext-figure11.Rmd/pi3kfig-1.png) ]  Association between gene alterations in the PI3K pathway and overall survival for patients with ovarian endometrioid or ovarian mucinous cancer.
+
+
+### Supplemental Tables
+
+- **Table S1**: [ [rmd](../analysis/table_s1.Rmd) ] Summary of ovarian and CRC mucinous samples analyzed through whole-exome and whole-genome sequencing.
+
+- **Table S2**: [ [rmd](../analysis/table_s2.Rmd) ] Sample-level characteristics.
+
+- **Table S3**: [ [rmd](../analysis/table_s3.Rmd) ] TCGA samples included in the methylation analysis.
+
+- **Table S4**: [ [rmd](../analysis/table_s4.Rmd) ] Somatic sequence alterations from WES.
+
+- **Table S5**: [ [rmd](../analysis/table_s5.Rmd) ] Somatic sequence alterations from WGS.
+
+- **Table S6**: [ [rmd](../analysis/table_s6.Rmd) ] WGS amplifications.
+
+- **Table S7**: [ [rmd](../analysis/table_s7.Rmd) ] Copy number segments from WES.
+
+- **Table S8**: [ [rmd](../analysis/table_s8.Rmd) ] WGS deletions.
+
+- **Table S9**: [ [rmd](../analysis/table_s9.Rmd) ] Gene fusions from WGS.
+
+

@@ -1,0 +1,148 @@
+---
+title: "figure1"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(grid)
+library(here)
+library(patchwork)
+library(hallberg2025.base)
+library(magrittr)
+library(RColorBrewer)
+knitr::opts_chunk$set(echo = TRUE)
+
+# magick requires the system ImageMagick dylib; check availability before use
+has_magick <- requireNamespace("magick", quietly = TRUE) &&
+    tryCatch({ magick::magick_config(); TRUE }, error = function(e) FALSE)
+```
+
+```{r temp, eval=has_magick}
+panel.lt <- magick::image_read_pdf(here("extdata", "Fig1.pdf"))
+tmp <- magick::image_ggplot(panel.lt)
+```
+
+```{r subject_table}
+data(manifest, package="hallberg2025.base")
+data(methylation, package="hallberg2025.base")
+```
+
+```{r platforms, fig.width=25, fig.height=15}
+tumor_only_me <- subset(methylation, tumor.normal == "tumor")
+platforms <- bind_rows(manifest, tumor_only_me)
+## y-axis: platform
+## symbol: triangle=tumor-only
+##         circle=tumor and normal
+## x-axis: subject_id
+## facets: tumor type
+unique2 <- function(x) unique(x[!is.na(x)])
+platforms2 <- platforms %>%
+    filter(!(is.na(tumor_type) & tumor.normal=="tumor")) %>%
+    mutate(platform=Hmisc::capitalize(platform)) %>%
+    select(subject_id, platform, lab_id, subject_id2, tumor.normal, tumor_type) %>%
+    group_by(subject_id, platform) %>%
+    summarize(tumor=paste(unique2(tumor_type), collapse=","),
+              tumor.normal=paste(sort(unique(tumor.normal)), collapse=","),
+              .groups="drop") %>%
+    mutate(matched=case_when(tumor.normal=="normal,tumor"~"Tumor/Normal",
+                             tumor.normal=="tumor"~"Tumor-only",
+                             tumor.normal=="normal"~"Normal-only"),
+           tumor=case_when(tumor=="colorectal"~"Colorectal mucinous",
+                           tumor=="pancreas"~"Pancreas mucinous",
+                           tumor=="stomach"~"Stomach mucinous",
+                           TRUE~tumor),
+           tumor=Hmisc::capitalize(tumor)) %>%
+    mutate(tumor=factor(tumor, c("Ovarian endometrioid",
+                                 "Uterine endometrioid",
+                                 "Colorectal mucinous",
+                                 "Stomach mucinous",
+                                 "Ovarian mucinous",
+                                 "Pancreas mucinous"))) %>%
+    group_by(tumor) %>%
+    nest()
+colors <- brewer.pal(n=3, "RdYlBu")
+names(colors) <- c("Tumor/Normal",
+                   "Tumor-only",
+                   "Normal-only")
+
+platforms3 <- platforms2 %>%
+    mutate(tumor=str_wrap(tumor, 12))
+ggplatform <- hallberg2025.base::fig1_ggplatform
+result.list <- seq_along(platforms3$data) %>%
+    map2(platforms3$data, ggplatform,
+         colors=colors,
+         cancer=platforms3$tumor)
+## A ggplot for each of the six tumor types
+figures2 <- map(result.list, 1)
+leg <- result.list[[4]][[2]]
+figures2[[7]] <- nullGrob()
+figures2[[8]] <- leg
+##
+## Make a grid with 8 numbers such that we can make a composite figure where
+## each tumor type gets a space proportional to the number of samples in that tumor
+##
+mat <- cbind(c(rep(2, 64),
+               rep(7, 1),
+               rep(8, 7)),
+             rep(4, 72),
+             c(rep(1, 20),
+               rep(7, 0),
+               rep(3, 20),
+               rep(7, 0),
+               rep(5, 15),
+               rep(7, 0),
+               rep(6, 17),
+               rep(7, 0)))
+```
+
+Number of WES samples with tumor/normal pairs:
+
+```{r facets}
+facet.samples <- platforms3$data %>%
+    map_dfr(function(x){
+        xx <- filter(x, platform == "WES",
+                     tumor.normal=="normal,tumor")
+        xx
+    })
+```
+
+```{r panel_rt}
+design <- c(
+    area(1,  1, 64, 1),   # Uterine endometrioid
+    area(65, 1, 65, 1),   # spacer
+    area(66, 1, 72, 1),   # legend
+    area(1,  2, 72, 2),   # Stomach mucinous
+    area(1,  3, 20, 3),   # Ovarian endometrioid
+    area(21, 3, 40, 3),   # Colorectal mucinous
+    area(41, 3, 55, 3),   # Ovarian mucinous
+    area(56, 3, 72, 3)    # Pancreas mucinous
+)
+panel.rt <- wrap_plots(
+    figures2[[2]], plot_spacer(), wrap_elements(leg),
+    figures2[[4]],
+    figures2[[1]], figures2[[3]], figures2[[5]], figures2[[6]],
+    design = design,
+    widths = c(1, 1, 1)
+)
+```
+
+```{r fig1_platforms, fig.width=10, fig.height=15, dev=c("png", "pdf"), eval=!has_magick}
+# Rendered when magick/ImageMagick is unavailable (e.g. CI): platforms panel only
+panel.rt
+grid.text("b", unit(0.01, "npc"), unit(0.98, "npc"), gp=gpar(cex=2.5))
+```
+
+```{r fig1, fig.width=14, fig.height=15, dev=c("png", "pdf"), eval=has_magick}
+# Rendered when magick is available: full composite with pre-built Fig1.pdf panel
+cowplot::plot_grid(tmp, panel.rt, rel_widths = c(4, 6), nrow = 1)
+grid.text("a", unit(0.02, "npc"), unit(0.85, "npc"), gp=gpar(cex=2.5))
+grid.text("b", unit(0.4, "npc"), unit(0.98, "npc"), gp=gpar(cex=2.5))
+```

@@ -1,0 +1,123 @@
+---
+title: "Extended figure 9"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+library(ggplot2)
+library(tidyverse)
+library(broom)
+library(SummarizedExperiment)
+library(here)
+outdir <- here("output", "ext-figures", "ext-figure9.Rmd")
+fs::dir_create(outdir)
+library(hallberg2025.base)
+data(manifest, package="hallberg2025.base")
+manifest <- purity_filter(manifest)
+```
+
+```{r load_data}
+methprop <- here("output", "ext-figures",
+                 "ext-figure9.Rmd",
+                 "prop_methylated.rds") %>%
+    readRDS()
+```
+
+CGOV486T is an outlier in fig6, but overall proportion of the number of methylated markers is consistent with other ovarian mucinous samples, and the overall number of mutations is consistent with other samples. There are no deletions/amplifications for this sample.
+
+```{r outlier}
+ov.muc <- filter(methprop, sampletype=="Ovarian mucinous_T") %>%
+    arrange(propmeth) %>%
+    select(Sample_Name, Diagnosis, propmeth)
+```
+
+```{r proportion_methylated}
+methprop2 <- methprop %>%
+    filter(Diagnosis != "Colorectal mucinous") %>%
+    mutate(Diagnosis=str_replace_all(Diagnosis, " ", "\n")) %>%
+    mutate(T.N=ifelse(T.N=="N", "Normal", "Tumor"))
+Ns <- methprop2 %>%
+    group_by(Diagnosis, T.N) %>%
+    summarize(n=length(unique(Sample_Name)),
+              .groups="drop") %>%
+    group_by(Diagnosis) %>%
+    ## Report number as T | N
+    summarize(T.N=paste0(rev(n), collapse="|")) %>%
+    mutate(T.N=paste0("(", T.N, ")")) %>%
+    unite(label, c("Diagnosis", "T.N"), sep="\n", remove=FALSE) %>%
+    select(-T.N)
+methprop3 <- methprop2 %>%
+    left_join(Ns, by="Diagnosis")
+```
+
+```{r tumor_normal, fig.width=10, fig.height=7}
+methprop3 %>%
+    ggplot(aes(label, propmeth, fill=T.N)) +
+    ylab("Proportion of methylated probes") +
+    xlab("") +
+    guides(fill=guide_legend(title = "DNA source")) +
+    geom_boxplot(outlier.shape=NA, alpha=0.2) +
+    geom_point(aes(fill = T.N), size = 2, shape = 21,
+               position = position_jitterdodge(jitter.height=0.01,
+                                               jitter.width=0.2))+
+    scale_fill_manual(values=c("#E69F00", "#56B4E9")) +
+    theme_bw(base_size=18) +
+    theme(legend.position=c(0.1, 0.7),
+          panel.grid=element_blank()) +
+    scale_y_continuous(breaks=seq(0, 1, 0.25),
+                       labels=c("0", 0.25, 0.5, 0.75, "1"),
+                       expand=expansion(mult = 0, add = 0), limit=c(0, 1)) +
+    coord_flip()
+```
+
+Compare proportion methylated using only the matched samples
+
+```{r}
+methprop4  <- select(methprop3, Sample_Name, label, propmeth) %>%
+    mutate(subject_id=str_replace_all(Sample_Name, "[TN]$", ""))
+matched <- methprop4 %>%
+    group_by(subject_id) %>%
+    summarize(n=n()) %>%
+    filter(n==2)
+methprop5 <- methprop4 %>%
+    filter(subject_id %in% matched$subject_id) %>%
+    mutate(T.N=substr(Sample_Name, nchar(Sample_Name),
+                      nchar(Sample_Name))) %>%
+    pivot_wider(id_cols=c("label", "subject_id"),
+                names_from="T.N",
+                values_from=propmeth) %>%
+    group_by(label) %>%
+    nest()
+tstats <- methprop5$data %>%
+    map_dfr(function(x) tidy(t.test(x=x$N, y=x$T, paired=TRUE))) %>%
+    mutate(cancer=methprop5$label)
+wstats <- methprop5$data %>%
+    map_dfr(function(x) tidy(wilcox.test(x=x$N, y=x$T, paired=TRUE))) %>%
+    mutate(cancer=methprop5$label)
+write_csv(wstats, file=file.path(outdir, "wilcox_stats.csv"))
+saveRDS(methprop3, file=file.path(outdir, "proportion_methylated.rds"))
+```
+
+# Difference between histologies
+
+```{r ext_fig9, fig.width=10, fig.height=7, dev=c("png", "pdf")}
+summary(aov(propmeth~Diagnosis, data=methprop3))
+methprop3 %>%
+    ggplot(aes(Diagnosis, propmeth)) +
+    ylab("Proportion of methylated probes") +
+    xlab("") +
+    geom_boxplot(outlier.shape=NA, alpha=0.2,
+                 aes(fill=Diagnosis), width=0.3) +
+    geom_jitter(size = 2, width=0.1, color="gray") +
+    theme_bw(base_size=18) +
+    #theme(legend.position=c(0.1, 0.7),
+          #panel.grid=element_blank()) +
+    theme(legend.position="none") +
+    coord_flip() +
+    ylim(c(0, 1))
+```

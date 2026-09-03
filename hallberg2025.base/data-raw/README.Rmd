@@ -1,0 +1,21 @@
+---
+title: "README"
+---
+
+This package serves data to some of the scripts in the ovarian subtypes workflowr repository ().  It can be installed as follows:
+
+```{r eval=FALSE}
+devtools::install_github("cancer-genomics/ovarian.subtypes")
+```
+
+# Updating this package (developers only)
+
+Some of the data in `data/` depends on objects in the ovarian subtypes workflowr repository.  We use the `targets` package to keep track of these dependencies and to update automatically if any of the dependences change.  To verify that all of the objects in this package are current, first verify that this package is located in the top-level of the workflowr repository (this is necessary since all file paths are relevant).  Next, run the following code:
+
+```{r check_if_current}
+library(targets)
+tar_visnetwork(targets_only = FALSE)
+## if anything needs to be updated, run
+tar_make()
+```
+

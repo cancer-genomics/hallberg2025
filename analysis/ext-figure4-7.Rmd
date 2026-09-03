@@ -1,0 +1,47 @@
+---
+title: "Circos plots / amplicon graphs"
+author: "R. Scharpf"
+date: \today
+output:
+  workflowr::wflow_html:
+    toc: false
+---
+
+```{r packages, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(grid)
+library(gridExtra)
+library(hallberg2025.base)
+data(manifest, package = "hallberg2025.base")
+manifest <- purity_filter(manifest)
+```
+
+```{r data}
+circos_grobs <- hallberg2025.seq.data::extfig47_circos_grobs()
+tab <- tibble(lab_id = names(circos_grobs)) |>
+    left_join(select(manifest, lab_id, tumor_type), by = "lab_id") |>
+    mutate(grobs = circos_grobs) |>
+    drop_na() |>
+    group_by(tumor_type) |>
+    nest()
+```
+
+```{r uterine, fig.width=12, fig.height=6, dev=c("png", "pdf")}
+grid.arrange(grobs = tab$data[[1]]$grobs,
+             layout_matrix = matrix(1:8, nrow = 2, ncol = 4))
+```
+
+```{r ovarian_mucinous, fig.width=14, fig.height=16, dev=c("png", "pdf")}
+grid.arrange(grobs = tab$data[[2]]$grobs,
+             layout_matrix = matrix(1:16, nrow = 4, ncol = 4))
+```
+
+```{r ovarian_endometrioid, fig.width=20, fig.height=25, dev=c("png", "pdf")}
+grid.arrange(grobs = tab$data[[3]]$grobs,
+             layout_matrix = matrix(1:30, nrow = 6, ncol = 5))
+```
+
+```{r colorectal, fig.width=12, fig.height=6, dev=c("png", "pdf")}
+grid.arrange(grobs = tab$data[[4]]$grobs,
+             layout_matrix = matrix(1:3, nrow = 1))
+```

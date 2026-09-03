@@ -1,0 +1,87 @@
+---
+title: "Supplementary Tables"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+  toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message = FALSE}
+library(here)
+library(tidyverse)
+library(openxlsx)
+indir <- here("docs", "table")
+##outdir <- here("docs", "table", "table_all.Rmd")
+outdir <- here("manuscript")
+fs::dir_create(outdir)
+options("openxlsx.maxWidth" = 25)
+options("openxlsx.borderStyle" = "medium")
+```
+
+```{r format_worksheet}
+# Function to format worksheet
+design_sheet <- function(wb, sheet_name, data, title) {
+  addWorksheet(wb, sheet_name)
+
+  # Formatting
+  title_style <- createStyle(fontName = "Aptos Narrow (Body)",
+                             fontSize = 16, textDecoration = "bold")
+
+  header_style <- createStyle(fontName = "Aptos Narrow (Body)",
+                              fontSize = 12, textDecoration = "bold",
+                              border = "TopBottom", halign = "center",
+                              numFmt = "@")
+  body_style <- createStyle(fontName = "Aptos Narrow (Body)",
+                            fontSize = 12, halign = "center",
+                            numFmt = "@")
+  border_style  <- createStyle(fontName = "Aptos Narrow (Body)",
+                               fontSize = 12, halign = "center",
+                               numFmt = "@",
+                               border = "Bottom")
+
+  # Write the title
+  writeData(wb, sheet_name, paste0(sheet_name, ". ", title), startRow = 1, startCol = 1)
+  addStyle(wb, sheet_name, title_style, rows = 1, cols = 1)
+
+  # Adjust column widths
+  setColWidths(wb, sheet_name, cols = 1:ncol(data), widths = rep(30, ncol(data)))
+
+  # Write the body with header
+  writeData(wb, sheet_name, data, startRow = 2, startCol = 1, borders = "rows", colNames = TRUE)
+  addStyle(wb, sheet_name, header_style, rows = 2, cols = 1:ncol(data), gridExpand = TRUE)
+  addStyle(wb, sheet_name, body_style, rows = 3:(nrow(data) + 1), cols = 1:ncol(data), gridExpand = TRUE)
+  addStyle(wb, sheet_name, border_style, rows = (nrow(data) + 2), cols = 1:ncol(data), gridExpand = TRUE)
+}
+```
+
+```{r collate_tables, message = FALSE}
+table_list <- list.files(indir, pattern = ".*table_s.*",
+                         ignore.case = TRUE,
+                         full.names = TRUE, recursive = TRUE)
+title_list <- c(
+  "Summary of Ovarian, Uterine, and GI Tumors Analyzed Through Whole-Exome and Whole-Genome Analyses",
+  "Summary of Next-Generation Sequencing Analyses",
+  "TCGA samples included in methylation analysis",
+  "Somatic Sequence Alterations from Whole Exome Analyses",
+  "Somatic Sequence Alterations from Whole Genome Analyses",
+  "Amplifications from Whole Genome Analyses",
+  "Copy Number Segments from Whole Exome Analyses",
+  "Deletions from Whole Genome Analyses",
+  "Gene Fusions Identified from Whole Genome Analyses")
+
+wb <- createWorkbook()
+for (i in seq_along(table_list)) {
+  # This will fail when indices are greater than 9
+  file_indx <- grep(i, basename(table_list))
+  file_name <- table_list[file_indx]
+  data <- tryCatch(read_csv(file_name, col_names = TRUE,
+                            show_col_types = FALSE),
+                   warning = function(w) read_tsv(file_name, col_names = TRUE))
+  colnames(data) <- gsub(" [Ii]d", " ID", colnames(data))
+  sheet_name <- paste0("Supplementary Table S", i)
+  design_sheet(wb, sheet_name, data, title_list[i])
+}
+saveWorkbook(wb, file.path(outdir, "supplemental_tables.xlsx"), overwrite = TRUE)
+```

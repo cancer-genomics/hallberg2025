@@ -1,0 +1,200 @@
+# seq-data-raw image (ENV-14/ENV-19): pins the CRAN/Bioconductor layer
+# hallberg2025.seq.data/data-raw/R/install_deps.R's assert_pins() does not cover.
+# install_deps.R already pins every GitHub-sourced package to an exact commit SHA
+# (github_pins) -- that part is solid and reused verbatim below, unmodified. What
+# it does NOT pin is the CRAN/Bioconductor layer (cran_pkgs/bioc_pkgs) or the
+# samtools CLI binary the pipeline shells out to -- both are whatever
+# `module load conda_R/4.5.x` / `module load samtools/1.10` happen to resolve to
+# the day a job runs. This image is that gap closed, same class of fix ENV-17
+# already made for the methylation arm.
+#
+# Same rocker/r-ver:4.5.3 base as docker/Dockerfile.manuscript (ENV-15) and
+# docker/Dockerfile.meth-data-raw (ENV-17) -- consistency across images matters
+# more than matching the cluster's native Rocky Linux distro, since Apptainer
+# runs this image's own userland regardless of the JHPCE host OS.
+#
+# Do NOT bake hallberg2025.base / hallberg2025.seq.data into this image -- both
+# change on every card that touches them; install from local source at
+# container-run time (ENV-15's bind-mount-free `git archive` + `docker cp`
+# pattern -- see that card's Notes/log for why a read-write host bind mount is
+# unsafe).
+
+FROM rocker/r-ver:4.5.3@sha256:c3f39b365d1077fe24f8e9ab2742e352b6d3950897f51af1624a5bb5550c21c0
+
+# libcurl/libssl/libxml2: network + XML support (biomaRt-style Bioconductor
+# packages pulled in transitively by trellis/svplots).
+# libpng/libtiff5/libjpeg: raster graphics devices (ggplot2/circos plotting).
+# libbz2-dev/liblzma-dev: htslib CRAM support -- needed both by samtools itself
+#   (built from source below) and by Rsamtools/GenomicAlignments (the same gap
+#   ENV-17 found for Rhtslib: htslib needs both bzip2 and LZMA headers together).
+#   `bzip2` (the CLI, not just the -dev headers) is separately needed just to
+#   extract samtools' own .tar.bz2 release tarball.
+# libuv1-dev: the same bug ENV-15's manuscript image and ENV-17's meth-data-raw
+#   image both already found -- `fs` needs libuv.so.1 at runtime, absent from
+#   this minimal base. Carried over up front this time rather than rediscovered.
+# zlib1g-dev/libncurses-dev/pkg-config: samtools' own build requirements
+#   (htslib needs zlib; samtools' `tview` needs curses; configure uses
+#   pkg-config to locate several of the above).
+# libgraphviz-dev: Rgraphviz (a transitive Bioconductor dependency of svplots,
+#   itself a github_pins dependency of trellis) links against libgvc/libcgraph.
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+      curl ca-certificates bzip2 \
+      libcurl4-openssl-dev libssl-dev libxml2-dev \
+      libpng-dev libtiff5-dev libjpeg-dev \
+      libbz2-dev liblzma-dev \
+      libuv1-dev \
+      zlib1g-dev libncurses-dev pkg-config \
+      libgraphviz-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# samtools 1.10, matching the exact `module load samtools/1.10` this pipeline's
+# run_targets.sh currently depends on as a host module -- baked into the image
+# instead, at a checksum-verified version, rather than left as whatever the
+# cluster's module tree happens to provide. Built from source rather than
+# apt-installed: this base's Ubuntu 24.04 (noble) apt repo only carries
+# samtools 1.19.2, not 1.10 -- building from the official release tarball is
+# what makes the version an actual pin instead of "whatever this distro ships."
+RUN cd /tmp \
+    && curl -fsSL -o samtools-1.10.tar.bz2 \
+         https://github.com/samtools/samtools/releases/download/1.10/samtools-1.10.tar.bz2 \
+    && echo "7b9ec5f05d61ec17bd9a82927e45d8ef37f813f79eb03fe06c88377f1bd03585  samtools-1.10.tar.bz2" | sha256sum -c - \
+    && tar xjf samtools-1.10.tar.bz2 \
+    && cd samtools-1.10 \
+    && ./configure --prefix=/usr/local \
+    && make -j"$(nproc)" \
+    && make install \
+    && cd / && rm -rf /tmp/samtools-1.10 /tmp/samtools-1.10.tar.bz2
+
+# Dated CRAN snapshot matching the most recent real capture_environment() run
+# against the actual JHPCE cluster (tests/snapshots/env_hallberg2025_seq_data.rds,
+# captured 2026-07-26 -- same convention ENV-17 used for the methylation arm's
+# image) -- freezes every CRAN-only dependency to what was actually current on
+# that date, not whatever's newest at image-build time. That snapshot predates
+# this arm's own bioc_pkgs/environment_tracked_pkgs extension (landed the same
+# day, after the capture ran) so it does not carry recorded versions for the
+# CRAN/Bioc layer itself -- this image is what actually pins that layer for the
+# first time; see the Notes/log of the card that wrote this file for the
+# resolved versions this dated snapshot produced.
+RUN echo 'options(repos = c(CRAN = "https://packagemanager.posit.co/cran/2026-07-26"))' \
+      >> /usr/local/lib/R/etc/Rprofile.site
+
+RUN Rscript -e '\
+      install.packages("BiocManager"); \
+      if (as.character(packageVersion("BiocManager")) != "1.30.27") { \
+        stop("BiocManager resolved to a different version than the recorded capture -- investigate before proceeding") \
+      }'
+
+# Bioconductor 3.22, matching the recorded capture and this project's root
+# uvr.toml ([project] bioc_version = "3.22"). `bioc_pkgs` below is
+# install_deps.R's own declared set (ggbio, GenomicAlignments) plus two real
+# gaps that file does not cover: Rsamtools (loaded directly by every WGS/WES
+# per-sample target via _targets.R's tar_option_set(packages = ...), not just a
+# transitive dependency) and hallberg2025.base's own declared Bioconductor
+# Imports (SummarizedExperiment, GenomicRanges, IRanges, GenomeInfoDb,
+# S4Vectors, BiocGenerics) -- needed for hallberg2025.base to install from local
+# source at container-run time, same gap ENV-17 found for the methylation arm's
+# image. Also persists the resulting Bioconductor + dated-CRAN repos into
+# Rprofile.site so every later RUN's fresh R session (including the
+# remotes::install_github calls below) resolves Bioconductor-hosted transitive
+# dependencies too, not just this one session.
+RUN Rscript -e '\
+      BiocManager::install(version = "3.22", ask = FALSE, update = FALSE); \
+      BiocManager::install(c( \
+        "ggbio", \
+        "GenomicAlignments", \
+        "Rsamtools", \
+        "SummarizedExperiment", \
+        "GenomicRanges", \
+        "IRanges", \
+        "GenomeInfoDb", \
+        "S4Vectors", \
+        "BiocGenerics" \
+      ), ask = FALSE, update = FALSE); \
+      repos <- BiocManager::repositories(); \
+      cat(sprintf("options(repos = c(%s))\n", \
+                  paste(sprintf("%s = \"%s\"", names(repos), repos), collapse = ", ")), \
+          file = "/usr/local/lib/R/etc/Rprofile.site", append = TRUE)'
+
+# CRAN-only dependencies: install_deps.R's own declared cran_pkgs (used
+# directly by data-raw/*.R and by the pipeline driver itself: targets,
+# tarchetypes, here, fs; ampliconGraph/build_extfig47_data: network, sna,
+# GGally; parallel SLURM dispatch: crew, crew.cluster) plus the rest of
+# hallberg2025.base's own declared CRAN Imports (DESCRIPTION) -- the same class
+# of gap ENV-17 found live: installing hallberg2025.base from local source
+# needs its FULL declared dependency set satisfied, not just the subset
+# data-raw/*.R itself calls directly.
+RUN Rscript -e '\
+      install.packages(c( \
+        "targets", "tarchetypes", "here", "fs", \
+        "dplyr", "readr", "tibble", "ggplot2", \
+        "network", "sna", "GGally", \
+        "crew", "crew.cluster", \
+        "tidyr", "purrr", "magrittr", "stringr", "rlang", "MASS", \
+        "Hmisc", "broom", "broman", "cowplot", "plyr", "scales" \
+      ))'
+
+RUN Rscript -e 'install.packages("remotes")'
+
+# GitHub pins, reused verbatim from install_deps.R's github_pins table -- exact
+# commit SHAs, already correct, not re-derived. Row order matches that table's
+# documented install order (svfilters before trellis, trellis before svplots,
+# pctGCdata before facets). hallberg2025.base itself is deliberately excluded
+# from this list -- see the header comment; it is never baked into this image.
+# remotes::install_github resolves each package's own transitive CRAN/
+# Bioconductor Imports automatically (DNAcopy, RBGL, Rgraphviz, graph, BSgenome,
+# Biostrings, GenomicFeatures, AnnotationDbi, matrixStats, gridExtra,
+# biovizBase, RColorBrewer, lattice, ...) against the combined repos persisted
+# above -- this Dockerfile does not enumerate that transitive closure by hand,
+# matching install_deps.R's own installation approach on the cluster.
+RUN Rscript -e '\
+      pins <- list( \
+        c("svfilters.hg18", "cancer-genomics/svfilters.hg18", "1b1d0d5f47ca4bf79054214bb5fdd4859d231a6d"), \
+        c("svfilters.hg19", "cancer-genomics/svfilters.hg19", "183447cf0d8cf4d67991798e7672898a33adc91b"), \
+        c("trellis",        "cancer-genomics/trellis",        "e00f85c3105052a9ea5053f32eab5262df7f5215"), \
+        c("svplots",        "cancer-genomics/svplots",        "a9ef78328eeb6b9e77fce405d33d8c24e0a9d58f"), \
+        c("pctGCdata",      "mskcc/pctGCdata",                "a7385f38783ee0b2acfefe479a64550148927b45"), \
+        c("facets",         "mskcc/facets",                   "f3c93ee65b09fc57aaed22a2eb9faa05586a9dc0"), \
+        c("TxDb.Hsapiens.UCSC.hg18.refGene", "rscharpf/TxDb.Hsapiens.UCSC.hg18.refGene", "344b5d63bf185bc140b052dde98305a57eb7cbac") \
+      ); \
+      for (p in pins) { \
+        message("Installing ", p[1], " from ", p[2], "@", substr(p[3], 1, 12)); \
+        remotes::install_github(p[2], ref = p[3], upgrade = "never", force = TRUE) \
+      }'
+
+# Verify the tracked GitHub packages landed at exactly the pinned commits'
+# recorded DESCRIPTION versions -- fail the build loudly if any resolved
+# differently than install_deps.R's github_pins table records, rather than
+# silently shipping a different version than this Dockerfile documents.
+RUN Rscript -e '\
+      expected <- c( \
+        svfilters.hg18                  = "0.0.19", \
+        svfilters.hg19                  = "0.0.25", \
+        trellis                         = "1.0.9", \
+        svplots                         = "0.0.16", \
+        pctGCdata                       = "0.3.0", \
+        facets                          = "0.6.2", \
+        TxDb.Hsapiens.UCSC.hg18.refGene = "0.0.1" \
+      ); \
+      actual <- vapply(names(expected), function(p) as.character(packageVersion(p)), character(1)); \
+      mismatched <- expected[actual != expected]; \
+      if (length(mismatched) > 0) { \
+        stop("Version pin mismatch: ", paste(names(mismatched), "expected", mismatched, "got", actual[names(mismatched)], collapse = "; ")) \
+      } else { \
+        cat("All GitHub-pinned packages match the github_pins table in install_deps.R.\n") \
+      }'
+
+# Non-fatal record of what the dated CRAN/Bioconductor snapshot actually
+# resolved for the previously-unpinned layer -- printed at build time so a
+# rebuild's log documents what changed, same spirit as install_deps.R's own
+# capture_environment()/check_environment_drift() (which cover this same
+# surface non-fatally, never stop()). Regenerating
+# tests/snapshots/env_hallberg2025_seq_data.rds with these values is a
+# follow-up outside this Dockerfile's scope.
+RUN Rscript -e '\
+      pkgs <- c("targets", "tarchetypes", "here", "fs", "dplyr", "readr", \
+                "tibble", "ggplot2", "network", "sna", "GGally", "crew", \
+                "crew.cluster", "ggbio", "GenomicAlignments", "Rsamtools", \
+                "SummarizedExperiment", "GenomicRanges", "IRanges", \
+                "GenomeInfoDb", "S4Vectors", "BiocGenerics"); \
+      v <- vapply(pkgs, function(p) as.character(packageVersion(p)), character(1)); \
+      cat(sprintf("%-20s %s\n", names(v), v))'

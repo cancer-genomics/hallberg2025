@@ -1,0 +1,50 @@
+---
+title: "Table S8: WGS Deletions"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+workflowr:
+  sessioninfo: ""
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(magrittr)
+library(hallberg2025.base)
+library(hallberg2025.seq.data)
+data(manifest, package="hallberg2025.base")
+outdir <- here("docs", "table", "table_s8.Rmd")
+fs::dir_create(outdir)
+```
+
+```{r suppl_table}
+man <- select(manifest, subject_id, lab_id)
+dels <- wgs_deletion_table() %>%
+    rename(lab_id = Sample)
+cnms <- c("Subject id", "Lab id", "Chromosome",
+          "Start", "End",
+          "Call", "Copy number",
+          "Segment mean",
+          "Cancer connection",
+          "Biol significant",
+          "Overlapping genes")
+dels2 <- inner_join(dels, man, by="lab_id") %>%
+    select(subject_id, lab_id, Chromosome,
+           Start, End, Call,
+           CopyNumber, SegmentMean,
+           CancerConnection,
+           BiolSignificant,
+           OverlappingGenes) %>%
+    mutate(SegmentMean=round(SegmentMean, 2)) %>%
+    set_colnames(cnms)
+dels3 <- dels2
+dels3$Start <- prettyNum(dels3$Start, big.mark=",")
+dels3$End <- prettyNum(dels3$End, big.mark=",")
+dels3
+write_csv(dels3, file.path(outdir, "table_S8.csv"))
+```

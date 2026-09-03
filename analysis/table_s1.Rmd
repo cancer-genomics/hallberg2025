@@ -1,0 +1,79 @@
+---
+title: "Supplementary Table 1. Summary of Ovarian and CRC Mucinous Analyzed Through Whole-Exome and Whole-Genome Analyses"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+  toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r packages, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(here)
+library(magrittr)
+library(hallberg2025.base)
+outdir <- here("docs", "table", "table_s1.Rmd")
+fs::dir_create(outdir)
+```
+
+```{r subject_table}
+data(clinical)
+```
+
+# Table S1: Patient-level data
+
+Table S1 should contain patient-level data:  Subject ID, Tumor Type, Age at diagnosis, Sex, Stage at first diagnosis, Smoker
+
+```{r TabS1}
+varnames.ts1 <- c("Subject Id", "Tumor type",
+                  "Age at diagnosis",
+                  "Stage at first diagnosis",
+                  "Sex",
+                  "Ethnicity/Race",
+                  "Country of sample collection",
+                  "Year of diagnosis",
+                  "Year of surgery",
+                  "Smoker")
+unique_clinical <- unique(clinical)
+s1 <- clinical %>%
+    select(subject_id, tumor_type,
+           age_dx,
+           stage,
+           sex,
+           ethn_race,
+           country_sample_collection,
+           year_of_dx,
+           year_of_surgery,
+           smoker) %>%
+    replace_na(list(center_name = "Unknown")) %>%
+    arrange(tumor_type) %>%
+    mutate(tumor_type=ifelse(tumor_type=="uterine endometrial",
+                             "uterine endometrioid",
+                             tumor_type)) %>%
+    mutate(tumor_type=ifelse(tumor_type=="colorectal",
+                             "colorectal mucinous",
+                             tumor_type)) %>%
+    mutate(tumor_type=ifelse(tumor_type=="pancreas",
+                             "pancreatic mucinous",
+                             tumor_type)) %>%
+    mutate(tumor_type=ifelse(tumor_type=="stomach",
+                             "stomach mucinous",
+                             tumor_type)) %>%
+    distinct(subject_id, .keep_all = TRUE) %>%
+    set_colnames(varnames.ts1) %>%
+    mutate(Smoker=tolower(Smoker),
+           Smoker=ifelse(Smoker=="uknown", "unknown", Smoker),
+           Smoker=ifelse(Smoker %in% c("ex-smoker", "not current"),
+                         "former", Smoker),
+           Smoker=ifelse(Smoker=="current smoker", "current", Smoker))
+is.freq <- grep("day", s1$Smoker)
+freq <- sapply(strsplit(s1$Smoker[is.freq], "current "), "[", 2)
+s1$`Smoking frequency` <- NA
+s1$`Smoking frequency`[is.freq] <- freq
+s1$`Smoker`[is.freq] <- "current"
+s1$`Smoker`[is.na(s1$`Smoker`)] <- "unknown"
+fname <- file.path(outdir, "table_S1.csv")
+write_csv(s1, fname)
+```
